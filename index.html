@@ -6,6 +6,7 @@
   <title>Order Now — 29 Performance</title>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -298,20 +299,26 @@
     .payment-card {
       background: var(--surface); border: 1.5px solid rgba(201,168,76,.3);
       border-radius: var(--radius); overflow: hidden; margin-bottom: 20px;
+      text-align: center; padding: 28px 20px;
     }
-    .payment-card-header {
-      background: var(--gold-dim); padding: 12px 16px;
-      font-size: 12px; font-family: var(--mono); color: var(--gold);
-      text-transform: uppercase; letter-spacing: .8px; font-weight: 600;
+    .payment-total-label {
+      font-size: 11px; font-family: var(--mono); color: var(--text3);
+      text-transform: uppercase; letter-spacing: 2px; font-weight: 600; margin-bottom: 8px;
     }
-    .payment-row {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 14px;
+    .payment-total-amount {
+      font-size: 48px; font-weight: 700; color: var(--gold);
+      letter-spacing: -1.5px; margin-bottom: 6px; line-height: 1;
     }
-    .payment-row:last-child { border-bottom: none; }
-    .payment-row .pr-label { color: var(--text3); font-family: var(--mono); font-size: 11px; }
-    .payment-row .pr-val   { font-weight: 700; font-family: var(--mono); letter-spacing: .5px; }
-    .payment-row .pr-val.gold { color: var(--gold); font-size: 18px; }
+    .payment-total-ref {
+      font-size: 12px; color: var(--text3); font-family: var(--mono); margin-bottom: 24px;
+    }
+    .pay-btn {
+      display: inline-block; width: 100%; padding: 15px; border-radius: 10px;
+      background: var(--gold); color: #000; font-size: 15px; font-weight: 700;
+      text-decoration: none; letter-spacing: .3px; box-sizing: border-box;
+      transition: opacity .15s;
+    }
+    .pay-btn:hover { opacity: .85; }
 
     .copy-btn {
       background: none; border: none; cursor: pointer; color: var(--text3);
@@ -554,36 +561,25 @@
     <div class="confirm-sub" id="confirm-msg">
       Thanks — we've got your order.<br>We'll be in touch to confirm shortly.
     </div>
+    <!-- Order breakdown injected here by showConfirmation() -->
+    <div id="confirm-order-breakdown" style="margin-bottom:16px"></div>
+
     <div class="payment-card">
-      <div class="payment-card-header">💳 Payment Instructions — Bank Transfer</div>
-      <div class="payment-row">
-        <div class="pr-label">ACCOUNT NAME</div>
-        <div class="pr-val" id="pay-name"></div>
-      </div>
-      <div class="payment-row">
-        <div class="pr-label">SORT CODE</div>
-        <div class="pr-val" id="pay-sort"></div>
-      </div>
-      <div class="payment-row">
-        <div class="pr-label">ACCOUNT NUMBER</div>
-        <div class="pr-val" id="pay-acc"></div>
-      </div>
-      <div class="payment-row">
-        <div class="pr-label">REFERENCE</div>
-        <div class="pr-val" id="pay-ref"></div>
-      </div>
-      <div class="payment-row">
-        <div class="pr-label">AMOUNT DUE</div>
-        <div class="pr-val gold" id="pay-amount"></div>
-      </div>
+      <div class="payment-total-label">Amount Due</div>
+      <div class="payment-total-amount" id="pay-amount"></div>
+      <div class="payment-total-ref" id="pay-ref"></div>
+      <a id="pay-link" class="pay-btn" href="https://checkout.revolut.com/pay/e338d7a8-a6e5-4609-9fcf-aa64bc999232" target="_blank" rel="noopener">
+        Pay with Revolut →
+      </a>
     </div>
     <p style="font-size:12px;color:var(--text3);text-align:center;line-height:1.6">
-      Your order is pending until payment is received.<br>
-      Please use your name + week as the payment reference.
+      Tap the button above to pay via Revolut.<br>
+      Enter the amount shown above when prompted.<br>
+      Your order is pending until payment is received.
     </p>
     <div style="margin-top:14px;display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;">
       <span style="font-size:20px;flex-shrink:0">📸</span>
-      <span style="font-size:12px;color:var(--text2);line-height:1.5">Screenshot this page to save your order and payment details for reference. You won't be able to come back to this screen.</span>
+      <span style="font-size:12px;color:var(--text2);line-height:1.5">Screenshot this page to save your order total for reference. You won't be able to come back to this screen.</span>
     </div>
   </div>
 
@@ -604,12 +600,61 @@
 // For GitHub Pages deployment, use the setup screen that appears
 // the first time you open the portal on a new device.
 
-var PAYMENT = {
-  accountName:   "29 Performance",
-  sortCode:      "00-00-00",       // ← update
-  accountNumber: "00000000",       // ← update
-  // Reference is auto-built as "[customer name] — [week label]"
-};
+// Payment is handled via Revolut link — no bank details needed.
+
+// ─── EMAILJS ORDER NOTIFICATIONS ──────────────────────────────
+// Sends an email to 29performance@gmail.com on every successful order.
+// Setup: https://www.emailjs.com → create account → connect Gmail →
+// create template → paste your Public Key, Service ID, Template ID below.
+var EMAILJS_PUBLIC_KEY  = 'FyQpJDruNfvEwimsA';
+var EMAILJS_SERVICE_ID  = 'service_4twh0op';
+var EMAILJS_TEMPLATE_ID = 'template_9pctcia';
+// ───────────────────────────────────────────────────────────────
+
+function sendOrderNotification(customer, ordersCreated, weekLabel) {
+  if (!EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY === 'PASTE-PUBLIC-KEY-HERE') return;
+
+  try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch(e) { return; }
+
+  var grandTotal = ordersCreated.reduce(function(s, o) { return s + o.sessTotal; }, 0);
+
+  // Build HTML dish rows — styled to match glass email template
+  var orderRowsHtml = ordersCreated.map(function(o) {
+    var isSunday = o.session === 'Sunday';
+    var sessColor = isSunday ? '#d4af37' : '#7dd3b0';
+    var sessLabel = isSunday ? 'Sunday Drop' : 'Wednesday Drop';
+    var sep = 'border-bottom:1px solid rgba(255,255,255,0.06);';
+    var dishRows = o.items.map(function(i) {
+      return '<tr>'
+        + '<td style="padding:10px 16px;font-size:14px;color:#f2f2f7;' + sep + '">'
+        + '<span style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#8e8e93;font-weight:600;margin-right:8px">' + i.qty + '&times;</span>' + i.name
+        + '</td>'
+        + '<td style="padding:10px 16px;font-size:14px;color:#f2f2f7;' + sep + 'text-align:right;white-space:nowrap">&pound;' + (i.unitPrice * i.qty).toFixed(2) + '</td>'
+        + '</tr>';
+    }).join('');
+    return '<tr><td colspan="2" style="padding:12px 16px 8px;">'
+        + '<span style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:' + sessColor + ';border:1px solid ' + sessColor + ';border-radius:999px;padding:4px 12px">' + sessLabel + '</span>'
+        + '</td></tr>'
+      + dishRows
+      + '<tr>'
+        + '<td style="padding:8px 16px 12px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#8e8e93;font-weight:600">Subtotal</td>'
+        + '<td style="padding:8px 16px 12px;font-size:13px;color:#8e8e93;text-align:right">&pound;' + o.sessTotal.toFixed(2) + '</td>'
+      + '</tr>';
+  }).join('<tr><td colspan="2" style="padding:0;height:1px;background:rgba(255,255,255,0.06)"></td></tr>');
+
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    to_email:         '29performance@gmail.com',
+    customer_name:    customer.name,
+    customer_email:   customer.email,
+    customer_phone:   customer.phone  || '&mdash;',
+    customer_address: [customer.address1, customer.address2, customer.city, customer.postcode].filter(Boolean).join(', ') || '&mdash;',
+    week_label:       weekLabel,
+    order_rows:       orderRowsHtml,
+    grand_total:      '&pound;' + grandTotal.toFixed(2),
+    notes:            customer.notes  || '&mdash;',
+    submitted_at:     new Date().toLocaleString('en-GB', { dateStyle:'short', timeStyle:'short' })
+  });
+}
 
 // ═══════════════════════════════════════════════════════════════
 //  STATE
@@ -631,10 +676,6 @@ function _startFirebase(cfg) {
     if (!firebase.apps.length) {
       firebase.initializeApp(cfg);
     }
-    // Also load payment settings if saved
-    var savedPayment = localStorage.getItem('29perf_portal_payment');
-    if (savedPayment) { try { PAYMENT = JSON.parse(savedPayment); } catch(e) {} }
-
     var dbRef = firebase.database().ref('29perfOS/data');
     dbRef.on('value', function(snap) {
       DB = snap.val();
@@ -656,14 +697,6 @@ function showSetupScreen(errorMsg) {
     (errorMsg ? '<div style="font-size:12px;color:var(--red);background:var(--red-dim);border:1px solid rgba(248,113,113,.2);border-radius:6px;padding:8px 12px;margin-bottom:16px">' + escHtml(errorMsg) + '</div>' : '') +
     '<textarea id="setup-cfg-input" style="width:100%;min-height:180px;background:var(--surface2);border:1.5px solid var(--border2);border-radius:8px;padding:12px;font-size:12px;font-family:var(--mono);color:var(--text1);outline:none;resize:vertical;box-sizing:border-box;margin-bottom:12px" placeholder=\'Paste your firebaseConfig object here:\n\n{\n  apiKey: "...",\n  databaseURL: "https://your-project.firebaseio.com",\n  ...\n}\'></textarea>' +
     '<div style="font-size:11px;color:var(--text3);margin-bottom:16px">Find this in Firebase Console → Project Settings → Your apps → Web app → SDK setup.</div>' +
-    '<div style="font-size:13px;font-weight:600;margin-bottom:8px">Payment details</div>' +
-    '<div style="margin-bottom:8px">' +
-    '<input id="setup-name" style="background:var(--surface2);border:1.5px solid var(--border2);border-radius:6px;padding:8px 10px;font-size:13px;color:var(--text1);outline:none;width:100%;box-sizing:border-box" placeholder="Account name (e.g. 29 Performance)">' +
-    '</div>' +
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">' +
-    '<input id="setup-sort" style="background:var(--surface2);border:1.5px solid var(--border2);border-radius:6px;padding:8px 10px;font-size:13px;color:var(--text1);outline:none;width:100%;box-sizing:border-box" placeholder="Sort code (00-00-00)">' +
-    '<input id="setup-acc" style="background:var(--surface2);border:1.5px solid var(--border2);border-radius:6px;padding:8px 10px;font-size:13px;color:var(--text1);outline:none;width:100%;box-sizing:border-box" placeholder="Account number">' +
-    '</div>' +
     '<button onclick="savePortalSetup()" style="width:100%;padding:13px;border-radius:8px;border:none;background:var(--gold);color:#000;font-size:15px;font-weight:700;cursor:pointer">Connect & Save</button>' +
     '</div>';
 }
@@ -708,14 +741,6 @@ function savePortalSetup() {
       return;
     }
 
-    // Save payment details
-    var acName = (document.getElementById('setup-name').value || '').trim();
-    var sort   = (document.getElementById('setup-sort').value || '').trim();
-    var acc    = (document.getElementById('setup-acc').value  || '').trim();
-    if (acName) PAYMENT.accountName   = acName;
-    if (sort)   PAYMENT.sortCode      = sort;
-    if (acc)    PAYMENT.accountNumber = acc;
-    localStorage.setItem('29perf_portal_payment', JSON.stringify(PAYMENT));
     localStorage.setItem('29perf_fb_config', JSON.stringify(cfg));
 
     // Reload so Firebase initialises cleanly
@@ -726,34 +751,23 @@ function savePortalSetup() {
 }
 
 (function initApp() {
-  // Try to read config from localStorage (same key as ops app)
-  var raw = '';
-  try { raw = localStorage.getItem('29perf_fb_config') || ''; } catch(e) {}
-
-  if (!raw) {
-    // No config saved yet — show setup screen
-    showSetupScreen('');
-    return;
-  }
-
-  var cfg;
-  try { cfg = JSON.parse(raw); } catch(e) { showSetupScreen('Saved config is invalid. Please re-enter it.'); return; }
-  if (!cfg.databaseURL) { showSetupScreen('Saved config is missing databaseURL.'); return; }
+  // ─── FIREBASE CONFIG ───────────────────────────────────────────
+  // Paste your Firebase config object here (from Firebase Console →
+  // Project Settings → Your apps → Web app → SDK setup & config).
+  // This is safe to include in a public file — Firebase security
+  // rules control what can actually be read/written.
+  var cfg = {
+    apiKey:            "AIzaSyC5-HpfnDzMrVyvGIIhqdpqqcG9MNka800",
+    authDomain:        "performance-meal-prep-os.firebaseapp.com",
+    databaseURL:       "https://performance-meal-prep-os-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId:         "performance-meal-prep-os",
+    storageBucket:     "performance-meal-prep-os.firebasestorage.app",
+    messagingSenderId: "583664075174",
+    appId:             "1:583664075174:web:b9fd64c0db034851cbcf67"
+  };
+  // ───────────────────────────────────────────────────────────────
 
   _startFirebase(cfg);
-
-  // Show a small "reset setup" link in case they need to reconfigure
-  // (only shown in the loading screen before DB connects)
-  setTimeout(function() {
-    var loadEl = document.getElementById('screen-loading');
-    if (loadEl && loadEl.style.display !== 'none') {
-      var link = document.createElement('div');
-      link.style.cssText = 'text-align:center;margin-top:16px';
-      link.innerHTML = '<span style="font-size:11px;color:var(--text3);cursor:pointer;text-decoration:underline" onclick="localStorage.removeItem(\'29perf_fb_config\');location.reload()">Reset Firebase connection</span>';
-      loadEl.querySelector('.loading-wrap') && loadEl.querySelector('.loading-wrap').appendChild(link);
-    }
-  }, 2000);
-
 })();
 
 // ═══════════════════════════════════════════════════════════════
@@ -1324,7 +1338,7 @@ function renderSummary() {
     '<span class="st-val" style="font-size:22px">£' + grandTotal.toFixed(2) + '</span>' +
     '</div></div>';
 
-  html += '<p style="font-size:12px;color:var(--text3);text-align:center;line-height:1.6;margin-top:12px">Payment by bank transfer. Details shown after submission.<br>Your order is pending until payment is received.</p>';
+  html += '<p style="font-size:12px;color:var(--text3);text-align:center;line-height:1.6;margin-top:12px">Payment link shown after submission.<br>Your order is pending until payment is received.</p>';
 
   document.getElementById('summary-content').innerHTML = html;
 }
@@ -1441,6 +1455,9 @@ function submitOrder() {
       });
     });
 
+    // Stamp _ts so the ops app's timestamp check recognises this as a newer write
+    // and applies the update in real-time without requiring a manual refresh.
+    data._ts = Date.now();
     return data;
   }, function(err, committed) {
     btn.disabled    = false;
@@ -1453,6 +1470,18 @@ function submitOrder() {
     var lastEmail = localStorage.getItem('29p_draft_email');
     if (lastEmail) localStorage.removeItem('29p_draft_' + lastEmail);
     localStorage.removeItem('29p_draft_email');
+
+    // Send email notification — non-blocking, failure doesn't affect customer
+    try {
+      var notifOrders = ordersToCreate.map(function(o) {
+        var items = Object.keys(o.allocation).map(function(dId) {
+          var d = getPortalMenuDishes().find(function(x){ return x.id === dId; });
+          return { name: d ? (d.name||dId) : dId, qty: o.allocation[dId], unitPrice: d ? (parseFloat(d.sellPrice)||0) : 0 };
+        }).filter(function(i){ return i.qty > 0; });
+        return { session: o.session === 'sunday' ? 'Sunday' : 'Wednesday', items: items, sessTotal: o.sessTotal };
+      });
+      sendOrderNotification(state.customer, notifOrders, week);
+    } catch(e) { /* silent — never block the customer journey */ }
 
     // Show confirmation
     showConfirmation();
@@ -1472,11 +1501,40 @@ function showConfirmation() {
   document.getElementById('confirm-msg').innerHTML =
     'Thanks <strong>' + escHtml(state.customer.name) + '</strong> — we\'ve received your order and will confirm shortly.';
 
-  document.getElementById('pay-name').textContent   = PAYMENT.accountName;
-  document.getElementById('pay-sort').textContent   = PAYMENT.sortCode;
-  document.getElementById('pay-acc').textContent    = PAYMENT.accountNumber;
-  document.getElementById('pay-ref').textContent    = state.customer.name + ' — ' + (getPortalWeekLabel() || 'Week');
+  // Build order breakdown
+  var dd = getPortalDropDates();
+  var _pmDishes = getPortalMenuDishes();
+  var breakdownHtml = '';
+  state.sessions.forEach(function(sess) {
+    var picks = state.picks[sess] || {};
+    var label = sess === 'sunday'
+      ? '🟡 Sunday Drop' + (dd.sunday ? ' — ' + dd.sunday : '')
+      : '🟢 Wednesday Drop' + (dd.wednesday ? ' — ' + dd.wednesday : '');
+    var sessTotal = 0;
+    var rows = Object.keys(picks).map(function(dishId) {
+      var qty = picks[dishId] || 0;
+      if (!qty) return '';
+      var d = _pmDishes.find(function(x){ return x.id === dishId; });
+      var name = d ? (d.name || dishId) : dishId;
+      var price = d ? (parseFloat(d.sellPrice) || 0) : 0;
+      var line = price * qty;
+      sessTotal += line;
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-bottom:1px solid var(--border);font-size:13px">'
+        + '<span><span style="font-size:11px;color:var(--text3);margin-right:6px">' + qty + '×</span>' + escHtml(name) + '</span>'
+        + '<span style="color:var(--text2)">£' + line.toFixed(2) + '</span>'
+        + '</div>';
+    }).join('');
+    breakdownHtml += '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:10px;overflow:hidden;margin-bottom:10px">'
+      + '<div style="padding:9px 14px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--text2);letter-spacing:.3px">' + label + '</div>'
+      + rows
+      + '<div style="display:flex;justify-content:space-between;padding:8px 14px;font-size:12px;color:var(--text3)">'
+      + '<span>Session total</span><span>£' + sessTotal.toFixed(2) + '</span>'
+      + '</div></div>';
+  });
+  document.getElementById('confirm-order-breakdown').innerHTML = breakdownHtml;
+
   document.getElementById('pay-amount').textContent = '£' + grandTotal.toFixed(2);
+  document.getElementById('pay-ref').textContent    = 'Ref: ' + state.customer.name + ' — ' + (getPortalWeekLabel() || 'Week');
 
   showScreen('confirm');
 }
