@@ -614,7 +614,7 @@ var EMAILJS_TEMPLATE_ID = 'template_9pctcia';
 function sendOrderNotification(customer, ordersCreated, weekLabel) {
   if (!EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY === 'PASTE-PUBLIC-KEY-HERE') return;
 
-  try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch(e) { return; }
+  try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch(e) { /* already initialised — safe to continue */ }
 
   var grandTotal = ordersCreated.reduce(function(s, o) { return s + o.sessTotal; }, 0);
 
@@ -643,16 +643,20 @@ function sendOrderNotification(customer, ordersCreated, weekLabel) {
   }).join('<tr><td colspan="2" style="padding:0;height:1px;background:rgba(255,255,255,0.06)"></td></tr>');
 
   emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-    to_email:         '29performance@gmail.com',
+    email:            '29performance@gmail.com',
     customer_name:    customer.name,
     customer_email:   customer.email,
-    customer_phone:   customer.phone  || '&mdash;',
-    customer_address: [customer.address1, customer.address2, customer.city, customer.postcode].filter(Boolean).join(', ') || '&mdash;',
+    customer_phone:   customer.phone  || '-',
+    customer_address: [customer.address1, customer.address2, customer.city, customer.postcode].filter(Boolean).join(', ') || '-',
     week_label:       weekLabel,
     order_rows:       orderRowsHtml,
-    grand_total:      '&pound;' + grandTotal.toFixed(2),
-    notes:            customer.notes  || '&mdash;',
+    grand_total:      '\u00a3' + grandTotal.toFixed(2),
+    notes:            customer.notes  || '-',
     submitted_at:     new Date().toLocaleString('en-GB', { dateStyle:'short', timeStyle:'short' })
+  }).then(function() {
+    console.log('[EmailJS] Order notification sent successfully');
+  }).catch(function(err) {
+    console.error('[EmailJS] Failed to send order notification:', JSON.stringify(err));
   });
 }
 
