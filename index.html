@@ -727,8 +727,8 @@ function getDeliveryZone(postcode) {
     return { valid: true, fee: 0, label: 'Free delivery (Coventry)', message: '' };
   }
 
-  // West Midlands up to Wolverhampton — £5
-  if (letters === 'CV' && number === 7) {
+  // West Midlands / Leamington — £5
+  if (letters === 'CV' && (number === 7 || number === 31 || number === 32)) {
     return { valid: true, fee: 5, label: '£5.00 delivery (West Midlands)', message: '' };
   }
   if (['B', 'WS', 'WV', 'DY'].indexOf(letters) !== -1) {
