@@ -568,9 +568,37 @@
       <div class="payment-total-label">Amount Due</div>
       <div class="payment-total-amount" id="pay-amount"></div>
       <div class="payment-total-ref" id="pay-ref"></div>
-      <a id="pay-link" class="pay-btn" href="https://checkout.revolut.com/pay/e338d7a8-a6e5-4609-9fcf-aa64bc999232" target="_blank" rel="noopener">
+      <button class="pay-btn" onclick="showPayModal()">
         Pay with Revolut →
-      </a>
+      </button>
+    </div>
+
+    <!-- Payment method modal -->
+    <div id="pay-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px">
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:18px;max-width:360px;width:100%;padding:28px 24px;box-shadow:0 24px 60px rgba(0,0,0,0.5)">
+        <div style="font-size:32px;text-align:center;margin-bottom:12px">🏦</div>
+        <div style="font-size:18px;font-weight:700;color:var(--text1);text-align:center;margin-bottom:8px">Choose Pay by Bank</div>
+        <div style="font-size:13px;color:var(--text2);text-align:center;line-height:1.6;margin-bottom:20px">
+          On the next screen, please select <strong style="color:var(--text1)">Pay by bank</strong> to avoid any card processing fees.
+        </div>
+        <!-- Visual hint -->
+        <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text1)">Pay by bank</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px">No card fees · Instant transfer</div>
+          </div>
+          <div style="background:var(--gold);color:#000;font-size:11px;font-weight:700;padding:5px 10px;border-radius:6px">SELECT THIS</div>
+        </div>
+        <a id="pay-modal-link" href="https://checkout.revolut.com/pay/e338d7a8-a6e5-4609-9fcf-aa64bc999232" target="_blank" rel="noopener"
+          style="display:block;width:100%;padding:14px;border-radius:10px;background:var(--gold);color:#000;font-size:15px;font-weight:700;text-decoration:none;text-align:center;box-sizing:border-box;margin-bottom:10px"
+          onclick="document.getElementById('pay-modal').style.display='none'">
+          Continue to payment →
+        </a>
+        <button onclick="document.getElementById('pay-modal').style.display='none'"
+          style="width:100%;padding:11px;border-radius:10px;border:1px solid var(--border2);background:none;color:var(--text3);font-size:13px;cursor:pointer">
+          Back
+        </button>
+      </div>
     </div>
     <p style="font-size:12px;color:var(--text3);text-align:center;line-height:1.6">
       Tap the button above to pay via Revolut.<br>
@@ -611,12 +639,12 @@ var EMAILJS_SERVICE_ID  = 'service_4twh0op';
 var EMAILJS_TEMPLATE_ID = 'template_9pctcia';
 // ───────────────────────────────────────────────────────────────
 
-function sendOrderNotification(customer, ordersCreated, weekLabel) {
+function sendOrderNotification(customer, ordersCreated, weekLabel, deliveryFee) {
   if (!EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY === 'PASTE-PUBLIC-KEY-HERE') return;
 
   try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch(e) { /* already initialised — safe to continue */ }
 
-  var grandTotal = ordersCreated.reduce(function(s, o) { return s + o.sessTotal; }, 0);
+  var grandTotal = (deliveryFee || 0) + ordersCreated.reduce(function(s, o) { return s + o.sessTotal; }, 0);
 
   // Build HTML dish rows — styled to match glass email template
   var orderRowsHtml = ordersCreated.map(function(o) {
@@ -642,6 +670,11 @@ function sendOrderNotification(customer, ordersCreated, weekLabel) {
       + '</tr>';
   }).join('<tr><td colspan="2" style="padding:0;height:1px;background:rgba(255,255,255,0.06)"></td></tr>');
 
+  var deliveryLabel = deliveryFee > 0
+    ? '\u00a3' + deliveryFee.toFixed(2) + ' (West Midlands)'
+    : 'Free (Coventry)';
+  var deliveryColor = deliveryFee > 0 ? '#f2f2f7' : '#30d158';
+
   emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
     email:            '29performance@gmail.com',
     customer_name:    customer.name,
@@ -650,6 +683,8 @@ function sendOrderNotification(customer, ordersCreated, weekLabel) {
     customer_address: [customer.address1, customer.address2, customer.city, customer.postcode].filter(Boolean).join(', ') || '-',
     week_label:       weekLabel,
     order_rows:       orderRowsHtml,
+    delivery_charge:  deliveryLabel,
+    delivery_color:   deliveryColor,
     grand_total:      '\u00a3' + grandTotal.toFixed(2),
     notes:            customer.notes  || '-',
     submitted_at:     new Date().toLocaleString('en-GB', { dateStyle:'short', timeStyle:'short' })
@@ -669,8 +704,43 @@ var state = {
   step:     1,
   sessions: [],          // ['sunday'] / ['wednesday'] / ['sunday','wednesday']
   picks:    { sunday: {}, wednesday: {} },  // {dishId: qty}
-  customer: { name:'', email:'', phone:'', address1:'', address2:'', city:'', postcode:'', notes:'' }
+  customer: { name:'', email:'', phone:'', address1:'', address2:'', city:'', postcode:'', notes:'' },
+  deliveryFee: 0         // set by postcode check in validateDetails
 };
+
+// ── Delivery zone helper ──────────────────────────────────────────────────────
+// Free:    CV1–CV6  (Coventry city)
+// £5:      CV7, B, WS, WV, DY  (West Midlands up to Wolverhampton)
+// Blocked: everything else (CV8+, all other areas)
+function getDeliveryZone(postcode) {
+  var clean = (postcode || '').trim().toUpperCase().replace(/\s+/g, '');
+  if (!clean) return { valid: false, fee: 0, label: '', message: 'Please enter a valid postcode.' };
+
+  var areaMatch = clean.match(/^([A-Z]+)(\d+)/);
+  if (!areaMatch) return { valid: false, fee: 0, label: '', message: 'Please enter a valid postcode.' };
+
+  var letters = areaMatch[1];   // e.g. CV, B, WS
+  var number  = parseInt(areaMatch[2], 10); // e.g. 1, 7, 12
+
+  // Coventry city — free
+  if (letters === 'CV' && number >= 1 && number <= 6) {
+    return { valid: true, fee: 0, label: 'Free delivery (Coventry)', message: '' };
+  }
+
+  // West Midlands up to Wolverhampton — £5
+  if (letters === 'CV' && number === 7) {
+    return { valid: true, fee: 5, label: '£5.00 delivery (West Midlands)', message: '' };
+  }
+  if (['B', 'WS', 'WV', 'DY'].indexOf(letters) !== -1) {
+    return { valid: true, fee: 5, label: '£5.00 delivery (West Midlands)', message: '' };
+  }
+
+  // Everything else — outside delivery zone
+  return {
+    valid: false, fee: 0, label: '',
+    message: 'Sorry, we currently only deliver within Coventry and the West Midlands (up to Wolverhampton). Please check your postcode or contact us directly.'
+  };
+}
 
 // ═══════════════════════════════════════════════════════════════
 //  FIREBASE INIT  — reads config from localStorage automatically
@@ -1214,7 +1284,12 @@ function validateDetails() {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     showErr('err-details', 'Please enter a valid email address.'); return false;
   }
+  var zone = getDeliveryZone(postcode);
+  if (!zone.valid) {
+    showErr('err-details', zone.message); return false;
+  }
   hideErr('err-details');
+  state.deliveryFee = zone.fee;
   state.customer = {
     name:     name,
     email:    email.toLowerCase(),
@@ -1334,6 +1409,18 @@ function renderSummary() {
     '<div class="summary-row"><span class="sr-label">Address</span><span class="sr-val" style="text-align:right;max-width:65%">' + escHtml(addrLine) + '</span></div>' +
     (c.notes ? '<div class="summary-row"><span class="sr-label">Notes</span><span class="sr-val" style="text-align:right;max-width:60%">' + escHtml(c.notes) + '</span></div>' : '') +
     '</div>';
+
+  // Delivery fee
+  var deliveryFee = state.deliveryFee || 0;
+  var zone = getDeliveryZone(state.customer.postcode || '');
+  html += '<div class="summary-block">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;font-size:13px">' +
+    '<span style="color:var(--text2)">Delivery</span>' +
+    '<span style="font-weight:600;color:' + (deliveryFee === 0 ? '#30d158' : 'var(--text1)') + '">' +
+    (deliveryFee === 0 ? 'Free (Coventry)' : '£' + deliveryFee.toFixed(2) + ' (West Midlands)') +
+    '</span></div></div>';
+
+  grandTotal += deliveryFee;
 
   // Grand total
   html += '<div class="summary-block">' +
@@ -1484,7 +1571,7 @@ function submitOrder() {
         }).filter(function(i){ return i.qty > 0; });
         return { session: o.session === 'sunday' ? 'Sunday' : 'Wednesday', items: items, sessTotal: o.sessTotal };
       });
-      sendOrderNotification(state.customer, notifOrders, week);
+      sendOrderNotification(state.customer, notifOrders, week, state.deliveryFee || 0);
     } catch(e) { /* silent — never block the customer journey */ }
 
     // Show confirmation
@@ -1492,8 +1579,13 @@ function submitOrder() {
   });
 }
 
+function showPayModal() {
+  var modal = document.getElementById('pay-modal');
+  modal.style.display = 'flex';
+}
+
 function showConfirmation() {
-  var grandTotal = state.sessions.reduce(function(total, sess) {
+  var grandTotal = (state.deliveryFee || 0) + state.sessions.reduce(function(total, sess) {
     var picks = state.picks[sess] || {};
     return total + Object.keys(picks).reduce(function(s, dishId) {
       var qty = picks[dishId] || 0;
@@ -1535,6 +1627,16 @@ function showConfirmation() {
       + '<span>Session total</span><span>£' + sessTotal.toFixed(2) + '</span>'
       + '</div></div>';
   });
+  // Delivery fee line
+  var deliveryFee = state.deliveryFee || 0;
+  var isFree = deliveryFee === 0;
+  breakdownHtml += '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:10px;overflow:hidden;margin-bottom:10px">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;font-size:13px">'
+    + '<span style="color:var(--text2)">Delivery</span>'
+    + '<span style="font-weight:600;color:' + (isFree ? '#30d158' : 'var(--text1)') + '">'
+    + (isFree ? '✓ Free (Coventry)' : '£' + deliveryFee.toFixed(2) + ' (West Midlands)')
+    + '</span></div></div>';
+
   document.getElementById('confirm-order-breakdown').innerHTML = breakdownHtml;
 
   document.getElementById('pay-amount').textContent = '£' + grandTotal.toFixed(2);
