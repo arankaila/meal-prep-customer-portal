@@ -713,10 +713,13 @@ var state = {
 // £5:      CV7, B, WS, WV, DY  (West Midlands up to Wolverhampton)
 // Blocked: everything else (CV8+, all other areas)
 function getDeliveryZone(postcode) {
-  var clean = (postcode || '').trim().toUpperCase().replace(/\s+/g, '');
+  var clean = (postcode || '').trim().toUpperCase();
   if (!clean) return { valid: false, fee: 0, label: '', message: 'Please enter a valid postcode.' };
 
-  var areaMatch = clean.match(/^([A-Z]+)(\d+)/);
+  // Use only the outward code (e.g. "CV1" from "CV1 2AB") so that "CV1 2AB"
+  // isn't stripped to "CV12AB" and misread as district 12.
+  var outward = clean.split(/\s+/)[0];
+  var areaMatch = outward.match(/^([A-Z]+)(\d+)/);
   if (!areaMatch) return { valid: false, fee: 0, label: '', message: 'Please enter a valid postcode.' };
 
   var letters = areaMatch[1];   // e.g. CV, B, WS
