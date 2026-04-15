@@ -4,35 +4,42 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Order Now — 29 Performance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg:       #f9f8f5;
-      --surface:  #ffffff;
-      --surface2: #f2f1ec;
-      --surface3: #eae9e3;
-      --border:   rgba(0,0,0,.08);
-      --border2:  rgba(0,0,0,.15);
-      --text1:    #1a1917;
-      --text2:    #5a5855;
-      --text3:    #9a9895;
-      --gold:     #c9a84c;
-      --gold-dim: rgba(201,168,76,.1);
-      --gold-hi:  rgba(201,168,76,.2);
-      --green:    #16a34a;
-      --green-dim:rgba(22,163,74,.1);
-      --amber:    #b45309;
-      --amber-dim:rgba(180,83,9,.08);
-      --red:      #dc2626;
-      --red-dim:  rgba(220,38,38,.08);
-      --blue:     #2563eb;
-      --blue-dim: rgba(37,99,235,.08);
-      --radius:   10px;
-      --sans:     -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      --mono:     'SF Mono', 'Fira Code', monospace;
+      --bg:         #0d0d0d;
+      --surface:    #161616;
+      --surface2:   #1f1f1f;
+      --surface3:   #2a2a2a;
+      --border:     rgba(255,255,255,.07);
+      --border2:    rgba(255,255,255,.13);
+      --text1:      #f0ede8;
+      --text2:      #a09d98;
+      --text3:      #5a5855;
+      --gold:       #c9a84c;
+      --gold-dim:   rgba(201,168,76,.12);
+      --gold-hi:    rgba(201,168,76,.22);
+      --green:      #30d158;
+      --green-dim:  rgba(48,209,88,.12);
+      --amber:      #ff9f0a;
+      --amber-dim:  rgba(255,159,10,.1);
+      --red:        #ff453a;
+      --red-dim:    rgba(255,69,58,.1);
+      --blue:       #0a84ff;
+      --blue-dim:   rgba(10,132,255,.1);
+      --dot-kcal:   #8e8e93;
+      --dot-carb:   #30b0c7;
+      --dot-fat:    #ff6b35;
+      --dot-prot:   #30d158;
+      --radius:     12px;
+      --sans:       'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --cond:       'Barlow Condensed', 'Arial Narrow', sans-serif;
+      --mono:       'SF Mono', 'Fira Code', monospace;
     }
     html, body { background: var(--bg); color: var(--text1); font-family: var(--sans); min-height: 100vh; }
 
@@ -47,14 +54,15 @@
     }
     .portal-logo { display: flex; align-items: center; gap: 10px; }
     .portal-logo-mark {
-      width: 36px; height: 36px; border-radius: 8px;
+      width: 40px; height: 40px; border-radius: 9px;
       background: var(--gold); color: #000;
-      font-size: 14px; font-weight: 900; letter-spacing: -1px;
+      font-size: 15px; font-weight: 900; letter-spacing: -1px;
+      font-family: var(--cond);
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-    .portal-logo-text { font-size: 13px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--text1); }
-    .portal-logo-sub  { font-size: 10px; color: var(--text3); font-family: var(--mono); margin-top: 1px; letter-spacing: .5px; text-transform: uppercase; }
+    .portal-logo-text { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--text1); }
+    .portal-logo-sub  { font-size: 10px; color: var(--text3); font-family: var(--mono); margin-top: 1px; letter-spacing: 1px; text-transform: uppercase; }
     .portal-week-badge {
       font-size: 10px; font-family: var(--mono); color: var(--gold);
       background: var(--gold-dim); border: 1px solid rgba(201,168,76,.3);
@@ -97,8 +105,8 @@
     .progress-step.done .ps-label  { color: var(--text2); }
 
     /* ── SECTION TITLE ───────────────────────── */
-    .step-title   { font-size: 20px; font-weight: 700; letter-spacing: -.5px; margin-bottom: 4px; }
-    .step-sub     { font-size: 13px; color: var(--text2); margin-bottom: 20px; }
+    .step-title   { font-family: var(--cond); font-size: 28px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; margin-bottom: 4px; }
+    .step-sub     { font-size: 13px; color: var(--text2); margin-bottom: 24px; line-height: 1.5; }
 
     /* ── SESSION CARDS ───────────────────────── */
     .session-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
@@ -114,7 +122,7 @@
       box-shadow: 0 0 0 1px var(--gold), 0 4px 14px rgba(201,168,76,.18);
     }
     .session-card .sc-icon  { font-size: 28px; margin-bottom: 8px; }
-    .session-card .sc-day   { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+    .session-card .sc-day   { font-family: var(--cond); font-size: 18px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px; }
     .session-card .sc-time  { font-size: 11px; color: var(--text2); }
     .session-card .sc-check {
       width: 20px; height: 20px; border-radius: 50%;
@@ -136,80 +144,127 @@
     .session-card.sc-closed .sc-deadline { color: var(--red); }
 
     /* ── DISH GRID ───────────────────────────── */
-    .session-header {
-      margin: 20px 0 12px; display: flex; align-items: flex-start;
-    }
-    .sh-day  { font-size: 11px; font-family: var(--mono); color: var(--text2); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
-    .sh-date { font-size: 10px; font-family: var(--mono); color: var(--text3); margin-top: 3px; }
-    .sh-count { margin-top: 6px; }
+    .session-header { margin: 28px 0 16px; }
+    .sh-day  { font-family: var(--cond); font-size: 14px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; }
+    .sh-date { font-size: 11px; font-family: var(--mono); color: var(--text3); margin-top: 3px; }
+    .sh-divider { height: 1px; background: var(--border2); margin: 10px 0; }
+    .sh-count { margin-top: 8px; }
     .pick-count {
-      display: inline-block; background: var(--surface); border: 1px solid var(--border2);
-      border-radius: 20px; padding: 2px 8px; font-size: 10px; color: var(--text2);
+      display: inline-block; background: var(--surface2); border: 1px solid var(--border2);
+      border-radius: 20px; padding: 3px 10px; font-size: 10px; color: var(--text2);
+      font-family: var(--mono); letter-spacing: .5px;
     }
-    .pick-count.ok    { background: var(--green-dim); border-color: rgba(74,222,128,.3); color: var(--green); }
-    .pick-count.warn  { background: var(--amber-dim); border-color: rgba(251,191,36,.3); color: var(--amber); }
+    .pick-count.ok    { background: var(--green-dim); border-color: rgba(48,209,88,.25); color: var(--green); }
+    .pick-count.warn  { background: var(--amber-dim); border-color: rgba(255,159,10,.25); color: var(--amber); }
 
-    .dish-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+    .dish-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px; }
     .dish-card {
       border: 1.5px solid var(--border); border-radius: var(--radius);
       overflow: hidden; cursor: default; transition: border-color .15s, box-shadow .15s;
       background: var(--surface);
-      box-shadow: 0 2px 8px rgba(0,0,0,.06);
       display: flex; flex-direction: column;
     }
-    .dish-card:hover  { border-color: var(--border2); box-shadow: 0 4px 16px rgba(0,0,0,.09); }
-    .dish-card.picked { border-color: var(--gold); box-shadow: 0 4px 16px rgba(201,168,76,.18); }
+    .dish-card:hover  { border-color: var(--border2); }
+    .dish-card.picked {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 1px var(--gold), 0 4px 20px rgba(201,168,76,.12);
+    }
 
+    /* Circular photo — matches PDF menu style */
+    .dish-photo-wrap {
+      position: relative; padding: 14px 14px 0;
+      display: flex; justify-content: center;
+      background: var(--surface2);
+    }
+    .dish-photo-circle {
+      width: 100%; aspect-ratio: 1/1; border-radius: 50%;
+      overflow: hidden; border: 3px solid var(--surface3);
+      box-shadow: 0 4px 16px rgba(0,0,0,.5);
+    }
     .dish-photo {
-      width: 100%; aspect-ratio: 1 / 1; object-fit: cover;
-      background: var(--surface2); display: block;
+      width: 100%; height: 100%; object-fit: cover; display: block;
     }
     .dish-photo-placeholder {
-      width: 100%; aspect-ratio: 1 / 1; background: var(--surface2);
+      width: 100%; height: 100%; background: var(--surface3);
       display: flex; align-items: center; justify-content: center;
-      font-size: 32px; color: var(--text3);
+      font-size: 36px;
     }
-    .dish-body { padding: 10px 10px; display: flex; flex-direction: column; flex: 1; }
-    .dish-name { font-size: 13px; font-weight: 600; letter-spacing: -.1px; line-height: 1.3; width: 100%; margin-bottom: 7px; }
-    .dish-price { font-size: 13px; font-weight: 700; color: var(--gold); flex-shrink: 0; margin-left: auto; }
-
-    .dish-badges { display: flex; align-items: center; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
-    .dish-info-area { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; }
+    .dish-price-badge {
+      position: absolute; top: 10px; right: 10px;
+      background: rgba(0,0,0,.85); border: 1px solid rgba(201,168,76,.35);
+      color: var(--gold); font-family: var(--cond);
+      font-size: 12px; font-weight: 700;
+      padding: 3px 8px; border-radius: 6px; letter-spacing: .5px;
+    }
+    .dish-fuel-wrap {
+      position: absolute; bottom: 6px; left: 10px;
+      display: flex; flex-direction: column; gap: 2px;
+    }
     .fuel-badge {
-      font-size: 8px; font-family: var(--mono); text-transform: uppercase; letter-spacing: .6px;
-      padding: 2px 5px; border-radius: 4px; font-weight: 600;
+      font-size: 7px; font-family: var(--cond); text-transform: uppercase;
+      letter-spacing: 1px; font-weight: 700;
+      padding: 2px 6px; border-radius: 4px; white-space: nowrap;
     }
-    .fuel-plus { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(251,191,36,.2); }
-    .fuel-lite { background: var(--green-dim); color: var(--green); border: 1px solid rgba(74,222,128,.2); }
+    .fuel-plus { background: rgba(255,159,10,.15); color: var(--amber); border: 1px solid rgba(255,159,10,.25); }
+    .fuel-lite { background: var(--green-dim); color: var(--green); border: 1px solid rgba(48,209,88,.25); }
     .demand-badge {
       font-size: 8px; font-family: var(--mono); color: var(--text3);
       background: var(--surface2); border: 1px solid var(--border); padding: 2px 5px; border-radius: 4px;
     }
-    .demand-badge.hot { color: var(--amber); background: var(--amber-dim); border-color: rgba(180,83,9,.2); }
+    .demand-badge.hot { color: var(--amber); background: var(--amber-dim); border-color: rgba(255,159,10,.25); }
 
-    .dish-macros {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 6px;
-    }
-    .macro-chip {
-      font-size: 9px; font-family: var(--mono); color: var(--text2);
-      background: var(--surface2); border: 1px solid var(--border);
-      padding: 3px 5px; border-radius: 4px; text-align: center;
-    }
-    .macro-chip span { color: var(--text1); font-weight: 600; }
+    .dish-body { padding: 12px 12px 10px; display: flex; flex-direction: column; flex: 1; background: var(--surface); }
 
-    .dish-allergens { font-size: 9px; color: var(--red); margin-top: 5px; margin-bottom: 2px; }
-    .dish-allergens strong { font-weight: 600; }
+    /* Gold condensed uppercase name — matches PDF */
+    .dish-name {
+      font-family: var(--cond); font-size: 14px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .5px; line-height: 1.2;
+      color: var(--gold); margin-bottom: 3px;
+    }
+    .dish-serves {
+      font-size: 10px; color: var(--text2); margin-bottom: 8px; line-height: 1.4;
+    }
+
+    /* Attribute badges: HIGH PROTEIN, LOW FAT etc */
+    .dish-attribs { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 8px; }
+    .attrib-badge {
+      font-size: 7px; font-family: var(--cond); font-weight: 700;
+      text-transform: uppercase; letter-spacing: .8px;
+      padding: 2px 6px; border-radius: 4px;
+    }
+    .attrib-high-protein { background: #2a2a2a; color: #e0ddd8; border: 1px solid #3a3a3a; }
+    .attrib-low-fat      { background: #1f2a1f; color: var(--green); border: 1px solid rgba(48,209,88,.2); }
+    .attrib-low-carb     { background: #1f2a1f; color: var(--green); border: 1px solid rgba(48,209,88,.2); }
+    .attrib-chefs-choice { background: #2a2200; color: var(--gold); border: 1px solid rgba(201,168,76,.25); }
+    .attrib-vegan        { background: #1a2a1a; color: #4ade80; border: 1px solid rgba(74,222,128,.25); }
+    .attrib-high-fibre   { background: #1f2a1f; color: var(--green); border: 1px solid rgba(48,209,88,.2); }
+    .attrib-9-amino      { background: #2a2200; color: var(--gold); border: 1px solid rgba(201,168,76,.25); }
+    .attrib-omega3       { background: #002233; color: #38bdf8; border: 1px solid rgba(56,189,248,.25); }
+
+    /* Macro dots — coloured like PDF */
+    .dish-macros { display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px; }
+    .macro-row {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 10px; color: var(--text2);
+    }
+    .macro-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .macro-row strong { color: var(--text1); font-weight: 600; margin-right: 1px; }
+
+    .dish-info-area { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; }
+    .dish-allergens { font-size: 9px; color: var(--text3); margin-bottom: 4px; line-height: 1.4; }
+    .dish-allergens strong { color: var(--red); font-size: 8px; font-family: var(--mono); letter-spacing: .3px; }
 
     .dish-pick-row {
       display: flex; align-items: center; justify-content: flex-end;
-      padding-top: 8px; border-top: 1px solid var(--border); margin-top: 8px;
+      padding-top: 8px; border-top: 1px solid var(--border); margin-top: auto;
     }
     .pick-btn {
       padding: 7px 16px; border-radius: 7px; border: none; cursor: pointer;
-      font-size: 13px; font-weight: 600; font-family: var(--sans); transition: all .15s;
+      font-family: var(--cond); font-size: 12px; font-weight: 700;
+      letter-spacing: .5px; text-transform: uppercase; transition: all .15s;
     }
-    .pick-btn.add    { background: var(--gold); color: #000; border: 1.5px solid var(--gold); }
-    .pick-btn.add:hover { background: #d4af5a; }
+    .pick-btn.add    { background: var(--gold); color: #000; }
+    .pick-btn.add:hover { background: #d4b060; }
     .pick-btn.remove { background: var(--surface2); color: var(--text1); border: 1.5px solid var(--border2); }
     .pick-btn.remove:hover { background: var(--surface3); }
     .pick-btn:active { transform: scale(.97); }
@@ -217,12 +272,12 @@
       display: flex; align-items: center; gap: 10px;
     }
     .qty-stepper .qs-btn {
-      width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--border2);
-      background: var(--surface2); cursor: pointer; font-size: 18px; line-height: 1;
+      width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--border2);
+      background: var(--surface2); cursor: pointer; font-size: 16px; line-height: 1;
       display: flex; align-items: center; justify-content: center; color: var(--text1);
-      font-family: var(--sans); transition: all .15s; flex-shrink: 0;
+      transition: all .15s; flex-shrink: 0;
     }
-    .qty-stepper .qs-btn.minus { color: var(--red); border-color: rgba(220,38,38,.25); background: var(--red-dim); }
+    .qty-stepper .qs-btn.minus { color: var(--red); border-color: rgba(255,69,58,.25); background: var(--red-dim); }
     .qty-stepper .qs-btn.plus  { color: var(--text1); background: var(--surface3); }
     .qty-stepper .qs-btn:hover { border-color: var(--border2); }
     .qty-stepper .qs-count {
@@ -239,19 +294,20 @@
 
     /* ── FORM ────────────────────────────────── */
     .form-group  { margin-bottom: 16px; }
-    .form-label  { font-size: 11px; font-family: var(--mono); color: var(--text2); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: .8px; }
+    .form-label  { font-size: 10px; font-family: var(--mono); color: var(--text2); margin-bottom: 7px; display: block; text-transform: uppercase; letter-spacing: 1px; }
     .form-input, .form-textarea {
       width: 100%; background: var(--surface2); border: 1.5px solid var(--border2);
-      border-radius: 8px; padding: 11px 14px; font-size: 14px; color: var(--text1);
+      border-radius: 9px; padding: 12px 14px; font-size: 14px; color: var(--text1);
       font-family: var(--sans); outline: none; transition: border-color .15s;
     }
-    .form-input:focus, .form-textarea:focus { border-color: var(--gold); }
+    .form-input::placeholder, .form-textarea::placeholder { color: var(--text3); }
+    .form-input:focus, .form-textarea:focus { border-color: var(--gold); background: #1c1c1c; }
     .form-textarea { resize: vertical; min-height: 80px; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .form-hint { font-size: 11px; color: var(--text3); margin-top: 4px; }
 
     .draft-btn {
-      width: 100%; padding: 10px; border-radius: 8px;
+      width: 100%; padding: 11px; border-radius: 9px;
       border: 1.5px solid var(--border2); background: transparent;
       color: var(--text2); font-size: 13px; font-family: var(--sans); cursor: pointer;
       transition: all .15s; margin-top: 4px;
@@ -280,8 +336,8 @@
       display: flex; justify-content: space-between; align-items: center;
       padding: 14px; background: var(--gold-dim); border-top: 1px solid rgba(201,168,76,.25);
     }
-    .summary-total .st-label { font-size: 13px; color: var(--gold); font-family: var(--mono); }
-    .summary-total .st-val   { font-size: 18px; font-weight: 700; color: var(--gold); }
+    .summary-total .st-label { font-size: 12px; color: var(--gold); font-family: var(--mono); letter-spacing: 1px; text-transform: uppercase; }
+    .summary-total .st-val   { font-family: var(--cond); font-size: 22px; font-weight: 700; color: var(--gold); letter-spacing: 1px; }
 
     .summary-dish-list { padding: 10px 14px; font-size: 13px; }
     .summary-dish-item { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 5px 0; border-bottom: 1px solid var(--border); color: var(--text2); }
@@ -292,8 +348,8 @@
     .sdi-price { flex-shrink: 0; color: var(--text2); font-family: var(--mono); font-size: 13px; white-space: nowrap; }
 
     /* ── CONFIRMATION ────────────────────────── */
-    .confirm-icon { font-size: 56px; text-align: center; margin: 32px 0 16px; }
-    .confirm-title { font-size: 24px; font-weight: 700; text-align: center; letter-spacing: -.5px; margin-bottom: 8px; }
+    .confirm-icon  { font-size: 56px; text-align: center; margin: 32px 0 16px; }
+    .confirm-title { font-family: var(--cond); font-size: 32px; font-weight: 800; text-align: center; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; color: var(--gold); }
     .confirm-sub   { font-size: 14px; color: var(--text2); text-align: center; margin-bottom: 28px; line-height: 1.5; }
 
     .payment-card {
@@ -306,8 +362,8 @@
       text-transform: uppercase; letter-spacing: 2px; font-weight: 600; margin-bottom: 8px;
     }
     .payment-total-amount {
-      font-size: 48px; font-weight: 700; color: var(--gold);
-      letter-spacing: -1.5px; margin-bottom: 6px; line-height: 1;
+      font-family: var(--cond); font-size: 56px; font-weight: 900; color: var(--gold);
+      letter-spacing: -1px; margin-bottom: 6px; line-height: 1;
     }
     .payment-total-ref {
       font-size: 12px; color: var(--text3); font-family: var(--mono); margin-bottom: 24px;
@@ -368,11 +424,13 @@
     }
     .btn-back:hover { border-color: var(--text3); color: var(--text1); background: var(--surface2); }
     .btn-next {
-      flex: 1; padding: 14px; border-radius: 8px;
+      flex: 1; padding: 15px; border-radius: 9px;
       background: var(--gold); border: none; color: #000;
-      font-size: 15px; font-weight: 700; font-family: var(--sans); cursor: pointer; transition: all .15s;
+      font-family: var(--cond); font-size: 16px; font-weight: 800;
+      letter-spacing: 1px; text-transform: uppercase;
+      cursor: pointer; transition: all .15s;
     }
-    .btn-next:hover   { background: #d4af5a; }
+    .btn-next:hover   { background: #d4b060; }
     .btn-next:active  { transform: scale(.98); }
     .btn-next:disabled { opacity: .4; cursor: not-allowed; }
 
@@ -1168,11 +1226,10 @@ function renderDishSections() {
     var total = sessPickTotal(sess);
     var countClass = total >= 3 ? 'ok' : total > 0 ? 'warn' : '';
     html += '<div class="session-header">' +
-            '<div>' +
             '<div class="sh-day">' + dayLabel + '</div>' +
             (dateStr ? '<div class="sh-date">' + dateStr + '</div>' : '') +
+            '<div class="sh-divider"></div>' +
             '<div class="sh-count"><span class="pick-count ' + countClass + '">' + total + ' dish' + (total !== 1 ? 'es' : '') + ' · min 3</span></div>' +
-            '</div>' +
             '</div>';
     html += '<div class="dish-grid">';
     dishes.forEach(function(dish) { html += renderDishCard(dish, sess); });
@@ -1194,18 +1251,64 @@ function renderDishCard(dish, sess) {
   var demandHot = demand >= 5;
   var sellPrice = parseFloat(dish.sellPrice) || 0;
   var fuelClass = dish.fuelLine === 'Fuel Lite' ? 'fuel-lite' : 'fuel-plus';
-  var fuelLabel = dish.fuelLine || 'Fuel Plus';
+  var fuelLabel = dish.fuelLine === 'Fuel Lite' ? 'Fuel Lite –' : 'Fuel Plus +';
 
-  var photoHtml = dish.photoUrl
+  // Circular photo wrap — price badge + fuel badge overlaid
+  var innerPhoto = dish.photoUrl
     ? '<img class="dish-photo" src="' + dish.photoUrl + '" alt="' + escHtml(dish.name) + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
       '<div class="dish-photo-placeholder" style="display:none">🍱</div>'
     : '<div class="dish-photo-placeholder">🍱</div>';
 
-  var allergenHtml = macros.allergens.length
-    ? '<div class="dish-allergens"><strong>Contains:</strong> ' + macros.allergens.join(', ') + '</div>'
+  var photoHtml =
+    '<div class="dish-photo-wrap">' +
+    '<div class="dish-photo-circle">' + innerPhoto + '</div>' +
+    '<div class="dish-price-badge">£' + sellPrice.toFixed(2) + '</div>' +
+    '<div class="dish-fuel-wrap">' +
+    '<span class="fuel-badge ' + fuelClass + '">' + fuelLabel + '</span>' +
+    (demandTxt ? '<span class="demand-badge' + (demandHot ? ' hot' : '') + '">' + demandTxt + '</span>' : '') +
+    '</div>' +
+    '</div>';
+
+  // Serves subtitle
+  var servesHtml = dish.serves
+    ? '<div class="dish-serves">With ' + escHtml(dish.serves) + '</div>'
     : '';
 
-  // Quantity stepper — shown when qty > 0, otherwise a compact Add button
+  // Attribute tag badges
+  var tagMap = {
+    'high-protein':  { cls: 'attrib-high-protein', label: 'High Protein' },
+    'low-fat':       { cls: 'attrib-low-fat',       label: '↓ Low Fat' },
+    'low-carb':      { cls: 'attrib-low-carb',      label: '↓ Low Carb' },
+    'chefs-choice':  { cls: 'attrib-chefs-choice',  label: "Chef's Choice" },
+    'vegan':         { cls: 'attrib-vegan',          label: 'Vegan' },
+    'high-fibre':    { cls: 'attrib-high-fibre',     label: 'High Fibre' },
+    '9-amino':       { cls: 'attrib-9-amino',        label: '9 Amino Acids' },
+    'omega3':        { cls: 'attrib-omega3',         label: 'High Omega-3' }
+  };
+  var tags = Array.isArray(dish.tags) ? dish.tags : [];
+  var attribsHtml = tags.length
+    ? '<div class="dish-attribs">' +
+      tags.map(function(t) {
+        var def = tagMap[t];
+        return def ? '<span class="attrib-badge ' + def.cls + '">' + def.label + '</span>' : '';
+      }).join('') +
+      '</div>'
+    : '';
+
+  // Coloured macro dots
+  var macroHtml =
+    '<div class="dish-macros">' +
+    '<div class="macro-row"><span class="macro-dot" style="background:var(--dot-kcal)"></span><strong>' + macros.kcal + '</strong> Kcal</div>' +
+    '<div class="macro-row"><span class="macro-dot" style="background:var(--dot-carb)"></span><strong>' + macros.carb + 'g</strong> Carb</div>' +
+    '<div class="macro-row"><span class="macro-dot" style="background:var(--dot-fat)"></span><strong>' + macros.fat + 'g</strong> Fat</div>' +
+    '<div class="macro-row"><span class="macro-dot" style="background:var(--dot-prot)"></span><strong>' + macros.prot + 'g</strong> Protein</div>' +
+    '</div>';
+
+  var allergenHtml = macros.allergens.length
+    ? '<div class="dish-allergens"><strong>ALLERGENS:</strong> ' + macros.allergens.join(', ') + '</div>'
+    : '';
+
+  // Quantity stepper or Add button
   var pickHtml;
   if (isPicked) {
     pickHtml =
@@ -1222,7 +1325,7 @@ function renderDishCard(dish, sess) {
   } else {
     pickHtml =
       '<div class="dish-pick-row">' +
-      '<button class="pick-btn add" onclick="adjustQty(\'' + sess + '\',\'' + dish.id + '\',+1)">+ Add</button>' +
+      '<button class="pick-btn add" onclick="adjustQty(\'' + sess + '\',\'' + dish.id + '\',+1)">Add</button>' +
       '</div>';
   }
 
@@ -1230,18 +1333,10 @@ function renderDishCard(dish, sess) {
     photoHtml +
     '<div class="dish-body">' +
     '<div class="dish-name">' + escHtml(dish.name) + '</div>' +
-    '<div class="dish-badges">' +
-    '<span class="fuel-badge ' + fuelClass + '">' + fuelLabel + '</span>' +
-    (demandTxt ? '<span class="demand-badge' + (demandHot ? ' hot' : '') + '">' + demandTxt + '</span>' : '') +
-    '<span class="dish-price">£' + sellPrice.toFixed(2) + '</span>' +
-    '</div>' +
+    servesHtml +
+    attribsHtml +
     '<div class="dish-info-area">' +
-    '<div class="dish-macros">' +
-    '<div class="macro-chip"><span>' + macros.kcal + '</span> kcal</div>' +
-    '<div class="macro-chip">P <span>' + macros.prot + 'g</span></div>' +
-    '<div class="macro-chip">C <span>' + macros.carb + 'g</span></div>' +
-    '<div class="macro-chip">F <span>' + macros.fat + 'g</span></div>' +
-    '</div>' +
+    macroHtml +
     allergenHtml +
     '</div>' +
     pickHtml +
