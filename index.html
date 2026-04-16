@@ -695,6 +695,10 @@
 var EMAILJS_PUBLIC_KEY  = 'FyQpJDruNfvEwimsA';
 var EMAILJS_SERVICE_ID  = 'service_4twh0op';
 var EMAILJS_TEMPLATE_ID = 'template_9pctcia';
+
+// ── Google Sheets Webhook ─────────────────────────────────────────
+// Paste your Apps Script Web App URL here after setup (see README in sheet)
+var SHEETS_WEBHOOK_URL = 'PASTE-WEBHOOK-URL-HERE';
 // ───────────────────────────────────────────────────────────────
 
 function sendOrderNotification(customer, ordersCreated, weekLabel, deliveryFee) {
@@ -1255,7 +1259,7 @@ function renderDishCard(dish, sess) {
 
   // Circular photo wrap — price badge + fuel badge overlaid
   var innerPhoto = dish.photoUrl
-    ? '<img class="dish-photo" src="' + dish.photoUrl + '" alt="' + escHtml(dish.name) + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+    ? '<img class="dish-photo" src="' + escHtml(dish.photoUrl) + '" alt="' + escHtml(dish.name) + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
       '<div class="dish-photo-placeholder" style="display:none">🍱</div>'
     : '<div class="dish-photo-placeholder">🍱</div>';
 
@@ -1672,8 +1676,61 @@ function submitOrder() {
       sendOrderNotification(state.customer, notifOrders, week, state.deliveryFee || 0);
     } catch(e) { /* silent — never block the customer journey */ }
 
+    // Post to Google Sheets ledger — non-blocking
+    try { postToGoogleSheets(ordersToCreate, week, submittedAt); } catch(e) { /* silent */ }
+
     // Show confirmation
     showConfirmation();
+  });
+}
+
+// ── Google Sheets Ledger ─────────────────────────────────────────
+// Sends one row per session to the Apps Script webhook.
+// Completely non-blocking — never affects the customer journey.
+function postToGoogleSheets(ordersToCreate, week, submittedAt) {
+  if (!SHEETS_WEBHOOK_URL || SHEETS_WEBHOOK_URL === 'PASTE-WEBHOOK-URL-HERE') return;
+
+  var c         = state.customer;
+  var deliveryFee = state.deliveryFee || 0;
+  var grandTotal  = deliveryFee + ordersToCreate.reduce(function(s, o) { return s + o.sessTotal; }, 0);
+  var deliveryZone = deliveryFee === 0 ? 'Free (Coventry)' : '£' + deliveryFee.toFixed(2) + ' (West Midlands)';
+
+  ordersToCreate.forEach(function(o) {
+    var sessionLabel = o.session === 'sunday' ? 'Sunday' : 'Wednesday';
+
+    // Build readable dish list: "2x Teriyaki Chicken, 1x Buffalo Wings"
+    var dishList = Object.keys(o.allocation).map(function(dId) {
+      var d = getPortalMenuDishes().find(function(x) { return x.id === dId; });
+      var name = d ? (d.name || dId) : dId;
+      return o.allocation[dId] + 'x ' + name;
+    }).join(', ');
+
+    var row = {
+      timestamp:    new Date(submittedAt).toLocaleString('en-GB'),
+      week:         week,
+      session:      sessionLabel,
+      name:         c.name,
+      email:        c.email,
+      phone:        c.phone,
+      address1:     c.address1,
+      address2:     c.address2 || '',
+      city:         c.city,
+      postcode:     c.postcode,
+      deliveryZone: deliveryZone,
+      dishes:       dishList,
+      sessionTotal: '£' + o.sessTotal.toFixed(2),
+      deliveryFee:  deliveryFee > 0 ? '£' + deliveryFee.toFixed(2) : 'Free',
+      grandTotal:   '£' + grandTotal.toFixed(2),
+      notes:        c.notes || '',
+      status:       'Pending Payment'
+    };
+
+    fetch(SHEETS_WEBHOOK_URL, {
+      method:  'POST',
+      mode:    'no-cors', // Apps Script doesn't send CORS headers — response is opaque but request goes through
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(row)
+    });
   });
 }
 
