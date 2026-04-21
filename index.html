@@ -12,31 +12,34 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg:         #0d0d0d;
-      --surface:    #161616;
-      --surface2:   #1f1f1f;
-      --surface3:   #2a2a2a;
-      --border:     rgba(255,255,255,.07);
-      --border2:    rgba(255,255,255,.13);
-      --text1:      #f0ede8;
-      --text2:      #a09d98;
-      --text3:      #5a5855;
+      --bg:         #f7f5f1;
+      --surface:    #ffffff;
+      --surface2:   #f3f1ed;
+      --surface3:   #ebe8e2;
+      --border:     rgba(0,0,0,.07);
+      --border2:    rgba(0,0,0,.13);
+      --text1:      #1a1714;
+      --text2:      #7a7570;
+      --text3:      #b0ada8;
       --gold:       #c9a84c;
-      --gold-dim:   rgba(201,168,76,.12);
-      --gold-hi:    rgba(201,168,76,.22);
-      --green:      #30d158;
-      --green-dim:  rgba(48,209,88,.12);
-      --amber:      #ff9f0a;
-      --amber-dim:  rgba(255,159,10,.1);
-      --red:        #ff453a;
-      --red-dim:    rgba(255,69,58,.1);
-      --blue:       #0a84ff;
-      --blue-dim:   rgba(10,132,255,.1);
-      --dot-kcal:   #8e8e93;
-      --dot-carb:   #30b0c7;
-      --dot-fat:    #ff6b35;
-      --dot-prot:   #30d158;
-      --radius:     12px;
+      --gold-dim:   rgba(201,168,76,.1);
+      --gold-hi:    rgba(201,168,76,.18);
+      --green:      #1a7a42;
+      --green-dim:  rgba(26,122,66,.1);
+      --amber:      #c97812;
+      --amber-dim:  rgba(201,120,18,.1);
+      --red:        #c43c33;
+      --red-dim:    rgba(196,60,51,.08);
+      --blue:       #2563eb;
+      --blue-dim:   rgba(37,99,235,.08);
+      --dot-kcal:   #9ca3af;
+      --dot-carb:   #0ea5e9;
+      --dot-fat:    #f97316;
+      --dot-prot:   #22c55e;
+      --radius:     14px;
+      --shadow:     0 2px 12px rgba(0,0,0,.07);
+      --shadow-md:  0 4px 20px rgba(0,0,0,.09);
+      --shadow-lg:  0 8px 32px rgba(0,0,0,.11);
       --sans:       'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       --cond:       'Barlow Condensed', 'Arial Narrow', sans-serif;
       --mono:       'SF Mono', 'Fira Code', monospace;
@@ -44,34 +47,33 @@
     html, body { background: var(--bg); color: var(--text1); font-family: var(--sans); min-height: 100vh; }
 
     /* ── LAYOUT ─────────────────────────────── */
-    .portal-wrap { max-width: 520px; margin: 0 auto; padding: 0 16px 80px; }
+    .portal-wrap { max-width: 520px; margin: 0 auto; padding: 0 16px 100px; }
 
     /* ── HEADER ─────────────────────────────── */
     .portal-header {
-      padding: 20px 0 16px;
+      padding: 22px 0 18px;
       display: flex; align-items: center; justify-content: space-between;
-      border-bottom: 1px solid var(--border); margin-bottom: 8px;
+      border-bottom: 1px solid var(--border); margin-bottom: 10px;
     }
-    .portal-logo { display: flex; align-items: center; gap: 10px; }
-    .portal-logo-mark {
-      width: 40px; height: 40px; border-radius: 9px;
-      background: var(--gold); color: #000;
-      font-size: 15px; font-weight: 900; letter-spacing: -1px;
-      font-family: var(--cond);
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
+    .portal-logo { display: flex; align-items: center; gap: 12px; }
+    .portal-logo-img { height: 40px; width: auto; border-radius: 7px; flex-shrink: 0; display: block; }
+    .portal-logo-wordmark {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 14px; font-weight: 800;
+      letter-spacing: 4px; text-transform: uppercase;
+      color: var(--text1); line-height: 1;
+      white-space: nowrap;
     }
-    .portal-logo-text { font-family: var(--cond); font-size: 18px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--text1); }
-    .portal-logo-sub  { font-size: 10px; color: var(--text3); font-family: var(--mono); margin-top: 1px; letter-spacing: 1px; text-transform: uppercase; }
+    .portal-logo-wordmark span { color: var(--gold); }
     .portal-week-badge {
       font-size: 10px; font-family: var(--mono); color: var(--gold);
-      background: var(--gold-dim); border: 1px solid rgba(201,168,76,.3);
+      background: var(--gold-dim); border: 1px solid rgba(201,168,76,.28);
       padding: 4px 10px; border-radius: 20px; white-space: nowrap;
     }
 
     /* ── DEADLINE BANNER ─────────────────────── */
     .deadline-banner {
-      background: var(--amber-dim); border: 1px solid rgba(251,191,36,.2);
+      background: var(--amber-dim); border: 1px solid rgba(201,120,18,.2);
       border-radius: var(--radius); padding: 10px 14px;
       font-size: 12px; color: var(--amber); margin-bottom: 20px;
       display: flex; align-items: center; gap: 8px;
@@ -79,7 +81,7 @@
 
     /* ── PROGRESS ────────────────────────────── */
     .progress-bar {
-      display: flex; align-items: center; margin-bottom: 28px; gap: 0;
+      display: flex; align-items: center; margin-bottom: 32px; gap: 0;
     }
     .progress-step {
       flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
@@ -96,159 +98,155 @@
       background: var(--surface); font-size: 10px; font-family: var(--mono);
       display: flex; align-items: center; justify-content: center; color: var(--text3);
       position: relative; z-index: 1; flex-shrink: 0;
-      box-shadow: 0 1px 3px rgba(0,0,0,.08);
     }
-    .progress-step.done .ps-dot  { background: var(--gold); border-color: var(--gold); color: #000; font-weight: 700; }
+    .progress-step.done   .ps-dot { background: var(--gold); border-color: var(--gold); color: #000; font-weight: 700; }
     .progress-step.active .ps-dot { border-color: var(--gold); color: var(--gold); background: var(--surface); }
     .ps-label { font-size: 9px; color: var(--text3); font-family: var(--mono); text-align: center; }
     .progress-step.active .ps-label { color: var(--gold); }
-    .progress-step.done .ps-label  { color: var(--text2); }
+    .progress-step.done   .ps-label { color: var(--text2); }
 
     /* ── SECTION TITLE ───────────────────────── */
-    .step-title   { font-family: var(--cond); font-size: 28px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; margin-bottom: 4px; }
-    .step-sub     { font-size: 13px; color: var(--text2); margin-bottom: 24px; line-height: 1.5; }
+    .step-title { font-family: var(--cond); font-size: 28px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; margin-bottom: 4px; color: var(--text1); }
+    .step-sub   { font-size: 13px; color: var(--text2); margin-bottom: 24px; line-height: 1.5; }
 
     /* ── SESSION CARDS ───────────────────────── */
     .session-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
     .session-card {
       border: 1.5px solid var(--border2); border-radius: var(--radius);
-      padding: 18px 14px; cursor: pointer; transition: all .15s;
+      padding: 22px 16px 18px; cursor: pointer; transition: all .15s;
       text-align: center; user-select: none; background: var(--surface);
-      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+      box-shadow: var(--shadow);
     }
-    .session-card:hover { border-color: var(--gold); background: var(--gold-dim); box-shadow: 0 2px 10px rgba(201,168,76,.15); }
+    .session-card:hover { border-color: var(--gold); box-shadow: 0 4px 18px rgba(201,168,76,.18); }
     .session-card.selected {
-      border-color: var(--gold); background: var(--gold-dim);
-      box-shadow: 0 0 0 1px var(--gold), 0 4px 14px rgba(201,168,76,.18);
+      border-color: var(--gold);
+      box-shadow: 0 0 0 1px var(--gold), 0 4px 18px rgba(201,168,76,.18);
     }
-    .session-card .sc-icon  { font-size: 28px; margin-bottom: 8px; }
-    .session-card .sc-day   { font-family: var(--cond); font-size: 18px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px; }
-    .session-card .sc-time  { font-size: 11px; color: var(--text2); }
+    .session-card .sc-day   { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; color: var(--text1); }
+    .session-card .sc-time  { font-size: 11px; color: var(--text2); line-height: 1.4; }
     .session-card .sc-check {
       width: 20px; height: 20px; border-radius: 50%;
-      border: 1.5px solid var(--border2); margin: 10px auto 0;
+      border: 1.5px solid var(--border2); margin: 12px auto 0;
       display: flex; align-items: center; justify-content: center;
       font-size: 11px; transition: all .15s;
     }
     .session-card.selected .sc-check { background: var(--gold); border-color: var(--gold); color: #000; }
-    /* Closed session state */
-    .session-card.sc-closed {
-      opacity: 0.45; cursor: not-allowed; pointer-events: none;
-    }
-    .session-card.sc-closed:hover { border-color: var(--border2); background: var(--surface); box-shadow: none; }
+    .session-card.sc-closed { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+    .session-card.sc-closed:hover { border-color: var(--border2); box-shadow: var(--shadow); }
     .session-card .sc-deadline {
       font-size: 10px; color: var(--text3); font-family: var(--mono);
-      margin-top: 5px; line-height: 1.3;
+      margin-top: 6px; line-height: 1.3;
     }
     .session-card.sc-closing .sc-deadline { color: var(--amber); }
-    .session-card.sc-closed .sc-deadline { color: var(--red); }
+    .session-card.sc-closed  .sc-deadline { color: var(--red); }
 
-    /* ── DISH GRID ───────────────────────────── */
-    .session-header { margin: 28px 0 16px; }
-    .sh-day  { font-family: var(--cond); font-size: 14px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; }
-    .sh-date { font-size: 11px; font-family: var(--mono); color: var(--text3); margin-top: 3px; }
+    /* ── SESSION HEADER ──────────────────────── */
+    .session-header { margin: 28px 0 14px; }
+    .sh-day  { font-family: var(--cond); font-size: 13px; font-weight: 800; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; }
+    .sh-date { font-size: 11px; color: var(--text3); margin-top: 3px; }
     .sh-divider { height: 1px; background: var(--border2); margin: 10px 0; }
     .sh-count { margin-top: 8px; }
     .pick-count {
-      display: inline-block; background: var(--surface2); border: 1px solid var(--border2);
+      display: inline-block; background: var(--surface); border: 1px solid var(--border2);
       border-radius: 20px; padding: 3px 10px; font-size: 10px; color: var(--text2);
-      font-family: var(--mono); letter-spacing: .5px;
+      font-family: var(--mono); letter-spacing: .5px; box-shadow: var(--shadow);
     }
-    .pick-count.ok    { background: var(--green-dim); border-color: rgba(48,209,88,.25); color: var(--green); }
-    .pick-count.warn  { background: var(--amber-dim); border-color: rgba(255,159,10,.25); color: var(--amber); }
+    .pick-count.ok   { background: var(--green-dim); border-color: rgba(26,122,66,.25); color: var(--green); }
+    .pick-count.warn { background: var(--amber-dim); border-color: rgba(201,120,18,.25); color: var(--amber); }
 
-    .dish-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px; }
+    /* ── DISH GRID ───────────────────────────── */
+    .dish-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 8px; }
     .dish-card {
-      border: 1.5px solid var(--border); border-radius: var(--radius);
-      overflow: hidden; cursor: default; transition: border-color .15s, box-shadow .15s;
+      border-radius: var(--radius);
+      overflow: hidden; cursor: default;
+      transition: transform .18s ease, box-shadow .18s ease;
       background: var(--surface);
+      box-shadow: var(--shadow);
       display: flex; flex-direction: column;
     }
-    .dish-card:hover  { border-color: var(--border2); }
-    .dish-card.picked {
-      border-color: var(--gold);
-      box-shadow: 0 0 0 1px var(--gold), 0 4px 20px rgba(201,168,76,.12);
-    }
+    .dish-card:hover  { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .dish-card.picked { box-shadow: 0 0 0 2px var(--gold), var(--shadow-md); }
 
-    /* Circular photo — matches PDF menu style */
-    .dish-photo-wrap {
-      position: relative; padding: 14px 14px 0;
-      display: flex; justify-content: center;
-      background: var(--surface2);
-    }
-    .dish-photo-circle {
-      width: 100%; aspect-ratio: 1/1; border-radius: 50%;
-      overflow: hidden; border: 3px solid var(--surface3);
-      box-shadow: 0 4px 16px rgba(0,0,0,.5);
+    /* ── RECTANGULAR PHOTO ───────────────────── */
+    .dish-photo-rect {
+      position: relative; width: 100%; aspect-ratio: 3/2;
+      overflow: hidden; background: var(--surface2);
+      flex-shrink: 0;
     }
     .dish-photo {
       width: 100%; height: 100%; object-fit: cover; display: block;
+      transition: transform .3s ease;
     }
+    .dish-card:hover .dish-photo { transform: scale(1.03); }
     .dish-photo-placeholder {
-      width: 100%; height: 100%; background: var(--surface3);
+      width: 100%; height: 100%; background: var(--surface2);
       display: flex; align-items: center; justify-content: center;
-      font-size: 36px;
+      font-size: 38px; color: var(--text3);
     }
     .dish-price-badge {
-      position: absolute; top: 10px; right: 10px;
-      background: rgba(0,0,0,.85); border: 1px solid rgba(201,168,76,.35);
-      color: var(--gold); font-family: var(--cond);
-      font-size: 12px; font-weight: 700;
-      padding: 3px 8px; border-radius: 6px; letter-spacing: .5px;
+      position: absolute; top: 9px; right: 9px;
+      background: rgba(10,8,6,.75); border: 1px solid rgba(255,255,255,.12);
+      color: #fff; font-family: var(--cond);
+      font-size: 13px; font-weight: 700;
+      padding: 3px 9px; border-radius: 7px; letter-spacing: .3px;
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
     }
     .dish-fuel-wrap {
-      position: absolute; bottom: 6px; left: 10px;
-      display: flex; flex-direction: column; gap: 2px;
+      position: absolute; bottom: 7px; left: 8px;
+      display: flex; flex-direction: column; gap: 3px;
     }
     .fuel-badge {
-      font-size: 7px; font-family: var(--cond); text-transform: uppercase;
-      letter-spacing: 1px; font-weight: 700;
-      padding: 2px 6px; border-radius: 4px; white-space: nowrap;
+      font-size: 8px; font-family: var(--cond); text-transform: uppercase;
+      letter-spacing: .8px; font-weight: 700;
+      padding: 2px 7px; border-radius: 4px; white-space: nowrap;
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
     }
-    .fuel-plus { background: rgba(255,159,10,.15); color: var(--amber); border: 1px solid rgba(255,159,10,.25); }
-    .fuel-lite { background: var(--green-dim); color: var(--green); border: 1px solid rgba(48,209,88,.25); }
+    .fuel-plus { background: rgba(201,120,18,.85); color: #fff; }
+    .fuel-lite { background: rgba(26,122,66,.85);  color: #fff; }
     .demand-badge {
-      font-size: 8px; font-family: var(--mono); color: var(--text3);
-      background: var(--surface2); border: 1px solid var(--border); padding: 2px 5px; border-radius: 4px;
+      font-size: 8px; font-family: var(--mono); color: #fff;
+      background: rgba(0,0,0,.55); padding: 2px 6px; border-radius: 4px;
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
     }
-    .demand-badge.hot { color: var(--amber); background: var(--amber-dim); border-color: rgba(255,159,10,.25); }
+    .demand-badge.hot { background: rgba(201,120,18,.8); }
 
-    .dish-body { padding: 12px 12px 10px; display: flex; flex-direction: column; flex: 1; background: var(--surface); }
+    /* ── DISH BODY ───────────────────────────── */
+    .dish-body { padding: 12px 12px 10px; display: flex; flex-direction: column; flex: 1; }
 
-    /* Gold condensed uppercase name — matches PDF */
     .dish-name {
       font-family: var(--cond); font-size: 14px; font-weight: 800;
       text-transform: uppercase; letter-spacing: .5px; line-height: 1.2;
       color: var(--gold); margin-bottom: 3px;
     }
-    .dish-serves {
-      font-size: 10px; color: var(--text2); margin-bottom: 8px; line-height: 1.4;
-    }
+    .dish-serves { font-size: 10px; color: var(--text2); margin-bottom: 7px; line-height: 1.4; }
 
-    /* Attribute badges: HIGH PROTEIN, LOW FAT etc */
+    /* Attribute badges */
     .dish-attribs { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 8px; }
     .attrib-badge {
       font-size: 7px; font-family: var(--cond); font-weight: 700;
-      text-transform: uppercase; letter-spacing: .8px;
+      text-transform: uppercase; letter-spacing: .6px;
       padding: 2px 6px; border-radius: 4px;
     }
-    .attrib-high-protein { background: #2a2a2a; color: #e0ddd8; border: 1px solid #3a3a3a; }
-    .attrib-low-fat      { background: #1f2a1f; color: var(--green); border: 1px solid rgba(48,209,88,.2); }
-    .attrib-low-carb     { background: #1f2a1f; color: var(--green); border: 1px solid rgba(48,209,88,.2); }
-    .attrib-chefs-choice { background: #2a2200; color: var(--gold); border: 1px solid rgba(201,168,76,.25); }
-    .attrib-vegan        { background: #1a2a1a; color: #4ade80; border: 1px solid rgba(74,222,128,.25); }
-    .attrib-high-fibre   { background: #1f2a1f; color: var(--green); border: 1px solid rgba(48,209,88,.2); }
-    .attrib-9-amino      { background: #2a2200; color: var(--gold); border: 1px solid rgba(201,168,76,.25); }
-    .attrib-omega3       { background: #002233; color: #38bdf8; border: 1px solid rgba(56,189,248,.25); }
+    .attrib-high-protein { background: #f0eeec; color: #5a5855; border: 1px solid #e0ddd8; }
+    .attrib-low-fat      { background: var(--green-dim); color: var(--green); border: 1px solid rgba(26,122,66,.2); }
+    .attrib-low-carb     { background: var(--green-dim); color: var(--green); border: 1px solid rgba(26,122,66,.2); }
+    .attrib-chefs-choice { background: var(--gold-dim); color: #9a7020; border: 1px solid rgba(201,168,76,.3); }
+    .attrib-vegan        { background: rgba(34,197,94,.08); color: #15803d; border: 1px solid rgba(34,197,94,.2); }
+    .attrib-high-fibre   { background: var(--green-dim); color: var(--green); border: 1px solid rgba(26,122,66,.2); }
+    .attrib-9-amino      { background: var(--gold-dim); color: #9a7020; border: 1px solid rgba(201,168,76,.3); }
+    .attrib-omega3       { background: rgba(14,165,233,.08); color: #0369a1; border: 1px solid rgba(14,165,233,.2); }
 
-    /* Macro dots — coloured like PDF */
-    .dish-macros { display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px; }
-    .macro-row {
-      display: flex; align-items: center; gap: 6px;
+    /* Compact 2×2 macro grid */
+    .dish-macros {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4px 6px;
+      margin-bottom: 8px;
+    }
+    .macro-chip {
+      display: flex; align-items: center; gap: 4px;
       font-size: 10px; color: var(--text2);
     }
-    .macro-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .macro-row strong { color: var(--text1); font-weight: 600; margin-right: 1px; }
+    .macro-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .macro-chip strong { color: var(--text1); font-weight: 600; margin-right: 1px; }
 
     .dish-info-area { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; }
     .dish-allergens { font-size: 9px; color: var(--text3); margin-bottom: 4px; line-height: 1.4; }
@@ -259,7 +257,7 @@
       padding-top: 8px; border-top: 1px solid var(--border); margin-top: auto;
     }
     .pick-btn {
-      padding: 7px 16px; border-radius: 7px; border: none; cursor: pointer;
+      padding: 7px 16px; border-radius: 8px; border: none; cursor: pointer;
       font-family: var(--cond); font-size: 12px; font-weight: 700;
       letter-spacing: .5px; text-transform: uppercase; transition: all .15s;
     }
@@ -268,57 +266,57 @@
     .pick-btn.remove { background: var(--surface2); color: var(--text1); border: 1.5px solid var(--border2); }
     .pick-btn.remove:hover { background: var(--surface3); }
     .pick-btn:active { transform: scale(.97); }
-    .qty-stepper {
-      display: flex; align-items: center; gap: 10px;
-    }
+
+    .qty-stepper { display: flex; align-items: center; gap: 10px; }
     .qty-stepper .qs-btn {
       width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--border2);
       background: var(--surface2); cursor: pointer; font-size: 16px; line-height: 1;
       display: flex; align-items: center; justify-content: center; color: var(--text1);
       transition: all .15s; flex-shrink: 0;
     }
-    .qty-stepper .qs-btn.minus { color: var(--red); border-color: rgba(255,69,58,.25); background: var(--red-dim); }
+    .qty-stepper .qs-btn.minus { color: var(--red); border-color: rgba(196,60,51,.25); background: var(--red-dim); }
     .qty-stepper .qs-btn.plus  { color: var(--text1); background: var(--surface3); }
     .qty-stepper .qs-btn:hover { border-color: var(--border2); }
     .qty-stepper .qs-count {
       display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 36px; text-align: center;
     }
-    .qty-stepper .qs-num  { font-size: 18px; font-weight: 700; color: var(--text1); line-height: 1; }
-    .qty-stepper .qs-sub  { font-size: 10px; color: var(--text3); font-family: var(--mono); }
+    .qty-stepper .qs-num { font-size: 18px; font-weight: 700; color: var(--text1); line-height: 1; }
+    .qty-stepper .qs-sub { font-size: 10px; color: var(--text3); font-family: var(--mono); }
 
-    .min-note {
-      font-size: 11px; color: var(--text3); text-align: center;
-      padding: 10px 0 0; font-family: var(--mono);
-    }
+    .min-note { font-size: 11px; color: var(--text3); text-align: center; padding: 10px 0 0; font-family: var(--mono); }
     .min-note.error { color: var(--red); }
 
     /* ── FORM ────────────────────────────────── */
     .form-group  { margin-bottom: 16px; }
     .form-label  { font-size: 10px; font-family: var(--mono); color: var(--text2); margin-bottom: 7px; display: block; text-transform: uppercase; letter-spacing: 1px; }
     .form-input, .form-textarea {
-      width: 100%; background: var(--surface2); border: 1.5px solid var(--border2);
-      border-radius: 9px; padding: 12px 14px; font-size: 14px; color: var(--text1);
-      font-family: var(--sans); outline: none; transition: border-color .15s;
+      width: 100%; background: var(--surface); border: 1.5px solid var(--border2);
+      border-radius: 10px; padding: 12px 14px; font-size: 14px; color: var(--text1);
+      font-family: var(--sans); outline: none; transition: border-color .15s, box-shadow .15s;
+      box-shadow: 0 1px 3px rgba(0,0,0,.04);
     }
     .form-input::placeholder, .form-textarea::placeholder { color: var(--text3); }
-    .form-input:focus, .form-textarea:focus { border-color: var(--gold); background: #1c1c1c; }
+    .form-input:focus, .form-textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,168,76,.12);
+    }
     .form-textarea { resize: vertical; min-height: 80px; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-row  { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .form-hint { font-size: 11px; color: var(--text3); margin-top: 4px; }
 
     .draft-btn {
-      width: 100%; padding: 11px; border-radius: 9px;
+      width: 100%; padding: 11px; border-radius: 10px;
       border: 1.5px solid var(--border2); background: transparent;
       color: var(--text2); font-size: 13px; font-family: var(--sans); cursor: pointer;
       transition: all .15s; margin-top: 4px;
     }
-    .draft-btn:hover { border-color: var(--border2); background: var(--surface2); color: var(--text1); }
+    .draft-btn:hover { border-color: var(--text3); background: var(--surface2); color: var(--text1); }
 
     /* ── SUMMARY ─────────────────────────────── */
     .summary-block {
-      background: var(--surface); border: 1.5px solid var(--border2);
+      background: var(--surface); border: 1.5px solid var(--border);
       border-radius: var(--radius); overflow: hidden; margin-bottom: 14px;
-      box-shadow: 0 1px 4px rgba(0,0,0,.05);
+      box-shadow: var(--shadow);
     }
     .summary-block-header {
       padding: 10px 14px; background: var(--surface2);
@@ -334,7 +332,7 @@
     .summary-row .sr-val   { font-weight: 600; }
     .summary-total {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 14px; background: var(--gold-dim); border-top: 1px solid rgba(201,168,76,.25);
+      padding: 14px; background: var(--gold-dim); border-top: 1px solid rgba(201,168,76,.2);
     }
     .summary-total .st-label { font-size: 12px; color: var(--gold); font-family: var(--mono); letter-spacing: 1px; text-transform: uppercase; }
     .summary-total .st-val   { font-family: var(--cond); font-size: 22px; font-weight: 700; color: var(--gold); letter-spacing: 1px; }
@@ -348,14 +346,16 @@
     .sdi-price { flex-shrink: 0; color: var(--text2); font-family: var(--mono); font-size: 13px; white-space: nowrap; }
 
     /* ── CONFIRMATION ────────────────────────── */
-    .confirm-icon  { font-size: 56px; text-align: center; margin: 32px 0 16px; }
-    .confirm-title { font-family: var(--cond); font-size: 32px; font-weight: 800; text-align: center; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; color: var(--gold); }
+    .confirm-icon  { width: 60px; height: 60px; border-radius: 50%; background: var(--gold-dim); border: 2px solid rgba(201,168,76,.3); display: flex; align-items: center; justify-content: center; margin: 32px auto 16px; }
+    .confirm-icon-check { font-size: 28px; color: var(--gold); font-weight: 700; font-family: var(--mono); }
+    .confirm-title { font-family: var(--cond); font-size: 32px; font-weight: 800; text-align: center; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; color: var(--text1); }
     .confirm-sub   { font-size: 14px; color: var(--text2); text-align: center; margin-bottom: 28px; line-height: 1.5; }
 
     .payment-card {
-      background: var(--surface); border: 1.5px solid rgba(201,168,76,.3);
+      background: var(--surface); border: 1.5px solid rgba(201,168,76,.25);
       border-radius: var(--radius); overflow: hidden; margin-bottom: 20px;
       text-align: center; padding: 28px 20px;
+      box-shadow: var(--shadow);
     }
     .payment-total-label {
       font-size: 11px; font-family: var(--mono); color: var(--text3);
@@ -384,47 +384,47 @@
 
     /* ── CLOSED STATE ────────────────────────── */
     .closed-wrap { text-align: center; padding: 60px 20px; }
-    .closed-icon  { font-size: 52px; margin-bottom: 20px; }
-    .closed-title { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+    .closed-icon  { font-size: 48px; margin-bottom: 20px; color: var(--text3); }
+    .closed-title { font-family: var(--cond); font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; color: var(--text1); }
     .closed-sub   { font-size: 14px; color: var(--text2); line-height: 1.6; }
 
     /* ── LOADING ─────────────────────────────── */
     .loading-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 16px; }
-    .spinner { width: 28px; height: 28px; border: 2px solid var(--border2); border-top-color: var(--gold); border-radius: 50%; animation: spin .7s linear infinite; }
+    .spinner { width: 28px; height: 28px; border: 2px solid rgba(0,0,0,.1); border-top-color: var(--gold); border-radius: 50%; animation: spin .7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text { font-size: 13px; color: var(--text3); font-family: var(--mono); }
 
     /* ── TOAST ───────────────────────────────── */
     .toast {
       position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
-      background: var(--surface2); border: 1px solid var(--border2);
+      background: #1a1714; color: #f7f5f1;
       border-radius: 8px; padding: 10px 18px; font-size: 13px;
       transition: transform .25s ease; z-index: 999; white-space: nowrap;
-      box-shadow: 0 4px 20px rgba(0,0,0,.14);
+      box-shadow: 0 4px 20px rgba(0,0,0,.18);
     }
     .toast.show { transform: translateX(-50%) translateY(0); }
 
     /* ── DRAFT BANNER ────────────────────────── */
     .draft-banner {
-      background: var(--blue-dim); border: 1px solid rgba(96,165,250,.25);
+      background: var(--blue-dim); border: 1px solid rgba(37,99,235,.18);
       border-radius: var(--radius); padding: 12px 16px;
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 20px; font-size: 13px;
     }
     .draft-banner-text { color: var(--blue); }
-    .draft-banner-btn  { font-size: 12px; color: var(--blue); background: none; border: 1px solid rgba(96,165,250,.3); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+    .draft-banner-btn  { font-size: 12px; color: var(--blue); background: none; border: 1px solid rgba(37,99,235,.25); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
 
     /* ── NAV BUTTONS ─────────────────────────── */
     .nav-row { display: flex; gap: 10px; margin-top: 24px; }
     .btn-back {
-      flex: 0 0 auto; padding: 13px 18px; border-radius: 8px;
+      flex: 0 0 auto; padding: 13px 18px; border-radius: 10px;
       background: var(--surface); border: 1.5px solid var(--border2);
       color: var(--text2); font-size: 14px; font-family: var(--sans); cursor: pointer; transition: all .15s;
-      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+      box-shadow: var(--shadow);
     }
     .btn-back:hover { border-color: var(--text3); color: var(--text1); background: var(--surface2); }
     .btn-next {
-      flex: 1; padding: 15px; border-radius: 9px;
+      flex: 1; padding: 15px; border-radius: 10px;
       background: var(--gold); border: none; color: #000;
       font-family: var(--cond); font-size: 16px; font-weight: 800;
       letter-spacing: 1px; text-transform: uppercase;
@@ -441,9 +441,13 @@
       .dish-grid { grid-template-columns: 1fr; }
       .form-row  { grid-template-columns: 1fr; }
       .portal-wrap { padding: 0 12px 60px; }
-      .dish-body { padding: 10px 12px; }
+      .dish-body { padding: 10px 10px; }
       .progress-bar { margin-bottom: 20px; }
     }
+
+    /* ── DISCOUNT APPLIED ROW FIX ───────────── */
+    #discount-applied-row { display: none; }
+    #discount-applied-row.show { display: flex !important; }
 
     /* ── FOOTER ──────────────────────────────── */
     .portal-footer {
@@ -460,11 +464,8 @@
   <!-- HEADER (always visible) -->
   <div class="portal-header">
     <div class="portal-logo">
-      <div class="portal-logo-mark">29</div>
-      <div>
-        <div class="portal-logo-text">PERFORMANCE</div>
-        <div class="portal-logo-sub">MEAL PREP</div>
-      </div>
+      <img src="Logo.png" alt="29 Performance" class="portal-logo-img">
+      <div class="portal-logo-wordmark"><span>29</span> Performance</div>
     </div>
     <div class="portal-week-badge" id="week-badge" style="display:none"></div>
   </div>
@@ -480,8 +481,8 @@
   <!-- CLOSED -->
   <div id="screen-closed" style="display:none">
     <div class="closed-wrap">
-      <div class="closed-icon">🔒</div>
-      <div class="closed-title">Orders are closed</div>
+      <div class="closed-icon">—</div>
+      <div class="closed-title">Orders Closed</div>
       <div class="closed-sub" id="closed-msg">Ordering is not currently open.<br>Check back soon for the next menu drop.</div>
     </div>
   </div>
@@ -489,10 +490,10 @@
   <!-- OPEN: wizard -->
   <div id="screen-open" style="display:none">
     <div class="deadline-banner" id="deadline-banner" style="display:none">
-      ⏰ <span id="deadline-text"></span>
+      <span id="deadline-text"></span>
     </div>
     <div class="draft-banner" id="draft-banner" style="display:none">
-      <span class="draft-banner-text">👋 Welcome back — your draft order has been restored.</span>
+      <span class="draft-banner-text">Welcome back — your draft order has been restored.</span>
       <button class="draft-banner-btn" onclick="clearDraft()">Clear</button>
     </div>
 
@@ -522,14 +523,12 @@
       <div class="step-sub">Select the day(s) you'd like to receive your meals. Minimum 3 dishes per drop.</div>
       <div class="session-grid">
         <div class="session-card" id="sc-sunday" onclick="toggleSession('sunday')">
-          <div class="sc-icon">🌅</div>
           <div class="sc-day">Sunday</div>
           <div class="sc-time" id="sc-date-sunday">Morning delivery</div>
           <div class="sc-deadline" id="sc-deadline-sunday"></div>
           <div class="sc-check" id="sc-check-sunday"></div>
         </div>
         <div class="session-card" id="sc-wednesday" onclick="toggleSession('wednesday')">
-          <div class="sc-icon">🌿</div>
           <div class="sc-day">Wednesday</div>
           <div class="sc-time" id="sc-date-wednesday">Morning delivery</div>
           <div class="sc-deadline" id="sc-deadline-wednesday"></div>
@@ -538,7 +537,7 @@
       </div>
       <div class="error-msg" id="err-sessions">Please select at least one delivery day.</div>
       <div class="nav-row">
-        <button class="btn-next" onclick="goStep(2)">Continue →</button>
+        <button class="btn-next" onclick="goStep(2)">Continue</button>
       </div>
     </div>
 
@@ -548,8 +547,8 @@
       <div class="step-sub">Minimum 3 dishes per delivery day. Add as many as you like.</div>
       <div id="dish-sections"></div>
       <div class="nav-row">
-        <button class="btn-back" onclick="goStep(1)">← Back</button>
-        <button class="btn-next" id="btn-dishes-next" onclick="goStep(3)">Continue →</button>
+        <button class="btn-back" onclick="goStep(1)">Back</button>
+        <button class="btn-next" id="btn-dishes-next" onclick="goStep(3)">Continue</button>
       </div>
     </div>
 
@@ -591,11 +590,11 @@
         <label class="form-label">Notes <span style="color:var(--text3)">(optional)</span></label>
         <textarea class="form-textarea" id="f-notes" placeholder="Anything we should know — dietary preferences, delivery instructions, etc. We'll do our best to accommodate requests but cannot guarantee changes once production has begun."></textarea>
       </div>
-      <button class="draft-btn" onclick="saveDraft()">💾 Save Draft</button>
+      <button class="draft-btn" onclick="saveDraft()">Save Draft</button>
       <div class="error-msg" id="err-details">Please fill in all required fields.</div>
       <div class="nav-row">
-        <button class="btn-back" onclick="goStep(2)">← Back</button>
-        <button class="btn-next" onclick="goStep(4)">Review Order →</button>
+        <button class="btn-back" onclick="goStep(2)">Back</button>
+        <button class="btn-next" onclick="goStep(4)">Review Order</button>
       </div>
     </div>
 
@@ -604,22 +603,47 @@
       <div class="step-title">Review your order</div>
       <div class="step-sub">Check everything looks right before submitting.</div>
       <div id="summary-content"></div>
+
+      <!-- Discount code -->
+      <div id="discount-section" style="margin:4px 0 16px">
+        <div id="discount-applied-row" style="display:none;padding:12px 14px;background:var(--green-dim);border:1px solid rgba(26,122,66,.2);border-radius:var(--radius);display:none;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--green);letter-spacing:1px" id="discount-applied-code"></div>
+            <div style="font-size:12px;color:var(--text2);margin-top:2px" id="discount-applied-label"></div>
+          </div>
+          <button onclick="removeDiscount()" style="background:none;border:1px solid rgba(26,122,66,.3);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--green);cursor:pointer">Remove</button>
+        </div>
+        <div id="discount-input-row">
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="text" id="discount-code-input" placeholder="Discount code"
+              style="flex:1;background:var(--surface);border:1.5px solid var(--border2);border-radius:10px;padding:11px 14px;font-size:13px;color:var(--text1);font-family:var(--mono);outline:none;text-transform:uppercase;transition:border-color .15s;box-shadow:0 1px 3px rgba(0,0,0,.04)"
+              oninput="this.value=this.value.toUpperCase().replace(/\s/g,'')"
+              onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor=''"
+              onkeydown="if(event.key==='Enter')applyDiscountCode()">
+            <button onclick="applyDiscountCode()"
+              style="flex-shrink:0;padding:11px 18px;border-radius:10px;border:none;background:var(--surface2);border:1.5px solid var(--border2);color:var(--text1);font-family:var(--cond);font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:all .15s"
+              onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'"
+              onmouseout="this.style.borderColor='';this.style.color=''">Apply</button>
+          </div>
+          <div id="discount-error" style="font-size:12px;color:var(--red);margin-top:6px;display:none"></div>
+        </div>
+      </div>
+
       <div class="error-msg" id="err-submit">Something went wrong. Please try again.</div>
       <div class="nav-row">
-        <button class="btn-back" onclick="goStep(3)">← Back</button>
-        <button class="btn-next" id="btn-submit" onclick="submitOrder()">Place Order →</button>
+        <button class="btn-back" onclick="goStep(3)">Back</button>
+        <button class="btn-next" id="btn-submit" onclick="submitOrder()">Place Order</button>
       </div>
     </div>
   </div>
 
   <!-- CONFIRMATION -->
   <div id="screen-confirm" style="display:none">
-    <div class="confirm-icon">✅</div>
-    <div class="confirm-title">Order Received!</div>
+    <div class="confirm-icon"><span class="confirm-icon-check">✓</span></div>
+    <div class="confirm-title">Order Received</div>
     <div class="confirm-sub" id="confirm-msg">
       Thanks — we've got your order.<br>We'll be in touch to confirm shortly.
     </div>
-    <!-- Order breakdown injected here by showConfirmation() -->
     <div id="confirm-order-breakdown" style="margin-bottom:16px"></div>
 
     <div class="payment-card">
@@ -627,45 +651,79 @@
       <div class="payment-total-amount" id="pay-amount"></div>
       <div class="payment-total-ref" id="pay-ref"></div>
       <button class="pay-btn" onclick="showPayModal()">
-        Pay with Revolut →
+        Pay with Revolut
       </button>
     </div>
 
     <!-- Payment method modal -->
-    <div id="pay-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px">
-      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:18px;max-width:360px;width:100%;padding:28px 24px;box-shadow:0 24px 60px rgba(0,0,0,0.5)">
-        <div style="font-size:32px;text-align:center;margin-bottom:12px">🏦</div>
-        <div style="font-size:18px;font-weight:700;color:var(--text1);text-align:center;margin-bottom:8px">Choose Pay by Bank</div>
-        <div style="font-size:13px;color:var(--text2);text-align:center;line-height:1.6;margin-bottom:20px">
-          On the next screen, please select <strong style="color:var(--text1)">Pay by bank</strong> to avoid any card processing fees.
-        </div>
-        <!-- Visual hint -->
-        <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between">
-          <div>
-            <div style="font-size:13px;font-weight:600;color:var(--text1)">Pay by bank</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:2px">No card fees · Instant transfer</div>
+    <div id="pay-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:20px">
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:22px;max-width:370px;width:100%;padding:0;box-shadow:0 28px 70px rgba(0,0,0,.65);overflow:hidden">
+
+        <!-- Gold accent bar at top -->
+        <div style="height:3px;background:linear-gradient(90deg,#b8920a,var(--gold),#f0c060)"></div>
+
+        <div style="padding:26px 22px 22px">
+
+          <!-- Friendly header -->
+          <div style="text-align:center;margin-bottom:20px">
+            <div style="font-size:30px;margin-bottom:10px">🎉</div>
+            <div style="font-size:19px;font-weight:800;color:var(--text1);letter-spacing:-.4px;margin-bottom:6px">You're almost there</div>
+            <div style="font-size:12.5px;color:var(--text2);line-height:1.65">Your order is locked in — complete your payment and we'll start prepping your meals.</div>
           </div>
-          <div style="background:var(--gold);color:#000;font-size:11px;font-weight:700;padding:5px 10px;border-radius:6px">SELECT THIS</div>
+
+          <!-- Amount hero — the thing they must screenshot -->
+          <div style="background:linear-gradient(135deg,rgba(201,168,76,.16),rgba(201,168,76,.05));border:1.5px solid rgba(201,168,76,.42);border-radius:14px;padding:16px 18px;margin-bottom:18px;text-align:center">
+            <div style="font-family:monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:8px">Total to pay</div>
+            <div id="pay-modal-amount" style="font-size:38px;font-weight:900;color:var(--text1);letter-spacing:-1.5px;line-height:1">—</div>
+            <div style="margin-top:11px;display:inline-flex;align-items:center;gap:6px;background:rgba(0,0,0,.28);border-radius:7px;padding:5px 11px">
+              <span style="font-size:14px">📸</span>
+              <span style="font-size:10.5px;color:var(--text2);font-family:monospace;letter-spacing:.3px">Screenshot this — you'll enter it on the next screen</span>
+            </div>
+          </div>
+
+          <!-- 3-step guide — removes payment anxiety -->
+          <div style="margin-bottom:20px">
+            <div style="font-family:monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:10px">How to complete payment</div>
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <div style="display:flex;align-items:flex-start;gap:10px">
+                <div style="width:20px;height:20px;border-radius:50%;background:rgba(201,168,76,.18);color:var(--gold);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">1</div>
+                <div style="font-size:12.5px;color:var(--text2);line-height:1.5">Tap <strong style="color:var(--text1)">Pay now</strong> — you'll be taken to our secure Revolut checkout</div>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:10px">
+                <div style="width:20px;height:20px;border-radius:50%;background:rgba(201,168,76,.18);color:var(--gold);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">2</div>
+                <div style="font-size:12.5px;color:var(--text2);line-height:1.5">Select <strong style="color:var(--text1)">Pay by bank</strong> — no card fees, every penny goes toward your meals</div>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:10px">
+                <div style="width:20px;height:20px;border-radius:50%;background:rgba(201,168,76,.18);color:var(--gold);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">3</div>
+                <div style="font-size:12.5px;color:var(--text2);line-height:1.5">Enter <strong style="color:var(--text1)" id="pay-modal-amount-step">the amount above</strong> when prompted to complete the transfer</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CTA — amount embedded so they see it before clicking -->
+          <a id="pay-modal-link" href="https://checkout.revolut.com/pay/e338d7a8-a6e5-4609-9fcf-aa64bc999232" target="_blank" rel="noopener"
+            style="display:block;width:100%;padding:15px;border-radius:13px;background:var(--gold);color:#000;font-size:15px;font-weight:800;text-decoration:none;text-align:center;box-sizing:border-box;margin-bottom:10px;letter-spacing:-.2px;transition:opacity .15s"
+            onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'"
+            onclick="document.getElementById('pay-modal').style.display='none'">
+            Pay <span id="pay-modal-btn-amount"></span> now →
+          </a>
+          <button onclick="document.getElementById('pay-modal').style.display='none'"
+            style="width:100%;padding:11px;border-radius:10px;border:1px solid var(--border2);background:none;color:var(--text3);font-size:12px;cursor:pointer;transition:color .15s"
+            onmouseover="this.style.color='var(--text2)'" onmouseout="this.style.color='var(--text3)'">
+            Go back
+          </button>
+
         </div>
-        <a id="pay-modal-link" href="https://checkout.revolut.com/pay/e338d7a8-a6e5-4609-9fcf-aa64bc999232" target="_blank" rel="noopener"
-          style="display:block;width:100%;padding:14px;border-radius:10px;background:var(--gold);color:#000;font-size:15px;font-weight:700;text-decoration:none;text-align:center;box-sizing:border-box;margin-bottom:10px"
-          onclick="document.getElementById('pay-modal').style.display='none'">
-          Continue to payment →
-        </a>
-        <button onclick="document.getElementById('pay-modal').style.display='none'"
-          style="width:100%;padding:11px;border-radius:10px;border:1px solid var(--border2);background:none;color:var(--text3);font-size:13px;cursor:pointer">
-          Back
-        </button>
       </div>
     </div>
+
     <p style="font-size:12px;color:var(--text3);text-align:center;line-height:1.6">
-      Tap the button above to pay via Revolut.<br>
-      Enter the amount shown above when prompted.<br>
+      Tap above to pay via Revolut.<br>
+      Enter the amount shown when prompted.<br>
       Your order is pending until payment is received.
     </p>
-    <div style="margin-top:14px;display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;">
-      <span style="font-size:20px;flex-shrink:0">📸</span>
-      <span style="font-size:12px;color:var(--text2);line-height:1.5">Screenshot this page to save your order total for reference. You won't be able to come back to this screen.</span>
+    <div style="margin-top:14px;padding:12px 14px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;font-size:12px;color:var(--text2);line-height:1.5;text-align:center;box-shadow:var(--shadow)">
+      Screenshot this page to save your order total for reference.
     </div>
   </div>
 
@@ -678,39 +736,24 @@
 
 <script>
 // ═══════════════════════════════════════════════════════════════
-//  ⚙️  PAYMENT DETAILS — edit these before going live
+//  EMAILJS ORDER NOTIFICATIONS
 // ═══════════════════════════════════════════════════════════════
-
-// Firebase config is loaded automatically from localStorage (same
-// storage used by the ops app). No file editing needed locally.
-// For GitHub Pages deployment, use the setup screen that appears
-// the first time you open the portal on a new device.
-
-// Payment is handled via Revolut link — no bank details needed.
-
-// ─── EMAILJS ORDER NOTIFICATIONS ──────────────────────────────
-// Sends an email to 29performance@gmail.com on every successful order.
-// Setup: https://www.emailjs.com → create account → connect Gmail →
-// create template → paste your Public Key, Service ID, Template ID below.
 var EMAILJS_PUBLIC_KEY  = 'FyQpJDruNfvEwimsA';
 var EMAILJS_SERVICE_ID  = 'service_4twh0op';
 var EMAILJS_TEMPLATE_ID = 'template_9pctcia';
 
 // ── Google Sheets Webhook ─────────────────────────────────────────
-// Paste your Apps Script Web App URL here after setup (see README in sheet)
 var SHEETS_WEBHOOK_URL = 'PASTE-WEBHOOK-URL-HERE';
-// ───────────────────────────────────────────────────────────────
 
-function sendOrderNotification(customer, ordersCreated, weekLabel, deliveryFee) {
+function sendOrderNotification(customer, ordersCreated, weekLabel, deliveryFee, discount) {
   if (!EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY === 'PASTE-PUBLIC-KEY-HERE') return;
 
-  try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch(e) { /* already initialised — safe to continue */ }
+  try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch(e) { /* already initialised */ }
 
   var grandTotal = (deliveryFee || 0) + ordersCreated.reduce(function(s, o) { return s + o.sessTotal; }, 0);
 
-  // Build HTML dish rows — styled to match glass email template
   var orderRowsHtml = ordersCreated.map(function(o) {
-    var isSunday = o.session === 'Sunday';
+    var isSunday = o.session === 'S1' || o.session === 'Sunday';
     var sessColor = isSunday ? '#d4af37' : '#7dd3b0';
     var sessLabel = isSunday ? 'Sunday Drop' : 'Wednesday Drop';
     var sep = 'border-bottom:1px solid rgba(255,255,255,0.06);';
@@ -737,6 +780,27 @@ function sendOrderNotification(customer, ordersCreated, weekLabel, deliveryFee) 
     : 'Free (Coventry)';
   var deliveryColor = deliveryFee > 0 ? '#f2f2f7' : '#30d158';
 
+  // Append discount rows to order_rows if a discount was applied
+  var originalTotal = grandTotal;
+  var discountAmount = 0;
+  if (discount && discount.amount > 0) {
+    discountAmount = parseFloat(discount.amount) || 0;
+    grandTotal = Math.max(0, grandTotal - discountAmount);
+    var discLabel = discount.type === 'percent'
+      ? discount.code + ' \u2014 ' + discount.value + '% off'
+      : discount.code + ' \u2014 \u00a3' + parseFloat(discount.value).toFixed(2) + ' off';
+    orderRowsHtml +=
+        '<tr><td colspan="2" style="padding:0;height:1px;background:rgba(255,255,255,0.06)"></td></tr>'
+      + '<tr>'
+        + '<td style="padding:10px 16px;font-size:12px;color:#8e8e93;letter-spacing:.5px">Original total</td>'
+        + '<td style="padding:10px 16px;font-size:13px;color:#8e8e93;text-align:right;text-decoration:line-through">\u00a3' + originalTotal.toFixed(2) + '</td>'
+      + '</tr>'
+      + '<tr>'
+        + '<td style="padding:4px 16px 10px;font-size:12px;color:#30d158">\uD83C\uDFF7\uFE0F Discount: ' + discLabel + '</td>'
+        + '<td style="padding:4px 16px 10px;font-size:14px;font-weight:700;color:#30d158;text-align:right">\u2212\u00a3' + discountAmount.toFixed(2) + '</td>'
+      + '</tr>';
+  }
+
   emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
     email:            '29performance@gmail.com',
     customer_name:    customer.name,
@@ -761,46 +825,37 @@ function sendOrderNotification(customer, ordersCreated, weekLabel, deliveryFee) 
 //  STATE
 // ═══════════════════════════════════════════════════════════════
 var DB          = null;
-var _macroCache = {};   // dishId → {kcal, prot, carb, fat, allergens}
+var _macroCache = {};
 var state = {
   step:     1,
-  sessions: [],          // ['sunday'] / ['wednesday'] / ['sunday','wednesday']
-  picks:    { sunday: {}, wednesday: {} },  // {dishId: qty}
+  sessions: [],
+  picks:    { sunday: {}, wednesday: {} },
   customer: { name:'', email:'', phone:'', address1:'', address2:'', city:'', postcode:'', notes:'' },
-  deliveryFee: 0         // set by postcode check in validateDetails
+  deliveryFee: 0,
+  discount: null   // { code, type, value, amount } — null if none applied
 };
 
 // ── Delivery zone helper ──────────────────────────────────────────────────────
-// Free:    CV1–CV6  (Coventry city)
-// £5:      CV7, B, WS, WV, DY  (West Midlands up to Wolverhampton)
-// Blocked: everything else (CV8+, all other areas)
 function getDeliveryZone(postcode) {
   var clean = (postcode || '').trim().toUpperCase();
   if (!clean) return { valid: false, fee: 0, label: '', message: 'Please enter a valid postcode.' };
 
-  // Use only the outward code (e.g. "CV1" from "CV1 2AB") so that "CV1 2AB"
-  // isn't stripped to "CV12AB" and misread as district 12.
   var outward = clean.split(/\s+/)[0];
   var areaMatch = outward.match(/^([A-Z]+)(\d+)/);
   if (!areaMatch) return { valid: false, fee: 0, label: '', message: 'Please enter a valid postcode.' };
 
-  var letters = areaMatch[1];   // e.g. CV, B, WS
-  var number  = parseInt(areaMatch[2], 10); // e.g. 1, 7, 12
+  var letters = areaMatch[1];
+  var number  = parseInt(areaMatch[2], 10);
 
-  // Coventry city — free
   if (letters === 'CV' && number >= 1 && number <= 6) {
     return { valid: true, fee: 0, label: 'Free delivery (Coventry)', message: '' };
   }
-
-  // West Midlands / Leamington — £5
   if (letters === 'CV' && (number === 7 || number === 31 || number === 32)) {
     return { valid: true, fee: 5, label: '£5.00 delivery (West Midlands)', message: '' };
   }
   if (['B', 'WS', 'WV', 'DY'].indexOf(letters) !== -1) {
     return { valid: true, fee: 5, label: '£5.00 delivery (West Midlands)', message: '' };
   }
-
-  // Everything else — outside delivery zone
   return {
     valid: false, fee: 0, label: '',
     message: 'Sorry, we currently only deliver within Coventry and the West Midlands (up to Wolverhampton). Please check your postcode or contact us directly.'
@@ -808,7 +863,7 @@ function getDeliveryZone(postcode) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  FIREBASE INIT  — reads config from localStorage automatically
+//  FIREBASE INIT
 // ═══════════════════════════════════════════════════════════════
 function _startFirebase(cfg) {
   try {
@@ -830,71 +885,48 @@ function _startFirebase(cfg) {
 function showSetupScreen(errorMsg) {
   document.getElementById('screen-loading').innerHTML =
     '<div style="max-width:440px;margin:0 auto;padding:32px 20px">' +
-    '<div style="font-size:28px;margin-bottom:16px;text-align:center">⚙️</div>' +
-    '<div style="font-size:18px;font-weight:700;margin-bottom:6px;text-align:center">Portal Setup</div>' +
+    '<div style="font-size:18px;font-weight:700;margin-bottom:6px;text-align:center;font-family:var(--cond);text-transform:uppercase;letter-spacing:1px">Portal Setup</div>' +
     '<div style="font-size:13px;color:var(--text2);margin-bottom:24px;text-align:center;line-height:1.5">Paste your Firebase config to connect this portal to your 29 Performance database.</div>' +
-    (errorMsg ? '<div style="font-size:12px;color:var(--red);background:var(--red-dim);border:1px solid rgba(248,113,113,.2);border-radius:6px;padding:8px 12px;margin-bottom:16px">' + escHtml(errorMsg) + '</div>' : '') +
-    '<textarea id="setup-cfg-input" style="width:100%;min-height:180px;background:var(--surface2);border:1.5px solid var(--border2);border-radius:8px;padding:12px;font-size:12px;font-family:var(--mono);color:var(--text1);outline:none;resize:vertical;box-sizing:border-box;margin-bottom:12px" placeholder=\'Paste your firebaseConfig object here:\n\n{\n  apiKey: "...",\n  databaseURL: "https://your-project.firebaseio.com",\n  ...\n}\'></textarea>' +
+    (errorMsg ? '<div style="font-size:12px;color:var(--red);background:var(--red-dim);border:1px solid rgba(196,60,51,.15);border-radius:6px;padding:8px 12px;margin-bottom:16px">' + escHtml(errorMsg) + '</div>' : '') +
+    '<textarea id="setup-cfg-input" style="width:100%;min-height:180px;background:var(--surface);border:1.5px solid var(--border2);border-radius:10px;padding:12px;font-size:12px;font-family:var(--mono);color:var(--text1);outline:none;resize:vertical;box-sizing:border-box;margin-bottom:12px" placeholder=\'Paste your firebaseConfig object here:\n\n{\n  apiKey: "...",\n  databaseURL: "https://your-project.firebaseio.com",\n  ...\n}\'></textarea>' +
     '<div style="font-size:11px;color:var(--text3);margin-bottom:16px">Find this in Firebase Console → Project Settings → Your apps → Web app → SDK setup.</div>' +
-    '<button onclick="savePortalSetup()" style="width:100%;padding:13px;border-radius:8px;border:none;background:var(--gold);color:#000;font-size:15px;font-weight:700;cursor:pointer">Connect & Save</button>' +
+    '<button onclick="savePortalSetup()" style="width:100%;padding:13px;border-radius:10px;border:none;background:var(--gold);color:#000;font-size:15px;font-weight:700;cursor:pointer">Connect & Save</button>' +
     '</div>';
 }
 
 function savePortalSetup() {
   var raw = (document.getElementById('setup-cfg-input').value || '').trim();
   if (!raw) { alert('Please paste your Firebase config.'); return; }
-
-  // Parse — handles both modular SDK format and plain object format
   try {
     var cleaned = raw
-      // Strip block comments first
       .replace(/\/\*[\s\S]*?\*\//g, '')
-      // Strip lines that START with // (comment lines) — does NOT touch :// in URLs
       .replace(/^\s*\/\/[^\n]*/gm, '')
-      // Strip ES module import lines: import { ... } from "..."
       .replace(/import\s+[^;]+;/g, '')
-      // Strip export lines
       .replace(/export\s+default\s+[^;]+;/g, '')
-      // Strip initializeApp call and similar — anything before/after the { } block
       .replace(/const\s+\w+\s*=\s*initializeApp\s*\([^)]*\)\s*;?/g, '')
       .replace(/const\s+firebaseConfig\s*=\s*/g, '')
       .replace(/var\s+firebaseConfig\s*=\s*/g, '')
       .replace(/let\s+firebaseConfig\s*=\s*/g, '')
       .trim();
-
-    // Extract the first { ... } block
     var m = cleaned.match(/\{[\s\S]*\}/);
     if (!m) throw new Error('No config object found — paste just the firebaseConfig block.');
     cleaned = m[0];
-
-    // Quote unquoted JS object keys
     cleaned = cleaned.replace(/([{,]\s*)([a-zA-Z_$][a-zA-Z0-9_$]*)\s*:/g, '$1"$2":');
-    // Convert single-quoted strings to double-quoted
     cleaned = cleaned.replace(/:\s*'([^']*)'/g, ': "$1"');
-    // Strip trailing commas
     cleaned = cleaned.replace(/,(\s*[}\]])/g, '$1');
-
     var cfg = JSON.parse(cleaned);
     if (!cfg.databaseURL) {
-      alert('Missing databaseURL — make sure you paste the full firebaseConfig including the Realtime Database URL (it looks like https://your-project-rtdb.europe-west1.firebasedatabase.app).');
+      alert('Missing databaseURL — make sure you paste the full firebaseConfig including the Realtime Database URL.');
       return;
     }
-
     localStorage.setItem('29perf_fb_config', JSON.stringify(cfg));
-
-    // Reload so Firebase initialises cleanly
     location.reload();
   } catch(e) {
-    alert('Could not parse config: ' + e.message + '\n\nTip: paste everything Firebase gives you — including the import lines is fine, the portal will strip them automatically.');
+    alert('Could not parse config: ' + e.message);
   }
 }
 
 (function initApp() {
-  // ─── FIREBASE CONFIG ───────────────────────────────────────────
-  // Paste your Firebase config object here (from Firebase Console →
-  // Project Settings → Your apps → Web app → SDK setup & config).
-  // This is safe to include in a public file — Firebase security
-  // rules control what can actually be read/written.
   var cfg = {
     apiKey:            "AIzaSyC5-HpfnDzMrVyvGIIhqdpqqcG9MNka800",
     authDomain:        "performance-meal-prep-os.firebaseapp.com",
@@ -904,8 +936,6 @@ function savePortalSetup() {
     messagingSenderId: "583664075174",
     appId:             "1:583664075174:web:b9fd64c0db034851cbcf67"
   };
-  // ───────────────────────────────────────────────────────────────
-
   _startFirebase(cfg);
 })();
 
@@ -915,7 +945,6 @@ function savePortalSetup() {
 function onDBUpdate() {
   if (!DB) return showScreen('closed');
 
-  // Update week badge — show the portal week (next slot if populated)
   var portalLabel = getPortalWeekLabel();
   if (portalLabel) {
     var wb = document.getElementById('week-badge');
@@ -923,7 +952,6 @@ function onDBUpdate() {
     wb.style.display = '';
   }
 
-  // ── Per-session availability ─────────────────────────────────
   if (!getPortalPublished()) {
     document.getElementById('closed-msg').innerHTML =
       'Ordering is not currently open.<br>Check back Monday evening for the next menu drop.';
@@ -933,7 +961,6 @@ function onDBUpdate() {
   var avail = getSessionAvail();
 
   if (!avail.sunday.open && !avail.wednesday.open) {
-    // Both sessions closed — determine friendly message
     var msg;
     if (avail.sunday.deadline || avail.wednesday.deadline) {
       msg = 'Ordering has closed for this week.<br>The next menu drops <strong>Monday at 7pm</strong>.';
@@ -944,7 +971,6 @@ function onDBUpdate() {
     return showScreen('closed');
   }
 
-  // Show deadline banner for the soonest open session
   var bannerDeadline = null;
   var bannerLabel    = '';
   if (avail.sunday.open && avail.sunday.deadline) {
@@ -959,10 +985,8 @@ function onDBUpdate() {
   }
   if (bannerDeadline) renderDeadline(bannerDeadline, bannerLabel);
 
-  // Clear macro cache on data refresh
   _macroCache = {};
 
-  // Update session card states (dates + availability)
   var dd = getPortalDropDates();
   ['sunday','wednesday'].forEach(function(sess) {
     var dateEl     = document.getElementById('sc-date-' + sess);
@@ -970,7 +994,6 @@ function onDBUpdate() {
     var card       = document.getElementById('sc-' + sess);
     var s          = avail[sess];
 
-    // Date label
     var dateStr = dd[sess];
     if (dateEl) {
       if (dateStr) {
@@ -981,12 +1004,10 @@ function onDBUpdate() {
       }
     }
 
-    // Deadline / closed label + card state
     if (card) {
       if (!s.open) {
         card.classList.add('sc-closed');
         if (deadlineEl) deadlineEl.textContent = 'Orders closed';
-        // Deselect if currently selected
         var selIdx = state.sessions.indexOf(sess);
         if (selIdx >= 0) {
           state.sessions.splice(selIdx, 1);
@@ -999,7 +1020,7 @@ function onDBUpdate() {
         card.classList.remove('sc-closed');
         if (deadlineEl && s.deadline) {
           var diff = s.deadline - new Date();
-          var closing = diff < 86400000; // less than 24h
+          var closing = diff < 86400000;
           if (closing) card.classList.add('sc-closing');
           else card.classList.remove('sc-closing');
           deadlineEl.textContent = fmtSessionDeadline(s.deadline);
@@ -1010,12 +1031,10 @@ function onDBUpdate() {
     }
   });
 
-  // If already on a step, re-render that step (e.g. demand counters update)
   if (document.getElementById('screen-open').style.display !== 'none') {
     if (state.step === 2) renderDishSections();
     if (state.step === 4) renderSummary();
   } else {
-    // Check for saved draft (keyed on last email in localStorage)
     var lastEmail = localStorage.getItem('29p_draft_email');
     if (lastEmail) {
       var draftRaw = localStorage.getItem('29p_draft_' + lastEmail);
@@ -1045,11 +1064,7 @@ function showScreen(name) {
   });
 }
 
-/* ── Portal slot helpers ─────────────────────────────────────────
-   The portal always shows the NEXT week's menu (DB.nextMenuDishes).
-   Falls back to DB.menuDishes if next slot hasn't been populated yet
-   (transition period / first deployment).
-─────────────────────────────────────────────────────────────────*/
+/* ── Portal slot helpers ───────────────────────────────────────── */
 function _portalHasNextSlot() {
   return !!(DB.nextMenuDishes && DB.nextMenuDishes.length > 0);
 }
@@ -1066,7 +1081,6 @@ function getPortalDropDates() {
   return _portalHasNextSlot() ? (DB.nextDropDates || {}) : (DB.dropDates || {});
 }
 
-/* Returns per-session open/closed status + deadline objects */
 function getSessionAvail() {
   var now = new Date();
   var pub = getPortalPublished();
@@ -1081,18 +1095,17 @@ function getSessionAvail() {
   };
 }
 
-/* Human-friendly deadline string for session cards */
 function fmtSessionDeadline(d) {
   if (!d) return '';
   var diff = d - new Date();
   if (diff <= 0) return 'Orders closed';
   if (diff < 3600000) {
     var m = Math.floor(diff / 60000);
-    return '⚠ Closes in ' + m + 'm';
+    return 'Closes in ' + m + 'm';
   }
   if (diff < 86400000) {
     var h = Math.floor(diff / 3600000);
-    return '⏰ Closes in ' + h + 'h';
+    return 'Closes in ' + h + 'h';
   }
   return 'Orders close ' + d.toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short'}) +
          ' at ' + d.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
@@ -1112,7 +1125,7 @@ function renderDeadline(deadline, label) {
   } else if (hours >= 1) {
     str = prefix + 'in ' + hours + 'h ' + mins + 'm';
   } else {
-    str = prefix + 'in ' + mins + ' minute' + (mins !== 1 ? 's' : '') + ' — order now!';
+    str = prefix + 'in ' + mins + ' minute' + (mins !== 1 ? 's' : '') + ' — order now';
   }
   text.textContent = str;
   banner.style.display = '';
@@ -1135,7 +1148,6 @@ function renderStep(n) {
 }
 
 function goStep(n) {
-  // Validate current step before advancing
   if (n > state.step) {
     if (state.step === 1 && !validateSessions()) return;
     if (state.step === 2 && !validateDishes())   return;
@@ -1151,7 +1163,6 @@ function updateProgress(current) {
     el.classList.remove('done','active');
     if (i < current)  el.classList.add('done');
     if (i === current) el.classList.add('active');
-    // Mark connector line (::after of previous step) as done
     var prevEl = document.getElementById('ps-' + (i-1));
     if (prevEl && i <= current) prevEl.classList.add('done');
   });
@@ -1161,7 +1172,6 @@ function updateProgress(current) {
 //  STEP 1: SESSION SELECTION
 // ═══════════════════════════════════════════════════════════════
 function toggleSession(session) {
-  // Prevent selecting a closed session
   var avail = getSessionAvail();
   if (!avail[session].open) return;
 
@@ -1178,11 +1188,9 @@ function toggleSession(session) {
 }
 
 function validateSessions() {
-  // Re-check availability in case deadline passed while user was browsing
   var avail = getSessionAvail();
   var valid = state.sessions.filter(function(s) { return avail[s].open; });
   if (valid.length !== state.sessions.length) {
-    // A session just closed — remove it and warn
     state.sessions = valid;
     state.sessions.forEach(function(s) {
       var c = document.getElementById('sc-' + s);
@@ -1203,7 +1211,6 @@ function validateSessions() {
 function getActiveDishes() {
   var dishes = getPortalMenuDishes().filter(function(d) {
     if (d.athleteVariant) return false;
-    // Only include dishes available for the relevant sessions
     return state.sessions.some(function(sess) {
       return sess === 'sunday' ? d.availSunday : d.availWednesday;
     });
@@ -1222,7 +1229,7 @@ function renderDishSections() {
   var portalDishes = getPortalMenuDishes();
   state.sessions.forEach(function(sess) {
     var dateStr = dd[sess] ? new Date(dd[sess] + 'T12:00:00').toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long'}) : '';
-    var dayLabel = sess === 'sunday' ? '🌅 Sunday Drop' : '🌿 Wednesday Drop';
+    var dayLabel = sess === 'sunday' ? 'Sunday Drop' : 'Wednesday Drop';
     var dishes = portalDishes.filter(function(d) {
       if (d.athleteVariant) return false;
       return sess === 'sunday' ? d.availSunday : d.availWednesday;
@@ -1250,26 +1257,22 @@ function renderDishCard(dish, sess) {
   var macros    = getDishMacros(dish);
   var qty       = (state.picks[sess] || {})[dish.id] || 0;
   var isPicked  = qty > 0;
-  var demand    = getDishDemand(dish.id);
-  var demandTxt = demand > 0 ? demand + ' ordered' : '';
-  var demandHot = demand >= 5;
   var sellPrice = parseFloat(dish.sellPrice) || 0;
   var fuelClass = dish.fuelLine === 'Fuel Lite' ? 'fuel-lite' : 'fuel-plus';
-  var fuelLabel = dish.fuelLine === 'Fuel Lite' ? 'Fuel Lite –' : 'Fuel Plus +';
+  var fuelLabel = dish.fuelLine === 'Fuel Lite' ? 'Fuel Lite' : 'Fuel Plus';
 
-  // Circular photo wrap — price badge + fuel badge overlaid
+  // Rectangular photo
   var innerPhoto = dish.photoUrl
     ? '<img class="dish-photo" src="' + escHtml(dish.photoUrl) + '" alt="' + escHtml(dish.name) + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
-      '<div class="dish-photo-placeholder" style="display:none">🍱</div>'
-    : '<div class="dish-photo-placeholder">🍱</div>';
+      '<div class="dish-photo-placeholder" style="display:none">&#x1F372;</div>'
+    : '<div class="dish-photo-placeholder">&#x1F372;</div>';
 
   var photoHtml =
-    '<div class="dish-photo-wrap">' +
-    '<div class="dish-photo-circle">' + innerPhoto + '</div>' +
-    '<div class="dish-price-badge">£' + sellPrice.toFixed(2) + '</div>' +
+    '<div class="dish-photo-rect">' +
+    innerPhoto +
+    '<div class="dish-price-badge">\u00a3' + sellPrice.toFixed(2) + '</div>' +
     '<div class="dish-fuel-wrap">' +
     '<span class="fuel-badge ' + fuelClass + '">' + fuelLabel + '</span>' +
-    (demandTxt ? '<span class="demand-badge' + (demandHot ? ' hot' : '') + '">' + demandTxt + '</span>' : '') +
     '</div>' +
     '</div>';
 
@@ -1278,11 +1281,11 @@ function renderDishCard(dish, sess) {
     ? '<div class="dish-serves">With ' + escHtml(dish.serves) + '</div>'
     : '';
 
-  // Attribute tag badges
+  // Attribute badges
   var tagMap = {
     'high-protein':  { cls: 'attrib-high-protein', label: 'High Protein' },
-    'low-fat':       { cls: 'attrib-low-fat',       label: '↓ Low Fat' },
-    'low-carb':      { cls: 'attrib-low-carb',      label: '↓ Low Carb' },
+    'low-fat':       { cls: 'attrib-low-fat',       label: 'Low Fat' },
+    'low-carb':      { cls: 'attrib-low-carb',      label: 'Low Carb' },
     'chefs-choice':  { cls: 'attrib-chefs-choice',  label: "Chef's Choice" },
     'vegan':         { cls: 'attrib-vegan',          label: 'Vegan' },
     'high-fibre':    { cls: 'attrib-high-fibre',     label: 'High Fibre' },
@@ -1299,13 +1302,13 @@ function renderDishCard(dish, sess) {
       '</div>'
     : '';
 
-  // Coloured macro dots
+  // Compact 2×2 macro grid
   var macroHtml =
     '<div class="dish-macros">' +
-    '<div class="macro-row"><span class="macro-dot" style="background:var(--dot-kcal)"></span><strong>' + macros.kcal + '</strong> Kcal</div>' +
-    '<div class="macro-row"><span class="macro-dot" style="background:var(--dot-carb)"></span><strong>' + macros.carb + 'g</strong> Carb</div>' +
-    '<div class="macro-row"><span class="macro-dot" style="background:var(--dot-fat)"></span><strong>' + macros.fat + 'g</strong> Fat</div>' +
-    '<div class="macro-row"><span class="macro-dot" style="background:var(--dot-prot)"></span><strong>' + macros.prot + 'g</strong> Protein</div>' +
+    '<div class="macro-chip"><span class="macro-dot" style="background:var(--dot-kcal)"></span><strong>' + macros.kcal + '</strong>&nbsp;kcal</div>' +
+    '<div class="macro-chip"><span class="macro-dot" style="background:var(--dot-prot)"></span><strong>' + macros.prot + 'g</strong>&nbsp;P</div>' +
+    '<div class="macro-chip"><span class="macro-dot" style="background:var(--dot-carb)"></span><strong>' + macros.carb + 'g</strong>&nbsp;C</div>' +
+    '<div class="macro-chip"><span class="macro-dot" style="background:var(--dot-fat)"></span><strong>' + macros.fat + 'g</strong>&nbsp;F</div>' +
     '</div>';
 
   var allergenHtml = macros.allergens.length
@@ -1318,10 +1321,10 @@ function renderDishCard(dish, sess) {
     pickHtml =
       '<div class="dish-pick-row" style="justify-content:space-between">' +
       '<div class="qty-stepper">' +
-      '<button class="qs-btn minus" onclick="adjustQty(\'' + sess + '\',\'' + dish.id + '\',-1)">−</button>' +
+      '<button class="qs-btn minus" onclick="adjustQty(\'' + sess + '\',\'' + dish.id + '\',-1)">\u2212</button>' +
       '<div class="qs-count">' +
       '<span class="qs-num">' + qty + '</span>' +
-      '<span class="qs-sub">£' + (sellPrice * qty).toFixed(2) + '</span>' +
+      '<span class="qs-sub">\u00a3' + (sellPrice * qty).toFixed(2) + '</span>' +
       '</div>' +
       '<button class="qs-btn plus" onclick="adjustQty(\'' + sess + '\',\'' + dish.id + '\',+1)">+</button>' +
       '</div>' +
@@ -1364,7 +1367,7 @@ function validateDishes() {
     return sessPickTotal(sess) >= 3;
   });
   if (!ok) {
-    toast('⚠ Minimum 3 dishes per delivery day');
+    toast('Minimum 3 dishes per delivery day');
     return false;
   }
   return true;
@@ -1406,7 +1409,6 @@ function validateDetails() {
 }
 
 function saveDraft() {
-  // Read current form fields into state
   var name  = document.getElementById('f-name').value.trim();
   var email = document.getElementById('f-email').value.trim().toLowerCase();
   if (!email) { toast('Enter your email to save a draft'); return; }
@@ -1428,7 +1430,7 @@ function saveDraft() {
   };
   localStorage.setItem('29p_draft_' + email, JSON.stringify(draft));
   localStorage.setItem('29p_draft_email', email);
-  toast('✓ Draft saved');
+  toast('Draft saved');
 }
 
 function clearDraft() {
@@ -1438,12 +1440,12 @@ function clearDraft() {
   state.sessions = [];
   state.picks    = { sunday: [], wednesday: [] };
   state.customer = { name:'', email:'', phone:'', address1:'', address2:'', city:'', postcode:'', notes:'' };
+  state.discount = null;
   document.getElementById('draft-banner').style.display = 'none';
   toast('Draft cleared');
   renderStep(1);
 }
 
-// Restore draft form values when arriving at step 3
 function restoreFormValues() {
   var c = state.customer;
   document.getElementById('f-name').value     = c.name     || '';
@@ -1462,13 +1464,12 @@ function restoreFormValues() {
 function renderSummary() {
   var html = '';
   var grandTotal = 0;
-
-  // Per-session dish lists
   var dd = getPortalDropDates();
   var _pmDishes = getPortalMenuDishes();
+
   state.sessions.forEach(function(sess) {
     var dateStr = dd[sess] ? new Date(dd[sess] + 'T12:00:00').toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long'}) : '';
-    var label = (sess === 'sunday' ? '🌅 Sunday Drop' : '🌿 Wednesday Drop') + (dateStr ? ' · ' + dateStr : '');
+    var label = (sess === 'sunday' ? 'Sunday Drop' : 'Wednesday Drop') + (dateStr ? ' · ' + dateStr : '');
     var picks = state.picks[sess] || {};
     var totalQty = sessPickTotal(sess);
     var sessTotal = 0;
@@ -1485,22 +1486,21 @@ function renderSummary() {
       dishRows += '<div class="summary-dish-item">' +
         '<div class="sdi-left">' +
         '<strong>' + escHtml(d.name) + '</strong>' +
-        (qty > 1 ? ' <span style="color:var(--gold);font-family:var(--mono);font-size:11px">×' + qty + '</span>' : '') +
+        (qty > 1 ? ' <span style="color:var(--gold);font-family:var(--mono);font-size:11px">\u00d7' + qty + '</span>' : '') +
         ' <span class="sdi-fuel">' + fuel + '</span>' +
         '</div>' +
-        '<span class="sdi-price">£' + linePrice.toFixed(2) + '</span>' +
+        '<span class="sdi-price">\u00a3' + linePrice.toFixed(2) + '</span>' +
         '</div>';
     });
 
     grandTotal += sessTotal;
     html += '<div class="summary-block">' +
-      '<div class="summary-block-header">' + label + ' — ' + totalQty + ' dish' + (totalQty !== 1 ? 'es' : '') + '</div>' +
+      '<div class="summary-block-header">' + label + ' \u2014 ' + totalQty + ' dish' + (totalQty !== 1 ? 'es' : '') + '</div>' +
       '<div class="summary-dish-list">' + dishRows + '</div>' +
-      '<div class="summary-total"><span class="st-label">Session total</span><span class="st-val">£' + sessTotal.toFixed(2) + '</span></div>' +
+      '<div class="summary-total"><span class="st-label">Session total</span><span class="st-val">\u00a3' + sessTotal.toFixed(2) + '</span></div>' +
       '</div>';
   });
 
-  // Customer details
   var c = state.customer;
   var addrLine = [c.address1, c.address2, c.city, c.postcode].filter(Boolean).join(', ');
   html += '<div class="summary-block">' +
@@ -1512,23 +1512,35 @@ function renderSummary() {
     (c.notes ? '<div class="summary-row"><span class="sr-label">Notes</span><span class="sr-val" style="text-align:right;max-width:60%">' + escHtml(c.notes) + '</span></div>' : '') +
     '</div>';
 
-  // Delivery fee
   var deliveryFee = state.deliveryFee || 0;
-  var zone = getDeliveryZone(state.customer.postcode || '');
   html += '<div class="summary-block">' +
     '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;font-size:13px">' +
     '<span style="color:var(--text2)">Delivery</span>' +
-    '<span style="font-weight:600;color:' + (deliveryFee === 0 ? '#30d158' : 'var(--text1)') + '">' +
-    (deliveryFee === 0 ? 'Free (Coventry)' : '£' + deliveryFee.toFixed(2) + ' (West Midlands)') +
+    '<span style="font-weight:600;color:' + (deliveryFee === 0 ? 'var(--green)' : 'var(--text1)') + '">' +
+    (deliveryFee === 0 ? 'Free (Coventry)' : '\u00a3' + deliveryFee.toFixed(2) + ' (West Midlands)') +
     '</span></div></div>';
 
   grandTotal += deliveryFee;
 
-  // Grand total
+  // Discount line
+  var discountAmount = 0;
+  if (state.discount && state.discount.amount > 0) {
+    discountAmount = Math.min(state.discount.amount, grandTotal);
+    grandTotal = Math.max(0, grandTotal - discountAmount);
+    var discLabel = state.discount.type === 'percent'
+      ? state.discount.value + '% discount (' + state.discount.code + ')'
+      : '\u00a3' + parseFloat(state.discount.value).toFixed(2) + ' discount (' + state.discount.code + ')';
+    html += '<div class="summary-block">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;font-size:13px">'
+      + '<span style="color:var(--green)">' + discLabel + '</span>'
+      + '<span style="font-weight:600;color:var(--green)">\u2212\u00a3' + discountAmount.toFixed(2) + '</span>'
+      + '</div></div>';
+  }
+
   html += '<div class="summary-block">' +
     '<div class="summary-total" style="border-top:none">' +
     '<span class="st-label" style="font-size:14px">Total Due</span>' +
-    '<span class="st-val" style="font-size:22px">£' + grandTotal.toFixed(2) + '</span>' +
+    '<span class="st-val" style="font-size:22px">\u00a3' + grandTotal.toFixed(2) + '</span>' +
     '</div></div>';
 
   html += '<p style="font-size:12px;color:var(--text3);text-align:center;line-height:1.6;margin-top:12px">Payment link shown after submission.<br>Your order is pending until payment is received.</p>';
@@ -1542,7 +1554,6 @@ function renderSummary() {
 function submitOrder() {
   var btn = document.getElementById('btn-submit');
 
-  // Re-validate session deadlines at submit time
   var avail = getSessionAvail();
   var closedNow = state.sessions.filter(function(s) { return !avail[s].open; });
   if (closedNow.length) {
@@ -1550,18 +1561,17 @@ function submitOrder() {
     return;
   }
 
-  btn.disabled   = true;
+  btn.disabled    = true;
   btn.textContent = 'Submitting…';
   hideErr('err-submit');
 
   var submittedAt = new Date().toISOString();
   var week        = getPortalWeekLabel();
-  var orderSlot = (_portalHasNextSlot() && DB.nextMenuPublished) ? 'next' : 'current';
+  var orderSlot   = (_portalHasNextSlot() && DB.nextMenuPublished) ? 'next' : 'current';
   var ordersToCreate = [];
 
   state.sessions.forEach(function(sess) {
     var picks = state.picks[sess] || {};
-    // allocation is already the qty map
     var allocation = {};
     var sessTotal = 0;
     Object.keys(picks).forEach(function(dishId) {
@@ -1574,16 +1584,14 @@ function submitOrder() {
     ordersToCreate.push({ session: sess, allocation: allocation, sessTotal: sessTotal });
   });
 
-  // Use a Firebase transaction to safely add orders to the array
   var dbRef = firebase.database().ref('29perfOS/data');
   dbRef.transaction(function(data) {
     if (!data) return data;
-    if (!data.weeklyOrders) data.weeklyOrders = [];
-    if (!data.nextOrderId)  data.nextOrderId  = 1;
-    if (!data.customers)    data.customers    = [];
-    if (!data.nextCustomerId) data.nextCustomerId = 1;
+    if (!data.weeklyOrders)      data.weeklyOrders      = [];
+    if (!data.nextOrderId)       data.nextOrderId       = 1;
+    if (!data.customers)         data.customers         = [];
+    if (!data.nextCustomerId)    data.nextCustomerId    = 1;
 
-    // Auto-create or find customer record
     var custEmail = state.customer.email;
     var cust = null;
     for (var ci = 0; ci < data.customers.length; ci++) {
@@ -1597,7 +1605,7 @@ function submitOrder() {
         name:        state.customer.name,
         email:       state.customer.email,
         phone:       state.customer.phone,
-        addr1:       state.customer.address1,   // matches ops app customer schema
+        addr1:       state.customer.address1,
         addr2:       state.customer.address2,
         city:        state.customer.city,
         postcode:    state.customer.postcode,
@@ -1613,7 +1621,6 @@ function submitOrder() {
 
     ordersToCreate.forEach(function(o) {
       var ordId = 'ORD' + String(data.nextOrderId++).padStart(4, '0');
-      // Build items array with dish names and prices captured at order time
       var items = Object.keys(o.allocation).map(function(dId) {
         var d = getPortalMenuDishes().find(function(x){ return x.id === dId; });
         return { dishId: dId, name: d ? (d.name||dId) : dId, qty: o.allocation[dId], unitPrice: d ? (parseFloat(d.sellPrice)||0) : 0 };
@@ -1635,6 +1642,7 @@ function submitOrder() {
         allocation:    o.allocation,
         items:         items,
         notes:         state.customer.notes,
+        discount:      state.discount ? { code: state.discount.code, type: state.discount.type, value: state.discount.value, amount: state.discount.amount } : null,
         status:        'pending',
         source:        'portal',
         createdAt:     submittedAt,
@@ -1648,23 +1656,26 @@ function submitOrder() {
       });
     });
 
-    // Stamp _ts so the ops app's timestamp check recognises this as a newer write
-    // and applies the update in real-time without requiring a manual refresh.
+    // Increment discount code usage count
+    if (state.discount && state.discount.id) {
+      if (!Array.isArray(data.discountCodes)) data.discountCodes = [];
+      var dcIdx = data.discountCodes.findIndex(function(c) { return c.id === state.discount.id; });
+      if (dcIdx >= 0) data.discountCodes[dcIdx].usedCount = (data.discountCodes[dcIdx].usedCount || 0) + 1;
+    }
+
     data._ts = Date.now();
     return data;
   }, function(err, committed) {
     btn.disabled    = false;
-    btn.textContent = 'Place Order →';
+    btn.textContent = 'Place Order';
     if (err || !committed) {
       showErr('err-submit', 'Submission failed. Please try again.');
       return;
     }
-    // Clear draft
     var lastEmail = localStorage.getItem('29p_draft_email');
     if (lastEmail) localStorage.removeItem('29p_draft_' + lastEmail);
     localStorage.removeItem('29p_draft_email');
 
-    // Send email notification — non-blocking, failure doesn't affect customer
     try {
       var notifOrders = ordersToCreate.map(function(o) {
         var items = Object.keys(o.allocation).map(function(dId) {
@@ -1673,32 +1684,26 @@ function submitOrder() {
         }).filter(function(i){ return i.qty > 0; });
         return { session: o.session === 'sunday' ? 'Sunday' : 'Wednesday', items: items, sessTotal: o.sessTotal };
       });
-      sendOrderNotification(state.customer, notifOrders, week, state.deliveryFee || 0);
-    } catch(e) { /* silent — never block the customer journey */ }
+      sendOrderNotification(state.customer, notifOrders, week, state.deliveryFee || 0, state.discount);
+    } catch(e) { /* silent */ }
 
-    // Post to Google Sheets ledger — non-blocking
     try { postToGoogleSheets(ordersToCreate, week, submittedAt); } catch(e) { /* silent */ }
 
-    // Show confirmation
     showConfirmation();
   });
 }
 
 // ── Google Sheets Ledger ─────────────────────────────────────────
-// Sends one row per session to the Apps Script webhook.
-// Completely non-blocking — never affects the customer journey.
 function postToGoogleSheets(ordersToCreate, week, submittedAt) {
   if (!SHEETS_WEBHOOK_URL || SHEETS_WEBHOOK_URL === 'PASTE-WEBHOOK-URL-HERE') return;
 
-  var c         = state.customer;
+  var c           = state.customer;
   var deliveryFee = state.deliveryFee || 0;
   var grandTotal  = deliveryFee + ordersToCreate.reduce(function(s, o) { return s + o.sessTotal; }, 0);
-  var deliveryZone = deliveryFee === 0 ? 'Free (Coventry)' : '£' + deliveryFee.toFixed(2) + ' (West Midlands)';
+  var deliveryZone = deliveryFee === 0 ? 'Free (Coventry)' : '\u00a3' + deliveryFee.toFixed(2) + ' (West Midlands)';
 
   ordersToCreate.forEach(function(o) {
     var sessionLabel = o.session === 'sunday' ? 'Sunday' : 'Wednesday';
-
-    // Build readable dish list: "2x Teriyaki Chicken, 1x Buffalo Wings"
     var dishList = Object.keys(o.allocation).map(function(dId) {
       var d = getPortalMenuDishes().find(function(x) { return x.id === dId; });
       var name = d ? (d.name || dId) : dId;
@@ -1718,16 +1723,16 @@ function postToGoogleSheets(ordersToCreate, week, submittedAt) {
       postcode:     c.postcode,
       deliveryZone: deliveryZone,
       dishes:       dishList,
-      sessionTotal: '£' + o.sessTotal.toFixed(2),
-      deliveryFee:  deliveryFee > 0 ? '£' + deliveryFee.toFixed(2) : 'Free',
-      grandTotal:   '£' + grandTotal.toFixed(2),
+      sessionTotal: '\u00a3' + o.sessTotal.toFixed(2),
+      deliveryFee:  deliveryFee > 0 ? '\u00a3' + deliveryFee.toFixed(2) : 'Free',
+      grandTotal:   '\u00a3' + grandTotal.toFixed(2),
       notes:        c.notes || '',
       status:       'Pending Payment'
     };
 
     fetch(SHEETS_WEBHOOK_URL, {
       method:  'POST',
-      mode:    'no-cors', // Apps Script doesn't send CORS headers — response is opaque but request goes through
+      mode:    'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify(row)
     });
@@ -1736,6 +1741,14 @@ function postToGoogleSheets(ordersToCreate, week, submittedAt) {
 
 function showPayModal() {
   var modal = document.getElementById('pay-modal');
+  // Pull the confirmed amount from the payment card and inject it everywhere in the modal
+  var amountText = (document.getElementById('pay-amount') || {}).textContent || '';
+  var el1 = document.getElementById('pay-modal-amount');
+  var el2 = document.getElementById('pay-modal-amount-step');
+  var el3 = document.getElementById('pay-modal-btn-amount');
+  if (el1) el1.textContent = amountText;
+  if (el2) el2.textContent = amountText || 'the amount above';
+  if (el3) el3.textContent = amountText;
   modal.style.display = 'flex';
 }
 
@@ -1748,19 +1761,22 @@ function showConfirmation() {
       return s + (d ? (parseFloat(d.sellPrice)||0) * qty : 0);
     }, 0);
   }, 0);
+  // Apply discount to confirmation total
+  if (state.discount && state.discount.amount > 0) {
+    grandTotal = Math.max(0, grandTotal - state.discount.amount);
+  }
 
   document.getElementById('confirm-msg').innerHTML =
-    'Thanks <strong>' + escHtml(state.customer.name) + '</strong> — we\'ve received your order and will confirm shortly.';
+    'Thanks <strong>' + escHtml(state.customer.name) + '</strong> \u2014 we\'ve received your order and will confirm shortly.';
 
-  // Build order breakdown
   var dd = getPortalDropDates();
   var _pmDishes = getPortalMenuDishes();
   var breakdownHtml = '';
   state.sessions.forEach(function(sess) {
     var picks = state.picks[sess] || {};
     var label = sess === 'sunday'
-      ? '🟡 Sunday Drop' + (dd.sunday ? ' — ' + dd.sunday : '')
-      : '🟢 Wednesday Drop' + (dd.wednesday ? ' — ' + dd.wednesday : '');
+      ? 'Sunday Drop' + (dd.sunday ? ' \u2014 ' + dd.sunday : '')
+      : 'Wednesday Drop' + (dd.wednesday ? ' \u2014 ' + dd.wednesday : '');
     var sessTotal = 0;
     var rows = Object.keys(picks).map(function(dishId) {
       var qty = picks[dishId] || 0;
@@ -1771,37 +1787,35 @@ function showConfirmation() {
       var line = price * qty;
       sessTotal += line;
       return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-bottom:1px solid var(--border);font-size:13px">'
-        + '<span><span style="font-size:11px;color:var(--text3);margin-right:6px">' + qty + '×</span>' + escHtml(name) + '</span>'
-        + '<span style="color:var(--text2)">£' + line.toFixed(2) + '</span>'
+        + '<span><span style="font-size:11px;color:var(--text3);margin-right:6px">' + qty + '\u00d7</span>' + escHtml(name) + '</span>'
+        + '<span style="color:var(--text2)">\u00a3' + line.toFixed(2) + '</span>'
         + '</div>';
     }).join('');
-    breakdownHtml += '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:10px;overflow:hidden;margin-bottom:10px">'
+    breakdownHtml += '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:10px;overflow:hidden;margin-bottom:10px;box-shadow:var(--shadow)">'
       + '<div style="padding:9px 14px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--text2);letter-spacing:.3px">' + label + '</div>'
       + rows
       + '<div style="display:flex;justify-content:space-between;padding:8px 14px;font-size:12px;color:var(--text3)">'
-      + '<span>Session total</span><span>£' + sessTotal.toFixed(2) + '</span>'
+      + '<span>Session total</span><span>\u00a3' + sessTotal.toFixed(2) + '</span>'
       + '</div></div>';
   });
-  // Delivery fee line
   var deliveryFee = state.deliveryFee || 0;
   var isFree = deliveryFee === 0;
-  breakdownHtml += '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:10px;overflow:hidden;margin-bottom:10px">'
+  breakdownHtml += '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:10px;overflow:hidden;margin-bottom:10px;box-shadow:var(--shadow)">'
     + '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;font-size:13px">'
     + '<span style="color:var(--text2)">Delivery</span>'
-    + '<span style="font-weight:600;color:' + (isFree ? '#30d158' : 'var(--text1)') + '">'
-    + (isFree ? '✓ Free (Coventry)' : '£' + deliveryFee.toFixed(2) + ' (West Midlands)')
+    + '<span style="font-weight:600;color:' + (isFree ? 'var(--green)' : 'var(--text1)') + '">'
+    + (isFree ? 'Free (Coventry)' : '\u00a3' + deliveryFee.toFixed(2) + ' (West Midlands)')
     + '</span></div></div>';
 
   document.getElementById('confirm-order-breakdown').innerHTML = breakdownHtml;
-
-  document.getElementById('pay-amount').textContent = '£' + grandTotal.toFixed(2);
-  document.getElementById('pay-ref').textContent    = 'Ref: ' + state.customer.name + ' — ' + (getPortalWeekLabel() || 'Week');
+  document.getElementById('pay-amount').textContent = '\u00a3' + grandTotal.toFixed(2);
+  document.getElementById('pay-ref').textContent    = 'Ref: ' + state.customer.name + ' \u2014 ' + (getPortalWeekLabel() || 'Week');
 
   showScreen('confirm');
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  MACRO CALCULATION  (mirrors ops app calcRecipeTotals / calcDishTotals)
+//  MACRO CALCULATION
 // ═══════════════════════════════════════════════════════════════
 function getDishMacros(dish) {
   if (_macroCache[dish.id]) return _macroCache[dish.id];
@@ -1858,6 +1872,90 @@ function getDishDemand(dishId) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+//  DISCOUNT CODES
+// ═══════════════════════════════════════════════════════════════
+function applyDiscountCode() {
+  var raw = (document.getElementById('discount-code-input').value || '').trim().toUpperCase();
+  var errEl = document.getElementById('discount-error');
+  errEl.style.display = 'none';
+
+  if (!raw) {
+    errEl.textContent = 'Please enter a discount code.';
+    errEl.style.display = 'block'; return;
+  }
+
+  var codes = DB.discountCodes || [];
+  var dc = codes.find(function(c) { return c.code === raw; });
+
+  if (!dc) {
+    errEl.textContent = 'Code not recognised. Please check and try again.';
+    errEl.style.display = 'block'; return;
+  }
+  if (!dc.active) {
+    errEl.textContent = 'This code is not currently active.';
+    errEl.style.display = 'block'; return;
+  }
+  if (dc.expiresAt && new Date(dc.expiresAt) < new Date()) {
+    errEl.textContent = 'This code has expired.';
+    errEl.style.display = 'block'; return;
+  }
+  if (dc.usageLimit && dc.usedCount >= dc.usageLimit) {
+    errEl.textContent = 'This code has reached its usage limit.';
+    errEl.style.display = 'block'; return;
+  }
+
+  // Calculate pre-discount total (dishes only, no delivery)
+  var dishTotal = state.sessions.reduce(function(total, sess) {
+    var picks = state.picks[sess] || {};
+    return total + Object.keys(picks).reduce(function(s, dishId) {
+      var qty = picks[dishId] || 0;
+      var d = getPortalMenuDishes().find(function(d) { return d.id === dishId; });
+      return s + (d ? (parseFloat(d.sellPrice)||0) * qty : 0);
+    }, 0);
+  }, 0);
+
+  if (dc.minOrderValue > 0 && dishTotal < dc.minOrderValue) {
+    errEl.textContent = 'This code requires a minimum order of £' + parseFloat(dc.minOrderValue).toFixed(2) + '.';
+    errEl.style.display = 'block'; return;
+  }
+
+  // Calculate discount amount
+  var amount;
+  if (dc.type === 'percent') {
+    amount = Math.min(dishTotal, dishTotal * (dc.value / 100));
+  } else {
+    amount = Math.min(dishTotal, parseFloat(dc.value));
+  }
+  amount = Math.round(amount * 100) / 100;
+
+  var label = dc.type === 'percent'
+    ? dc.value + '% off — saving £' + amount.toFixed(2)
+    : '£' + amount.toFixed(2) + ' off';
+
+  state.discount = { code: dc.code, type: dc.type, value: dc.value, amount: amount, id: dc.id };
+
+  // Show applied state
+  document.getElementById('discount-input-row').style.display = 'none';
+  document.getElementById('discount-applied-code').textContent = raw;
+  document.getElementById('discount-applied-label').textContent = label;
+  document.getElementById('discount-applied-row').classList.add('show');
+
+  // Re-render summary to reflect new total
+  renderSummary();
+  toast('Code applied — ' + label);
+}
+
+function removeDiscount() {
+  state.discount = null;
+  document.getElementById('discount-code-input').value = '';
+  document.getElementById('discount-error').style.display = 'none';
+  document.getElementById('discount-applied-row').classList.remove('show');
+  document.getElementById('discount-input-row').style.display = '';
+  renderSummary();
+  toast('Discount removed');
+}
+
+// ═══════════════════════════════════════════════════════════════
 //  UTILS
 // ═══════════════════════════════════════════════════════════════
 function escHtml(s) {
@@ -1887,7 +1985,7 @@ renderStep = function(n) {
 (function restoreUI() {
   ['sunday','wednesday'].forEach(function(sess) {
     if (state.sessions.indexOf(sess) >= 0) {
-      var card = document.getElementById('sc-' + sess);
+      var card  = document.getElementById('sc-' + sess);
       var check = document.getElementById('sc-check-' + sess);
       if (card)  card.classList.add('selected');
       if (check) check.textContent = '✓';
