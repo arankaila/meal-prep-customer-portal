@@ -65,8 +65,8 @@
     }
     .portal-logo-wordmark span { color: var(--gold); }
     .portal-week-badge {
-      font-size: 10px; font-family: var(--mono); color: var(--gold);
-      background: var(--gold-dim); border: 1px solid rgba(201,168,76,.28);
+      font-size: 10px; font-family: var(--mono); color: var(--green);
+      background: var(--green-dim); border: 1px solid rgba(26,122,66,.28);
       padding: 4px 10px; border-radius: 20px; white-space: nowrap;
     }
 
@@ -947,7 +947,7 @@ function onDBUpdate() {
   var portalLabel = getPortalWeekLabel();
   if (portalLabel) {
     var wb = document.getElementById('week-badge');
-    wb.textContent = 'Week: ' + portalLabel;
+    wb.textContent = 'Delivery Dates: ' + portalLabel;
     wb.style.display = '';
   }
 
