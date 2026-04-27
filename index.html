@@ -55,11 +55,10 @@
       display: flex; align-items: center; justify-content: space-between;
       border-bottom: 1px solid var(--border); margin-bottom: 10px;
     }
-    .portal-logo { display: flex; align-items: center; gap: 12px; }
-    .portal-logo-img { height: 40px; width: auto; border-radius: 7px; flex-shrink: 0; display: block; }
+    .portal-logo { display: flex; align-items: center; }
     .portal-logo-wordmark {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: 14px; font-weight: 800;
+      font-size: 18px; font-weight: 800;
       letter-spacing: 4px; text-transform: uppercase;
       color: var(--text1); line-height: 1;
       white-space: nowrap;
@@ -238,7 +237,8 @@
 
     /* Compact 2×2 macro grid */
     .dish-macros {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 4px 6px;
+      display: grid; grid-template-columns: auto auto; gap: 4px 20px;
+      justify-content: start;
       margin-bottom: 8px;
     }
     .macro-chip {
@@ -464,7 +464,6 @@
   <!-- HEADER (always visible) -->
   <div class="portal-header">
     <div class="portal-logo">
-      <img src="Logo.png" alt="29 Performance" class="portal-logo-img">
       <div class="portal-logo-wordmark"><span>29</span> Performance</div>
     </div>
     <div class="portal-week-badge" id="week-badge" style="display:none"></div>
