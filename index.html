@@ -235,6 +235,35 @@
     .attrib-9-amino      { background: var(--gold-dim); color: #9a7020; border: 1px solid rgba(201,168,76,.3); }
     .attrib-omega3       { background: rgba(14,165,233,.08); color: #0369a1; border: 1px solid rgba(14,165,233,.2); }
 
+    /* Portal filter bar */
+    .pf-bar {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 16px; padding: 10px 14px;
+      background: var(--surface2); border: 1.5px solid var(--border2);
+      border-radius: var(--radius); flex-wrap: wrap;
+    }
+    .pf-label {
+      font-family: var(--mono); font-size: 9px; letter-spacing: 1.2px;
+      text-transform: uppercase; color: var(--text3); flex-shrink: 0;
+    }
+    .pf-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .pf-divider {
+      width: 1px; height: 18px; background: var(--border2);
+      flex-shrink: 0; margin: 0 2px;
+    }
+    .pf-chip {
+      padding: 4px 11px; border-radius: 20px; cursor: pointer;
+      font-family: var(--cond); font-size: 11px; font-weight: 700;
+      letter-spacing: .5px; text-transform: uppercase;
+      border: 1.5px solid var(--border2);
+      background: var(--surface); color: var(--text2);
+      transition: all .15s; white-space: nowrap;
+    }
+    .pf-chip:hover { border-color: var(--gold); color: var(--text1); }
+    .pf-chip.pf-active { background: var(--gold); color: #000; border-color: var(--gold); }
+    .pf-fuel-plus.pf-active { background: rgba(201,120,18,.85); color: #fff; border-color: rgba(201,120,18,.85); }
+    .pf-fuel-lite.pf-active { background: rgba(26,122,66,.85); color: #fff; border-color: rgba(26,122,66,.85); }
+
     /* Compact 2×2 macro grid */
     .dish-macros {
       display: grid; grid-template-columns: auto auto; gap: 4px 20px;
@@ -544,6 +573,7 @@
     <div id="step-2" style="display:none">
       <div class="step-title">Select your dishes</div>
       <div class="step-sub">Minimum 3 dishes per delivery day. Add as many as you like.</div>
+      <div id="portal-filter-bar"></div>
       <div id="dish-sections"></div>
       <div class="nav-row">
         <button class="btn-back" onclick="goStep(1)">Back</button>
@@ -861,7 +891,8 @@ var state = {
   picks:    { sunday: {}, wednesday: {} },
   customer: { name:'', email:'', phone:'', address1:'', address2:'', city:'', postcode:'', notes:'' },
   deliveryFee: 0,
-  discount: null   // { code, type, value, amount } — null if none applied
+  discount: null,   // { code, type, value, amount } — null if none applied
+  portalFilter: { fuel: null, tag: null }  // null = show all; fuel: 'Fuel Plus'|'Fuel Lite'; tag: string
 };
 
 // ── Delivery zone helper ──────────────────────────────────────────────────────
@@ -1253,17 +1284,101 @@ function sessPickTotal(sess) {
   return Object.values(state.picks[sess] || {}).reduce(function(s, q) { return s + q; }, 0);
 }
 
+// Tag display map — shared between filter bar and dish cards
+var TAG_MAP = {
+  'high-protein':  { cls: 'attrib-high-protein', label: 'High Protein' },
+  'low-fat':       { cls: 'attrib-low-fat',       label: 'Low Fat' },
+  'low-carb':      { cls: 'attrib-low-carb',      label: 'Low Carb' },
+  'chefs-choice':  { cls: 'attrib-chefs-choice',  label: "Chef's Choice" },
+  'vegan':         { cls: 'attrib-vegan',          label: 'Vegan' },
+  'high-fibre':    { cls: 'attrib-high-fibre',     label: 'High Fibre' },
+  '9-amino':       { cls: 'attrib-9-amino',        label: '9 Amino Acids' },
+  'omega3':        { cls: 'attrib-omega3',         label: 'High Omega-3' }
+};
+
+// Tag order: determines display order in filter bar
+var TAG_ORDER = ['vegan', 'high-protein', 'low-fat', 'low-carb', 'high-fibre', '9-amino', 'omega3', 'chefs-choice'];
+
+function setFuelFilter(val) {
+  // Toggle: clicking active filter clears it
+  state.portalFilter.fuel = state.portalFilter.fuel === val ? null : val;
+  renderPortalFilterBar();
+  renderDishSections();
+}
+
+function setTagFilter(val) {
+  // Toggle: clicking active filter clears it
+  state.portalFilter.tag = state.portalFilter.tag === val ? null : val;
+  renderPortalFilterBar();
+  renderDishSections();
+}
+
+function renderPortalFilterBar() {
+  var bar = document.getElementById('portal-filter-bar');
+  if (!bar) return;
+
+  // Collect all non-athlete dishes on the active menu
+  var allDishes = getPortalMenuDishes().filter(function(d) { return !d.athleteVariant; });
+
+  // Find which tags are actually present on the current menu
+  var presentTags = {};
+  allDishes.forEach(function(d) {
+    (Array.isArray(d.tags) ? d.tags : []).forEach(function(t) { presentTags[t] = true; });
+  });
+  var activeTags = TAG_ORDER.filter(function(t) { return presentTags[t]; });
+
+  // No dishes at all → hide bar
+  if (!allDishes.length) { bar.innerHTML = ''; return; }
+
+  var activeFuel = state.portalFilter.fuel;
+  var activeTag  = state.portalFilter.tag;
+
+  var fuelChips =
+    '<button class="pf-chip pf-fuel-plus' + (activeFuel === 'Fuel Plus' ? ' pf-active' : '') + '" onclick="setFuelFilter(\'Fuel Plus\')">Fuel Plus</button>' +
+    '<button class="pf-chip pf-fuel-lite' + (activeFuel === 'Fuel Lite' ? ' pf-active' : '') + '" onclick="setFuelFilter(\'Fuel Lite\')">Fuel Lite</button>';
+
+  var tagChips = activeTags.map(function(t) {
+    var def = TAG_MAP[t];
+    if (!def) return '';
+    return '<button class="pf-chip pf-tag' + (activeTag === t ? ' pf-active' : '') + '" onclick="setTagFilter(\'' + t + '\')">' + def.label + '</button>';
+  }).join('');
+
+  var divider = activeTags.length ? '<div class="pf-divider"></div>' : '';
+
+  bar.innerHTML =
+    '<div class="pf-bar">' +
+    '<div class="pf-label">Filter</div>' +
+    '<div class="pf-chips">' + fuelChips + divider + tagChips + '</div>' +
+    '</div>';
+}
+
 function renderDishSections() {
+  renderPortalFilterBar();
   var container = document.getElementById('dish-sections');
   var html = '';
   var dd = getPortalDropDates();
   var portalDishes = getPortalMenuDishes();
+  var activeFuel = state.portalFilter.fuel;
+  var activeTag  = state.portalFilter.tag;
+
   state.sessions.forEach(function(sess) {
     var dateStr = dd[sess] ? new Date(dd[sess] + 'T12:00:00').toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long'}) : '';
     var dayLabel = sess === 'sunday' ? 'Sunday Drop' : 'Wednesday Drop';
     var dishes = portalDishes.filter(function(d) {
       if (d.athleteVariant) return false;
-      return sess === 'sunday' ? d.availSunday : d.availWednesday;
+      var inSess = sess === 'sunday' ? d.availSunday : d.availWednesday;
+      if (!inSess) return false;
+      // Apply fuel filter
+      if (activeFuel) {
+        var dFuel = d.fuelLine === 'Fuel Lite' ? 'Fuel Lite' : 'Fuel Plus';
+        if (dFuel !== activeFuel) return false;
+      }
+      // Apply tag filter
+      if (activeTag) {
+        var tags = Array.isArray(d.tags) ? d.tags : [];
+        if (tags.indexOf(activeTag) === -1) return false;
+      }
+      return true;
     });
     var total = sessPickTotal(sess);
     var countClass = total >= 3 ? 'ok' : total > 0 ? 'warn' : '';
@@ -1276,7 +1391,8 @@ function renderDishSections() {
     html += '<div class="dish-grid">';
     dishes.forEach(function(dish) { html += renderDishCard(dish, sess); });
     if (!dishes.length) {
-      html += '<div style="font-size:13px;color:var(--text3);padding:16px 0;text-align:center">No dishes available for this session.</div>';
+      var noMsg = (activeFuel || activeTag) ? 'No dishes match the current filter.' : 'No dishes available for this session.';
+      html += '<div style="font-size:13px;color:var(--text3);padding:16px 0;text-align:center">' + noMsg + '</div>';
     }
     html += '</div>';
   });
@@ -1312,22 +1428,12 @@ function renderDishCard(dish, sess) {
     ? '<div class="dish-serves">With ' + escHtml(dish.serves) + '</div>'
     : '';
 
-  // Attribute badges
-  var tagMap = {
-    'high-protein':  { cls: 'attrib-high-protein', label: 'High Protein' },
-    'low-fat':       { cls: 'attrib-low-fat',       label: 'Low Fat' },
-    'low-carb':      { cls: 'attrib-low-carb',      label: 'Low Carb' },
-    'chefs-choice':  { cls: 'attrib-chefs-choice',  label: "Chef's Choice" },
-    'vegan':         { cls: 'attrib-vegan',          label: 'Vegan' },
-    'high-fibre':    { cls: 'attrib-high-fibre',     label: 'High Fibre' },
-    '9-amino':       { cls: 'attrib-9-amino',        label: '9 Amino Acids' },
-    'omega3':        { cls: 'attrib-omega3',         label: 'High Omega-3' }
-  };
+  // Attribute badges — uses shared TAG_MAP
   var tags = Array.isArray(dish.tags) ? dish.tags : [];
   var attribsHtml = tags.length
     ? '<div class="dish-attribs">' +
       tags.map(function(t) {
-        var def = tagMap[t];
+        var def = TAG_MAP[t];
         return def ? '<span class="attrib-badge ' + def.cls + '">' + def.label + '</span>' : '';
       }).join('') +
       '</div>'
