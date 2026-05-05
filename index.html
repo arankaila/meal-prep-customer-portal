@@ -1002,8 +1002,39 @@ function savePortalSetup() {
 // ═══════════════════════════════════════════════════════════════
 //  DB CHANGE HANDLER
 // ═══════════════════════════════════════════════════════════════
+// Auto-publish: mirrors the ops app logic.
+// If the customer portal loads after Monday 6pm and the ops app hasn't triggered
+// the switch yet, the portal does it itself — so customers always get the right menu.
+function checkAndAutoPublish() {
+  if (!DB) return false;
+  var now = new Date();
+  var hasNextReady   = !!(DB.nextMenuDishes && DB.nextMenuDishes.length > 0 && (DB.nextMenuWeekLabel || '').trim());
+  var notPublished   = !DB.nextMenuPublished;
+  var deadlinePassed = !!(DB.s2Deadline && new Date(DB.s2Deadline) <= now);
+
+  if (!hasNextReady || !notPublished || !deadlinePassed) return false;
+
+  // Flip flags locally so this onDBUpdate() proceeds with correct state
+  DB.nextMenuPublished = true;
+  DB.menuPublished     = false;
+
+  // Persist to Firebase so ops app and other portal visitors see it immediately
+  try {
+    firebase.database().ref('29perfOS/data').update({
+      nextMenuPublished: true,
+      menuPublished:     false,
+      _ts:               Date.now()
+    });
+  } catch(e) { console.warn('Auto-publish Firebase write failed:', e); }
+
+  return true;
+}
+
 function onDBUpdate() {
   if (!DB) return showScreen('closed');
+
+  // Auto-switch portal to next week if the Wednesday deadline has passed
+  checkAndAutoPublish();
 
   var portalLabel = getPortalWeekLabel();
   if (portalLabel) {
