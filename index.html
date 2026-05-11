@@ -105,7 +105,7 @@
     .progress-step.done   .ps-label { color: var(--text2); }
 
     /* ── SECTION TITLE ───────────────────────── */
-    .step-title { font-family: var(--cond); font-size: 28px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; margin-bottom: 4px; color: var(--text1); }
+    .step-title { font-family: var(--sans); font-size: 26px; font-weight: 700; letter-spacing: -.3px; text-transform: none; margin-bottom: 4px; color: var(--text1); }
     .step-sub   { font-size: 13px; color: var(--text2); margin-bottom: 24px; line-height: 1.5; }
 
     /* ── SESSION CARDS ───────────────────────── */
@@ -121,7 +121,7 @@
       border-color: var(--gold);
       box-shadow: 0 0 0 1px var(--gold), 0 4px 18px rgba(201,168,76,.18);
     }
-    .session-card .sc-day   { font-family: var(--cond); font-size: 22px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; color: var(--text1); }
+    .session-card .sc-day   { font-family: var(--sans); font-size: 20px; font-weight: 700; letter-spacing: 0; text-transform: none; margin-bottom: 4px; color: var(--text1); }
     .session-card .sc-time  { font-size: 11px; color: var(--text2); line-height: 1.4; }
     .session-card .sc-check {
       width: 20px; height: 20px; border-radius: 50%;
@@ -141,14 +141,14 @@
 
     /* ── SESSION HEADER ──────────────────────── */
     .session-header { margin: 28px 0 14px; }
-    .sh-day  { font-family: var(--cond); font-size: 13px; font-weight: 800; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; }
+    .sh-day  { font-family: var(--sans); font-size: 13px; font-weight: 700; color: var(--gold); text-transform: none; letter-spacing: 0; }
     .sh-date { font-size: 11px; color: var(--text3); margin-top: 3px; }
     .sh-divider { height: 1px; background: var(--border2); margin: 10px 0; }
     .sh-count { margin-top: 8px; }
     .pick-count {
       display: inline-block; background: var(--surface); border: 1px solid var(--border2);
-      border-radius: 20px; padding: 3px 10px; font-size: 10px; color: var(--text2);
-      font-family: var(--mono); letter-spacing: .5px; box-shadow: var(--shadow);
+      border-radius: 20px; padding: 3px 10px; font-size: 11px; color: var(--text2);
+      font-family: var(--sans); font-weight: 500; letter-spacing: 0; box-shadow: var(--shadow);
     }
     .pick-count.ok   { background: var(--green-dim); border-color: rgba(26,122,66,.25); color: var(--green); }
     .pick-count.warn { background: var(--amber-dim); border-color: rgba(201,120,18,.25); color: var(--amber); }
@@ -210,21 +210,26 @@
     .demand-badge.hot { background: rgba(201,120,18,.8); }
 
     /* ── DISH BODY ───────────────────────────── */
-    .dish-body { padding: 12px 12px 10px; display: flex; flex-direction: column; flex: 1; }
+    .dish-body { padding: 14px 13px 11px; display: flex; flex-direction: column; flex: 1; }
 
     .dish-name {
-      font-family: var(--cond); font-size: 14px; font-weight: 800;
-      text-transform: uppercase; letter-spacing: .5px; line-height: 1.2;
-      color: var(--gold); margin-bottom: 3px;
+      font-family: var(--sans); font-size: 15px; font-weight: 700;
+      text-transform: none; letter-spacing: 0; line-height: 1.3;
+      color: var(--text1); margin-bottom: 4px;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
-    .dish-serves { font-size: 10px; color: var(--text2); margin-bottom: 7px; line-height: 1.4; }
+    .dish-serves {
+      font-size: 11px; color: var(--text2); margin-bottom: 10px; line-height: 1.4;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      min-height: 30px;
+    }
 
-    /* Attribute badges */
-    .dish-attribs { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 8px; }
+    /* Attribute badges — always rendered for layout consistency */
+    .dish-attribs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 7px; min-height: 26px; align-items: flex-start; }
     .attrib-badge {
-      font-size: 7px; font-family: var(--cond); font-weight: 700;
-      text-transform: uppercase; letter-spacing: .6px;
-      padding: 2px 6px; border-radius: 4px;
+      font-size: 9px; font-family: var(--sans); font-weight: 600;
+      text-transform: none; letter-spacing: 0;
+      padding: 2px 7px; border-radius: 4px;
     }
     .attrib-high-protein { background: #f0eeec; color: #5a5855; border: 1px solid #e0ddd8; }
     .attrib-low-fat      { background: var(--green-dim); color: var(--green); border: 1px solid rgba(26,122,66,.2); }
@@ -253,8 +258,8 @@
     }
     .pf-chip {
       padding: 4px 11px; border-radius: 20px; cursor: pointer;
-      font-family: var(--cond); font-size: 11px; font-weight: 700;
-      letter-spacing: .5px; text-transform: uppercase;
+      font-family: var(--sans); font-size: 11px; font-weight: 600;
+      letter-spacing: 0; text-transform: none;
       border: 1.5px solid var(--border2);
       background: var(--surface); color: var(--text2);
       transition: all .15s; white-space: nowrap;
@@ -264,31 +269,56 @@
     .pf-fuel-plus.pf-active { background: rgba(201,120,18,.85); color: #fff; border-color: rgba(201,120,18,.85); }
     .pf-fuel-lite.pf-active { background: rgba(26,122,66,.85); color: #fff; border-color: rgba(26,122,66,.85); }
 
-    /* Compact 2×2 macro grid */
+    /* Macro pills row */
     .dish-macros {
-      display: grid; grid-template-columns: auto auto; gap: 4px 20px;
-      justify-content: start;
-      margin-bottom: 8px;
+      display: flex; flex-wrap: nowrap; align-items: center; gap: 5px;
+      margin-bottom: 8px; cursor: pointer; user-select: none;
     }
-    .macro-chip {
-      display: flex; align-items: center; gap: 4px;
-      font-size: 10px; color: var(--text2);
+    .macro-pill {
+      display: inline-flex; align-items: center;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; padding: 3px 8px;
+      font-size: 10px; font-family: var(--sans); color: var(--text1);
+      font-weight: 600; white-space: nowrap;
     }
-    .macro-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-    .macro-chip strong { color: var(--text1); font-weight: 600; margin-right: 1px; }
+    .macro-pill span { font-weight: 400; color: var(--text2); margin-left: 2px; }
+    .macro-toggle {
+      font-size: 10px; color: var(--text3); font-family: var(--sans);
+      white-space: nowrap; margin-left: auto; flex-shrink: 0;
+      transition: color .15s;
+    }
+    .dish-macros:hover .macro-toggle { color: var(--text2); }
+
+    /* Expanded nutrition detail */
+    .macro-detail-wrap {
+      overflow: hidden; max-height: 0;
+      transition: max-height .22s ease;
+    }
+    .dish-card.macros-open .macro-detail-wrap { max-height: 80px; }
+    .macro-detail {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px;
+      padding: 8px 0 4px; border-top: 1px solid var(--border); margin-top: 2px;
+    }
+    .macro-detail-item {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 10px; font-family: var(--sans); color: var(--text2);
+    }
+    .macro-detail-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .macro-detail-item strong { color: var(--text1); font-weight: 600; margin-right: 1px; }
 
     .dish-info-area { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; }
     .dish-allergens { font-size: 9px; color: var(--text3); margin-bottom: 4px; line-height: 1.4; }
-    .dish-allergens strong { color: var(--red); font-size: 8px; font-family: var(--mono); letter-spacing: .3px; }
+    .dish-allergens strong { color: var(--red); font-size: 9px; font-family: var(--sans); font-weight: 600; letter-spacing: 0; }
 
     .dish-pick-row {
       display: flex; align-items: center; justify-content: flex-end;
-      padding-top: 8px; border-top: 1px solid var(--border); margin-top: auto;
+      padding-top: 10px; border-top: 1px solid var(--border); margin-top: auto;
     }
     .pick-btn {
-      padding: 7px 16px; border-radius: 8px; border: none; cursor: pointer;
-      font-family: var(--cond); font-size: 12px; font-weight: 700;
-      letter-spacing: .5px; text-transform: uppercase; transition: all .15s;
+      padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer;
+      font-family: var(--sans); font-size: 12px; font-weight: 700;
+      letter-spacing: 0; text-transform: none; transition: all .15s;
+      width: 100%;
     }
     .pick-btn.add    { background: var(--gold); color: #000; }
     .pick-btn.add:hover { background: #d4b060; }
@@ -310,14 +340,14 @@
       display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 36px; text-align: center;
     }
     .qty-stepper .qs-num { font-size: 18px; font-weight: 700; color: var(--text1); line-height: 1; }
-    .qty-stepper .qs-sub { font-size: 10px; color: var(--text3); font-family: var(--mono); }
+    .qty-stepper .qs-sub { font-size: 10px; color: var(--text3); font-family: var(--sans); }
 
-    .min-note { font-size: 11px; color: var(--text3); text-align: center; padding: 10px 0 0; font-family: var(--mono); }
+    .min-note { font-size: 11px; color: var(--text3); text-align: center; padding: 10px 0 0; font-family: var(--sans); }
     .min-note.error { color: var(--red); }
 
     /* ── FORM ────────────────────────────────── */
     .form-group  { margin-bottom: 16px; }
-    .form-label  { font-size: 10px; font-family: var(--mono); color: var(--text2); margin-bottom: 7px; display: block; text-transform: uppercase; letter-spacing: 1px; }
+    .form-label  { font-size: 11px; font-family: var(--sans); font-weight: 600; color: var(--text2); margin-bottom: 7px; display: block; text-transform: none; letter-spacing: 0; }
     .form-input, .form-textarea {
       width: 100%; background: var(--surface); border: 1.5px solid var(--border2);
       border-radius: 10px; padding: 12px 14px; font-size: 14px; color: var(--text1);
@@ -349,8 +379,8 @@
     }
     .summary-block-header {
       padding: 10px 14px; background: var(--surface2);
-      font-size: 11px; font-family: var(--mono); color: var(--text2);
-      text-transform: uppercase; letter-spacing: .8px; border-bottom: 1px solid var(--border);
+      font-size: 11px; font-family: var(--sans); font-weight: 600; color: var(--text2);
+      text-transform: none; letter-spacing: 0; border-bottom: 1px solid var(--border);
     }
     .summary-row {
       display: flex; justify-content: space-between; align-items: center;
@@ -363,21 +393,21 @@
       display: flex; justify-content: space-between; align-items: center;
       padding: 14px; background: var(--gold-dim); border-top: 1px solid rgba(201,168,76,.2);
     }
-    .summary-total .st-label { font-size: 12px; color: var(--gold); font-family: var(--mono); letter-spacing: 1px; text-transform: uppercase; }
-    .summary-total .st-val   { font-family: var(--cond); font-size: 22px; font-weight: 700; color: var(--gold); letter-spacing: 1px; }
+    .summary-total .st-label { font-size: 12px; color: var(--gold); font-family: var(--sans); font-weight: 600; letter-spacing: 0; text-transform: none; }
+    .summary-total .st-val   { font-family: var(--sans); font-size: 22px; font-weight: 700; color: var(--gold); letter-spacing: 0; }
 
     .summary-dish-list { padding: 10px 14px; font-size: 13px; }
     .summary-dish-item { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 5px 0; border-bottom: 1px solid var(--border); color: var(--text2); }
     .summary-dish-item:last-child { border-bottom: none; }
     .summary-dish-item strong { color: var(--text1); }
     .sdi-left  { flex: 1; min-width: 0; }
-    .sdi-fuel  { color: var(--text3); font-size: 11px; font-family: var(--mono); }
+    .sdi-fuel  { color: var(--text3); font-size: 11px; font-family: var(--sans); }
     .sdi-price { flex-shrink: 0; color: var(--text2); font-family: var(--mono); font-size: 13px; white-space: nowrap; }
 
     /* ── CONFIRMATION ────────────────────────── */
     .confirm-icon  { width: 60px; height: 60px; border-radius: 50%; background: var(--gold-dim); border: 2px solid rgba(201,168,76,.3); display: flex; align-items: center; justify-content: center; margin: 32px auto 16px; }
     .confirm-icon-check { font-size: 28px; color: var(--gold); font-weight: 700; font-family: var(--mono); }
-    .confirm-title { font-family: var(--cond); font-size: 32px; font-weight: 800; text-align: center; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; color: var(--text1); }
+    .confirm-title { font-family: var(--sans); font-size: 28px; font-weight: 700; text-align: center; letter-spacing: -.3px; text-transform: none; margin-bottom: 8px; color: var(--text1); }
     .confirm-sub   { font-size: 14px; color: var(--text2); text-align: center; margin-bottom: 28px; line-height: 1.5; }
 
     .payment-card {
@@ -387,8 +417,8 @@
       box-shadow: var(--shadow);
     }
     .payment-total-label {
-      font-size: 11px; font-family: var(--mono); color: var(--text3);
-      text-transform: uppercase; letter-spacing: 2px; font-weight: 600; margin-bottom: 8px;
+      font-size: 12px; font-family: var(--sans); color: var(--text3);
+      text-transform: none; letter-spacing: 0; font-weight: 600; margin-bottom: 8px;
     }
     .payment-total-amount {
       font-family: var(--cond); font-size: 56px; font-weight: 900; color: var(--gold);
@@ -414,7 +444,7 @@
     /* ── CLOSED STATE ────────────────────────── */
     .closed-wrap { text-align: center; padding: 60px 20px; }
     .closed-icon  { font-size: 48px; margin-bottom: 20px; color: var(--text3); }
-    .closed-title { font-family: var(--cond); font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; color: var(--text1); }
+    .closed-title { font-family: var(--sans); font-size: 22px; font-weight: 700; text-transform: none; letter-spacing: -.2px; margin-bottom: 10px; color: var(--text1); }
     .closed-sub   { font-size: 14px; color: var(--text2); line-height: 1.6; }
 
     /* ── LOADING ─────────────────────────────── */
@@ -455,8 +485,8 @@
     .btn-next {
       flex: 1; padding: 15px; border-radius: 10px;
       background: var(--gold); border: none; color: #000;
-      font-family: var(--cond); font-size: 16px; font-weight: 800;
-      letter-spacing: 1px; text-transform: uppercase;
+      font-family: var(--sans); font-size: 15px; font-weight: 700;
+      letter-spacing: 0; text-transform: none;
       cursor: pointer; transition: all .15s;
     }
     .btn-next:hover   { background: #d4b060; }
@@ -470,7 +500,8 @@
       .dish-grid { grid-template-columns: 1fr; }
       .form-row  { grid-template-columns: 1fr; }
       .portal-wrap { padding: 0 12px 60px; }
-      .dish-body { padding: 10px 10px; }
+      .dish-body { padding: 12px 11px 10px; }
+      .dish-name { font-size: 14px; }
       .progress-bar { margin-bottom: 20px; }
     }
 
@@ -1459,25 +1490,29 @@ function renderDishCard(dish, sess) {
     ? '<div class="dish-serves">With ' + escHtml(dish.serves) + '</div>'
     : '';
 
-  // Attribute badges — uses shared TAG_MAP
+  // Attribute badges — always rendered so dish name starts at consistent Y across all cards
   var tags = Array.isArray(dish.tags) ? dish.tags : [];
-  var attribsHtml = tags.length
-    ? '<div class="dish-attribs">' +
-      tags.map(function(t) {
-        var def = TAG_MAP[t];
-        return def ? '<span class="attrib-badge ' + def.cls + '">' + def.label + '</span>' : '';
-      }).join('') +
-      '</div>'
-    : '';
-
-  // Compact 2×2 macro grid
-  var macroHtml =
-    '<div class="dish-macros">' +
-    '<div class="macro-chip"><span class="macro-dot" style="background:var(--dot-kcal)"></span><strong>' + macros.kcal + '</strong>&nbsp;kcal</div>' +
-    '<div class="macro-chip"><span class="macro-dot" style="background:var(--dot-prot)"></span><strong>' + macros.prot + 'g</strong>&nbsp;P</div>' +
-    '<div class="macro-chip"><span class="macro-dot" style="background:var(--dot-carb)"></span><strong>' + macros.carb + 'g</strong>&nbsp;C</div>' +
-    '<div class="macro-chip"><span class="macro-dot" style="background:var(--dot-fat)"></span><strong>' + macros.fat + 'g</strong>&nbsp;F</div>' +
+  var attribsHtml = '<div class="dish-attribs">' +
+    tags.map(function(t) {
+      var def = TAG_MAP[t];
+      return def ? '<span class="attrib-badge ' + def.cls + '">' + def.label + '</span>' : '';
+    }).join('') +
     '</div>';
+
+  // Macro pills — kcal + protein displayed; tap to reveal full breakdown
+  var cardId = 'dc-' + sess + '-' + dish.id;
+  var macroHtml =
+    '<div class="dish-macros" onclick="toggleMacros(event,\'' + cardId + '\')">' +
+    '<div class="macro-pill">' + macros.kcal + '<span>kcal</span></div>' +
+    '<div class="macro-pill">Protein <span>' + macros.prot + 'g</span></div>' +
+    '<span class="macro-toggle">Nutrition ▾</span>' +
+    '</div>' +
+    '<div class="macro-detail-wrap"><div class="macro-detail">' +
+    '<div class="macro-detail-item"><span class="macro-detail-dot" style="background:var(--dot-kcal)"></span><strong>' + macros.kcal + '</strong>&nbsp;kcal</div>' +
+    '<div class="macro-detail-item"><span class="macro-detail-dot" style="background:var(--dot-prot)"></span><strong>' + macros.prot + 'g</strong>&nbsp;protein</div>' +
+    '<div class="macro-detail-item"><span class="macro-detail-dot" style="background:var(--dot-carb)"></span><strong>' + macros.carb + 'g</strong>&nbsp;carbs</div>' +
+    '<div class="macro-detail-item"><span class="macro-detail-dot" style="background:var(--dot-fat)"></span><strong>' + macros.fat + 'g</strong>&nbsp;fat</div>' +
+    '</div></div>';
 
   var allergenHtml = macros.allergens.length
     ? '<div class="dish-allergens"><strong>ALLERGENS:</strong> ' + macros.allergens.join(', ') + '</div>'
@@ -1499,23 +1534,32 @@ function renderDishCard(dish, sess) {
       '</div>';
   } else {
     pickHtml =
-      '<div class="dish-pick-row">' +
-      '<button class="pick-btn add" onclick="adjustQty(\'' + sess + '\',\'' + dish.id + '\',+1)">Add</button>' +
+      '<div class="dish-pick-row" style="justify-content:stretch">' +
+      '<button class="pick-btn add" onclick="adjustQty(\'' + sess + '\',\'' + dish.id + '\',+1)">Add to order</button>' +
       '</div>';
   }
 
-  return '<div class="dish-card' + (isPicked ? ' picked' : '') + '" id="dc-' + sess + '-' + dish.id + '">' +
+  return '<div class="dish-card' + (isPicked ? ' picked' : '') + '" id="' + cardId + '">' +
     photoHtml +
     '<div class="dish-body">' +
+    attribsHtml +
     '<div class="dish-name">' + escHtml(dish.name) + '</div>' +
     servesHtml +
-    attribsHtml +
-    '<div class="dish-info-area">' +
     macroHtml +
+    '<div class="dish-info-area">' +
     allergenHtml +
     '</div>' +
     pickHtml +
     '</div></div>';
+}
+
+function toggleMacros(e, cardId) {
+  e.stopPropagation();
+  var card = document.getElementById(cardId);
+  if (!card) return;
+  var open = card.classList.toggle('macros-open');
+  var tog  = card.querySelector('.macro-toggle');
+  if (tog) tog.textContent = open ? 'Nutrition ▴' : 'Nutrition ▾';
 }
 
 function adjustQty(sess, dishId, delta) {
