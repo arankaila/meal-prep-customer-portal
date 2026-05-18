@@ -540,9 +540,11 @@
   <!-- CLOSED -->
   <div id="screen-closed" style="display:none">
     <div class="closed-wrap">
-      <div class="closed-icon">—</div>
+      <div class="closed-icon" onclick="_portalDebugTap()" style="cursor:default;user-select:none">—</div>
       <div class="closed-title">Orders Closed</div>
       <div class="closed-sub" id="closed-msg">Ordering is not currently open.<br>Check back soon for the next menu drop.</div>
+      <!-- Debug panel: tap 5× on the closed icon to reveal -->
+      <div id="portal-debug" style="display:none;margin-top:24px;background:#f3f1ed;border:1px solid rgba(0,0,0,.1);border-radius:10px;padding:14px 16px;font-size:11px;font-family:monospace;color:#555;text-align:left;line-height:1.8"></div>
     </div>
   </div>
 
@@ -956,14 +958,45 @@ function getDeliveryZone(postcode) {
 // ═══════════════════════════════════════════════════════════════
 //  FIREBASE INIT
 // ═══════════════════════════════════════════════════════════════
+function _normaliseDB(d) {
+  // Firebase sometimes returns arrays as plain objects with numeric keys.
+  // Normalise all list fields back to proper JS arrays so .length works.
+  if (!d) return d;
+  ['menuDishes','nextMenuDishes','weeklyOrders','ingredients','components','recipes'].forEach(function(k) {
+    if (d[k] === null || d[k] === undefined) {
+      d[k] = [];
+    } else if (!Array.isArray(d[k]) && typeof d[k] === 'object') {
+      // Object with numeric keys — convert to array
+      d[k] = Object.keys(d[k]).sort(function(a,b){return +a-+b;}).map(function(i){return d[k][i];}).filter(Boolean);
+    }
+  });
+  return d;
+}
+
 function _startFirebase(cfg) {
   try {
+    var fbApp;
     if (!firebase.apps.length) {
-      firebase.initializeApp(cfg);
+      fbApp = firebase.initializeApp(cfg);
+    } else {
+      // Check if existing app uses our config; if not, init a named instance
+      var existingApp = firebase.apps[0];
+      if (existingApp.options.databaseURL === cfg.databaseURL) {
+        fbApp = existingApp;
+      } else {
+        fbApp = firebase.initializeApp(cfg, '29perf-order');
+      }
     }
-    var dbRef = firebase.database().ref('29perfOS/data');
+    var dbRef = firebase.database(fbApp).ref('29perfOS/data');
     dbRef.on('value', function(snap) {
-      DB = snap.val();
+      DB = _normaliseDB(snap.val());
+      // Log portal state for diagnostics (visible in browser console)
+      console.log('[29Perf Portal] DB update —',
+        'nextMenuPublished:', DB && DB.nextMenuPublished,
+        '| nextMenuDishes.length:', DB && Array.isArray(DB.nextMenuDishes) ? DB.nextMenuDishes.length : (DB && DB.nextMenuDishes ? 'obj:'+Object.keys(DB.nextMenuDishes).length : 0),
+        '| menuPublished:', DB && DB.menuPublished,
+        '| menuDishes.length:', DB && Array.isArray(DB.menuDishes) ? DB.menuDishes.length : 0
+      );
       onDBUpdate();
     });
     setTimeout(function() { if (!DB) showScreen('closed'); }, 8000);
@@ -1061,11 +1094,45 @@ function checkAndAutoPublish() {
   return true;
 }
 
+var _debugTapCount = 0;
+function _portalDebugTap() {
+  _debugTapCount++;
+  if (_debugTapCount >= 5) {
+    _debugTapCount = 0;
+    var panel = document.getElementById('portal-debug');
+    if (panel) panel.style.display = panel.style.display === 'none' ? '' : 'none';
+  }
+}
+
+function _updateDebugPanel() {
+  var panel = document.getElementById('portal-debug');
+  if (!panel) return;
+  if (!DB) { panel.innerHTML = 'DB: null'; return; }
+  var nd = DB.nextMenuDishes;
+  var md = DB.menuDishes;
+  panel.innerHTML =
+    '<strong>Firebase state:</strong><br>' +
+    'nextMenuPublished: <strong>' + DB.nextMenuPublished + '</strong><br>' +
+    'nextMenuDishes: <strong>' + (Array.isArray(nd) ? nd.length + ' items' : (nd ? 'object('+Object.keys(nd).length+')' : 'null/empty')) + '</strong><br>' +
+    'nextMenuWeekLabel: <strong>' + (DB.nextMenuWeekLabel || '—') + '</strong><br>' +
+    'menuPublished: <strong>' + DB.menuPublished + '</strong><br>' +
+    'menuDishes: <strong>' + (Array.isArray(md) ? md.length + ' items' : '—') + '</strong><br>' +
+    'menuWeekLabel: <strong>' + (DB.menuWeekLabel || '—') + '</strong><br>' +
+    's1Deadline: <strong>' + (DB.s1Deadline || '—') + '</strong><br>' +
+    's2Deadline: <strong>' + (DB.s2Deadline || '—') + '</strong><br>' +
+    'nextS1Deadline: <strong>' + (DB.nextS1Deadline || '—') + '</strong><br>' +
+    'nextS2Deadline: <strong>' + (DB.nextS2Deadline || '—') + '</strong><br>' +
+    '<br><em>_portalHasNextSlot: ' + _portalHasNextSlot() + '</em><br>' +
+    '<em>getPortalPublished: ' + getPortalPublished() + '</em>';
+}
+
 function onDBUpdate() {
   if (!DB) return showScreen('closed');
 
   // Auto-switch portal to next week if the Wednesday deadline has passed
   checkAndAutoPublish();
+
+  _updateDebugPanel();
 
   var portalLabel = getPortalWeekLabel();
   if (portalLabel) {
