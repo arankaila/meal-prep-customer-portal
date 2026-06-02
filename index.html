@@ -687,7 +687,7 @@
 
       <!-- Discount code -->
       <div id="discount-section" style="margin:4px 0 16px">
-        <div id="discount-applied-row" style="display:none;padding:12px 14px;background:var(--green-dim);border:1px solid rgba(26,122,66,.2);border-radius:var(--radius);display:none;justify-content:space-between;align-items:center">
+        <div id="discount-applied-row" style="padding:12px 14px;background:var(--green-dim);border:1px solid rgba(26,122,66,.2);border-radius:var(--radius);justify-content:space-between;align-items:center">
           <div>
             <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--green);letter-spacing:1px" id="discount-applied-code"></div>
             <div style="font-size:12px;color:var(--text2);margin-top:2px" id="discount-applied-label"></div>
@@ -1073,6 +1073,9 @@ function savePortalSetup() {
 // the switch yet, the portal does it itself — so customers always get the right menu.
 function checkAndAutoPublish() {
   if (!DB) return false;
+  // If ops app has already fired (or suppressed) auto-publish, respect that — do NOT
+  // override a manual portal close by re-opening it on every Firebase sync.
+  if (DB.autoPublishFired) return false;
   var now = new Date();
   var hasNextReady   = !!(DB.nextMenuDishes && DB.nextMenuDishes.length > 0 && (DB.nextMenuWeekLabel || '').trim());
   var notPublished   = !DB.nextMenuPublished;
@@ -1283,7 +1286,7 @@ function getSessionAvail() {
     return { open: pub && (!d || now < d), deadline: d };
   }
   return {
-    sunday:    sess(useNext ? DB.nextS1Deadline : (DB.s1Deadline || DB.orderDeadline)),
+    sunday:    sess(useNext ? DB.nextS1Deadline : DB.s1Deadline),
     wednesday: sess(useNext ? DB.nextS2Deadline : DB.s2Deadline)
   };
 }
@@ -1721,7 +1724,7 @@ function clearDraft() {
   if (lastEmail) localStorage.removeItem('29p_draft_' + lastEmail);
   localStorage.removeItem('29p_draft_email');
   state.sessions = [];
-  state.picks    = { sunday: [], wednesday: [] };
+  state.picks    = { sunday: {}, wednesday: {} };
   state.customer = { name:'', email:'', phone:'', address1:'', address2:'', city:'', postcode:'', notes:'' };
   state.discount = null;
   document.getElementById('draft-banner').style.display = 'none';
@@ -1860,6 +1863,16 @@ function submitOrder() {
   btn.textContent = 'Submitting…';
   hideErr('err-submit');
 
+  // Safety timeout — re-enable submit if Firebase hangs (quota exceeded, offline, etc.)
+  // Without this the button stays disabled forever and the customer is stuck.
+  var _submitTimeout = setTimeout(function() {
+    if (btn.disabled) {
+      btn.disabled    = false;
+      btn.textContent = 'Place Order';
+      showErr('err-submit', 'Connection is taking too long. Please check your internet and try again. If the problem persists your order may already be processing — contact us before re-submitting.');
+    }
+  }, 18000); // 18 seconds
+
   var submittedAt = new Date().toISOString();
   var week        = getPortalWeekLabel();
   var orderSlot   = (_portalHasNextSlot() && DB.nextMenuPublished) ? 'next' : 'current';
@@ -1951,20 +1964,30 @@ function submitOrder() {
       });
     });
 
-    // Increment discount code usage count
+    // Increment discount code usage count — enforce limit atomically inside the transaction
+    // so concurrent checkouts can never exceed the usage cap.
     if (state.discount && state.discount.id) {
       if (!Array.isArray(data.discountCodes)) data.discountCodes = [];
       var dcIdx = data.discountCodes.findIndex(function(c) { return c.id === state.discount.id; });
-      if (dcIdx >= 0) data.discountCodes[dcIdx].usedCount = (data.discountCodes[dcIdx].usedCount || 0) + 1;
+      if (dcIdx >= 0) {
+        var dc = data.discountCodes[dcIdx];
+        var used = (dc.usedCount || 0);
+        // Abort the transaction if the code has already hit its limit
+        if (dc.usageLimit && used >= dc.usageLimit) {
+          return; // returning undefined aborts the Firebase transaction safely
+        }
+        data.discountCodes[dcIdx].usedCount = used + 1;
+      }
     }
 
     data._ts = Date.now();
     return data;
   }, function(err, committed) {
+    clearTimeout(_submitTimeout); // cancel the hang-protection timeout
     btn.disabled    = false;
     btn.textContent = 'Place Order';
     if (err || !committed) {
-      showErr('err-submit', 'Submission failed. Please try again.');
+      showErr('err-submit', 'Submission failed. Please try again. If this keeps happening, contact us directly to place your order.');
       return;
     }
     var lastEmail = localStorage.getItem('29p_draft_email');
@@ -2069,9 +2092,14 @@ function showConfirmation() {
   var breakdownHtml = '';
   state.sessions.forEach(function(sess) {
     var picks = state.picks[sess] || {};
+    function _fmtDate(iso) {
+      if (!iso) return '';
+      var d = new Date(iso + 'T12:00:00');
+      return d.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' });
+    }
     var label = sess === 'sunday'
-      ? 'Sunday Drop' + (dd.sunday ? ' \u2014 ' + dd.sunday : '')
-      : 'Wednesday Drop' + (dd.wednesday ? ' \u2014 ' + dd.wednesday : '');
+      ? 'Sunday Drop' + (dd.sunday ? ' \u2014 ' + _fmtDate(dd.sunday) : '')
+      : 'Wednesday Drop' + (dd.wednesday ? ' \u2014 ' + _fmtDate(dd.wednesday) : '');
     var sessTotal = 0;
     var rows = Object.keys(picks).map(function(dishId) {
       var qty = picks[dishId] || 0;
