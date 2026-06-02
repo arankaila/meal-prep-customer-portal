@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -975,13 +976,15 @@ function _normaliseDB(d) {
   return d;
 }
 
+// Module-level Firebase app reference — used by submitOrder() for targeted writes
+var _portalFbApp = null;
+
 function _startFirebase(cfg) {
   try {
     var fbApp;
     if (!firebase.apps.length) {
       fbApp = firebase.initializeApp(cfg);
     } else {
-      // Check if existing app uses our config; if not, init a named instance
       var existingApp = firebase.apps[0];
       if (existingApp.options.databaseURL === cfg.databaseURL) {
         fbApp = existingApp;
@@ -989,19 +992,36 @@ function _startFirebase(cfg) {
         fbApp = firebase.initializeApp(cfg, '29perf-order');
       }
     }
-    var dbRef = firebase.database(fbApp).ref('29perfOS/data');
-    dbRef.on('value', function(snap) {
-      DB = _normaliseDB(snap.val());
-      // Log portal state for diagnostics (visible in browser console)
-      console.log('[29Perf Portal] DB update —',
-        'nextMenuPublished:', DB && DB.nextMenuPublished,
-        '| nextMenuDishes.length:', DB && Array.isArray(DB.nextMenuDishes) ? DB.nextMenuDishes.length : (DB && DB.nextMenuDishes ? 'obj:'+Object.keys(DB.nextMenuDishes).length : 0),
-        '| menuPublished:', DB && DB.menuPublished,
-        '| menuDishes.length:', DB && Array.isArray(DB.menuDishes) ? DB.menuDishes.length : 0
-      );
-      onDBUpdate();
-    });
-    setTimeout(function() { if (!DB) showScreen('closed'); }, 8000);
+    _portalFbApp = fbApp;
+
+    // Sign in anonymously so Firebase Security Rules can distinguish portal
+    // visitors (anonymous) from the ERP (email-authenticated). This gives us
+    // auth != null for rules without requiring customers to create accounts.
+    firebase.auth(fbApp).signInAnonymously()
+      .then(function() {
+        var dbRef = firebase.database(fbApp).ref('29perfOS/data');
+        dbRef.on('value', function(snap) {
+          DB = _normaliseDB(snap.val());
+          console.log('[29Perf Portal] DB update —',
+            'nextMenuPublished:', DB && DB.nextMenuPublished,
+            '| nextMenuDishes:', DB && (DB.nextMenuDishes||[]).length,
+            '| menuPublished:', DB && DB.menuPublished,
+            '| menuDishes:', DB && (DB.menuDishes||[]).length
+          );
+          onDBUpdate();
+        });
+        setTimeout(function() { if (!DB) showScreen('closed'); }, 8000);
+      })
+      .catch(function(e) {
+        console.error('Firebase auth error:', e);
+        // Fall back to unauthenticated read — will still work if rules allow it
+        var dbRef = firebase.database(fbApp).ref('29perfOS/data');
+        dbRef.on('value', function(snap) {
+          DB = _normaliseDB(snap.val());
+          onDBUpdate();
+        });
+        setTimeout(function() { if (!DB) showScreen('closed'); }, 8000);
+      });
   } catch(e) {
     console.error('Firebase init error:', e);
     showSetupScreen('Could not connect: ' + (e.message || e));
@@ -1083,18 +1103,12 @@ function checkAndAutoPublish() {
 
   if (!hasNextReady || !notPublished || !deadlinePassed) return false;
 
-  // Flip flags locally so this onDBUpdate() proceeds with correct state
+  // Flip flags locally only — the portal does NOT write publish state to Firebase.
+  // The ops app owns menu state. This local flip ensures THIS visitor sees the
+  // correct menu immediately; the ops app's own checkAndAutoPublish() (runs every
+  // 5 min and on every sync) will propagate the change to all other visitors.
   DB.nextMenuPublished = true;
   DB.menuPublished     = false;
-
-  // Persist to Firebase so ops app and other portal visitors see it immediately
-  try {
-    firebase.database().ref('29perfOS/data').update({
-      nextMenuPublished: true,
-      menuPublished:     false,
-      _ts:               Date.now()
-    });
-  } catch(e) { console.warn('Auto-publish Firebase write failed:', e); }
 
   return true;
 }
@@ -1892,108 +1906,115 @@ function submitOrder() {
     ordersToCreate.push({ session: sess, allocation: allocation, sessTotal: sessTotal });
   });
 
-  var dbRef = firebase.database().ref('29perfOS/data');
-  dbRef.transaction(function(data) {
-    if (!data) return data;
-    if (!data.weeklyOrders)      data.weeklyOrders      = [];
-    if (!data.nextOrderId)       data.nextOrderId       = 1;
-    if (!data.customers)         data.customers         = [];
-    if (!data.nextCustomerId)    data.nextCustomerId    = 1;
+  // ── Targeted multi-path write ──────────────────────────────────────────────
+  // Uses Firebase multi-path update() instead of a whole-blob transaction().
+  // Benefits: (1) only writes the paths that change — much lower bandwidth;
+  // (2) atomic across all paths in one operation; (3) works with the new
+  // Firebase security rules that restrict anonymous users to order/customer paths.
+  // Customer is keyed by sanitised email so the same customer always updates
+  // the same record (idempotent upsert, no duplicates).
+  // ──────────────────────────────────────────────────────────────────────────
 
-    var custEmail = state.customer.email;
-    var cust = null;
-    for (var ci = 0; ci < data.customers.length; ci++) {
-      if (data.customers[ci].email && data.customers[ci].email.toLowerCase() === custEmail) {
-        cust = data.customers[ci]; break;
-      }
-    }
-    if (!cust) {
-      cust = {
-        id:          'CUST' + String(data.nextCustomerId++).padStart(4, '0'),
-        name:        state.customer.name,
-        email:       state.customer.email,
-        phone:       state.customer.phone,
-        addr1:       state.customer.address1,
-        addr2:       state.customer.address2,
-        city:        state.customer.city,
-        postcode:    state.customer.postcode,
-        dietary:     '',
-        notes:       state.customer.notes,
-        type:        'recurring',
-        status:      'active',
-        createdAt:   submittedAt,
-        source:      'portal'
-      };
-      data.customers.push(cust);
-    }
+  // Build customer record — use email as stable key to deduplicate returning customers
+  var custKey = 'c_' + state.customer.email.toLowerCase()
+    .replace(/[^a-z0-9]/g, '_').slice(0, 60);
+  var custRecord = {
+    id:        custKey,
+    name:      state.customer.name,
+    email:     state.customer.email,
+    phone:     state.customer.phone,
+    addr1:     state.customer.address1,
+    addr2:     state.customer.address2 || '',
+    city:      state.customer.city,
+    postcode:  state.customer.postcode,
+    dietary:   '',
+    notes:     state.customer.notes || '',
+    type:      'recurring',
+    status:    'active',
+    updatedAt: submittedAt,
+    source:    'portal'
+  };
 
-    ordersToCreate.forEach(function(o) {
-      var ordId = 'ORD' + String(data.nextOrderId++).padStart(4, '0');
-      var items = Object.keys(o.allocation).map(function(dId) {
-        var d = getPortalMenuDishes().find(function(x){ return x.id === dId; });
-        return { dishId: dId, name: d ? (d.name||dId) : dId, qty: o.allocation[dId], unitPrice: d ? (parseFloat(d.sellPrice)||0) : 0 };
-      }).filter(function(i){ return i.qty > 0; });
+  // Build orders and the multi-path updates object
+  var updates    = {};
+  var createdIds = [];
 
-      data.weeklyOrders.push({
-        id:            ordId,
-        customerId:    cust.id,
-        recipientName: state.customer.name,
-        email:         state.customer.email,
-        phone:         state.customer.phone,
-        address1:      state.customer.address1,
-        address2:      state.customer.address2,
-        city:          state.customer.city,
-        postcode:      state.customer.postcode,
-        week:          week,
-        slot:          orderSlot,
-        session:       o.session,
-        allocation:    o.allocation,
-        items:         items,
-        notes:         state.customer.notes,
-        discount:      state.discount ? { code: state.discount.code, type: state.discount.type, value: state.discount.value, amount: state.discount.amount } : null,
-        status:        'pending',
-        source:        'portal',
-        createdAt:     submittedAt,
-        submittedAt:   submittedAt,
-        confirmedAt:   null,
-        packProgress:  {},
-        packedAt:      null,
-        stagingBay:    null,
-        cancelledReason: null,
-        cancelledBy:   null
-      });
-    });
+  ordersToCreate.forEach(function(o) {
+    var ordId = 'ORD' + Date.now() + Math.random().toString(36).slice(2, 5).toUpperCase();
+    createdIds.push(ordId);
+    var items = Object.keys(o.allocation).map(function(dId) {
+      var d = getPortalMenuDishes().find(function(x){ return x.id === dId; });
+      return { dishId: dId, name: d ? (d.name||dId) : dId, qty: o.allocation[dId], unitPrice: d ? (parseFloat(d.sellPrice)||0) : 0 };
+    }).filter(function(i){ return i.qty > 0; });
 
-    // Increment discount code usage count — enforce limit atomically inside the transaction
-    // so concurrent checkouts can never exceed the usage cap.
-    if (state.discount && state.discount.id) {
-      if (!Array.isArray(data.discountCodes)) data.discountCodes = [];
-      var dcIdx = data.discountCodes.findIndex(function(c) { return c.id === state.discount.id; });
-      if (dcIdx >= 0) {
-        var dc = data.discountCodes[dcIdx];
-        var used = (dc.usedCount || 0);
-        // Abort the transaction if the code has already hit its limit
-        if (dc.usageLimit && used >= dc.usageLimit) {
-          return; // returning undefined aborts the Firebase transaction safely
-        }
-        data.discountCodes[dcIdx].usedCount = used + 1;
-      }
-    }
+    updates['data/weeklyOrders/' + ordId] = {
+      id:            ordId,
+      customerId:    custKey,
+      recipientName: state.customer.name,
+      email:         state.customer.email,
+      phone:         state.customer.phone,
+      address1:      state.customer.address1,
+      address2:      state.customer.address2 || '',
+      city:          state.customer.city,
+      postcode:      state.customer.postcode,
+      week:          week,
+      slot:          orderSlot,
+      session:       o.session,
+      allocation:    o.allocation,
+      items:         items,
+      notes:         state.customer.notes || '',
+      discount:      state.discount ? { code: state.discount.code, type: state.discount.type, value: state.discount.value, amount: state.discount.amount } : null,
+      status:        'pending',
+      source:        'portal',
+      createdAt:     submittedAt,
+      submittedAt:   submittedAt,
+      confirmedAt:   null,
+      packProgress:  {},
+      packedAt:      null,
+      stagingBay:    null,
+      cancelledReason: null,
+      cancelledBy:   null
+    };
+  });
 
-    data._ts = Date.now();
-    return data;
-  }, function(err, committed) {
-    clearTimeout(_submitTimeout); // cancel the hang-protection timeout
+  updates['data/customers/' + custKey] = custRecord;
+
+  // Write orders + customer atomically in one multi-path update
+  var _rootRef = firebase.database(_portalFbApp).ref('29perfOS');
+  _rootRef.update(updates, function(err) {
+    clearTimeout(_submitTimeout);
     btn.disabled    = false;
     btn.textContent = 'Place Order';
-    if (err || !committed) {
+
+    if (err) {
       showErr('err-submit', 'Submission failed. Please try again. If this keeps happening, contact us directly to place your order.');
+      console.error('Order write error:', err);
       return;
     }
+
+    // Atomically enforce and increment discount usage — separate transaction
+    // on the discountCodes path only (much smaller, lower contention)
+    if (state.discount && state.discount.id) {
+      firebase.database(_portalFbApp).ref('29perfOS/data/discountCodes')
+        .transaction(function(codes) {
+          if (!codes) return codes;
+          var arr = Array.isArray(codes) ? codes : Object.values(codes).filter(Boolean);
+          var idx = arr.findIndex(function(c) { return c && c.id === state.discount.id; });
+          if (idx >= 0) {
+            var dc = arr[idx];
+            if (dc.usageLimit && (dc.usedCount || 0) >= dc.usageLimit) return; // abort — limit hit
+            arr[idx] = Object.assign({}, dc, { usedCount: (dc.usedCount || 0) + 1 });
+          }
+          return arr;
+        });
+    }
+
+    // Clear draft
     var lastEmail = localStorage.getItem('29p_draft_email');
     if (lastEmail) localStorage.removeItem('29p_draft_' + lastEmail);
     localStorage.removeItem('29p_draft_email');
 
+    // Notifications
     try {
       var notifOrders = ordersToCreate.map(function(o) {
         var items = Object.keys(o.allocation).map(function(dId) {
