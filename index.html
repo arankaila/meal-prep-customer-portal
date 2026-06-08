@@ -13,34 +13,35 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg:         #f7f5f1;
-      --surface:    #ffffff;
-      --surface2:   #f3f1ed;
-      --surface3:   #ebe8e2;
-      --border:     rgba(0,0,0,.07);
-      --border2:    rgba(0,0,0,.13);
-      --text1:      #1a1714;
-      --text2:      #7a7570;
-      --text3:      #b0ada8;
-      --gold:       #c9a84c;
-      --gold-dim:   rgba(201,168,76,.1);
-      --gold-hi:    rgba(201,168,76,.18);
-      --green:      #1a7a42;
-      --green-dim:  rgba(26,122,66,.1);
-      --amber:      #c97812;
-      --amber-dim:  rgba(201,120,18,.1);
-      --red:        #c43c33;
-      --red-dim:    rgba(196,60,51,.08);
-      --blue:       #2563eb;
-      --blue-dim:   rgba(37,99,235,.08);
+      /* ── DARK THEME — matched to 29 Performance landing page ── */
+      --bg:         #0a0a0a;
+      --surface:    #151515;
+      --surface2:   #1c1c1c;
+      --surface3:   #242424;
+      --border:     rgba(255,255,255,.08);
+      --border2:    rgba(255,255,255,.15);
+      --text1:      #f4f4f4;
+      --text2:      #9b9b9b;
+      --text3:      #6c6c6c;
+      --gold:       #f2c233;
+      --gold-dim:   rgba(242,194,51,.12);
+      --gold-hi:    rgba(242,194,51,.22);
+      --green:      #35c46b;
+      --green-dim:  rgba(53,196,107,.14);
+      --amber:      #f0a83c;
+      --amber-dim:  rgba(240,168,60,.14);
+      --red:        #ef5a4f;
+      --red-dim:    rgba(239,90,79,.12);
+      --blue:       #5a8cff;
+      --blue-dim:   rgba(90,140,255,.14);
       --dot-kcal:   #9ca3af;
-      --dot-carb:   #0ea5e9;
-      --dot-fat:    #f97316;
-      --dot-prot:   #22c55e;
+      --dot-carb:   #38bdf8;
+      --dot-fat:    #fb923c;
+      --dot-prot:   #4ade80;
       --radius:     14px;
-      --shadow:     0 2px 12px rgba(0,0,0,.07);
-      --shadow-md:  0 4px 20px rgba(0,0,0,.09);
-      --shadow-lg:  0 8px 32px rgba(0,0,0,.11);
+      --shadow:     0 2px 12px rgba(0,0,0,.5);
+      --shadow-md:  0 4px 20px rgba(0,0,0,.55);
+      --shadow-lg:  0 8px 32px rgba(0,0,0,.6);
       --sans:       'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       --cond:       'Barlow Condensed', 'Arial Narrow', sans-serif;
       --mono:       'SF Mono', 'Fira Code', monospace;
@@ -519,6 +520,44 @@
       font-size: 10px; font-family: var(--mono); color: var(--text3);
       letter-spacing: .5px; text-transform: uppercase;
     }
+
+    /* ════════════════════════════════════════════════════════════════
+       DARK-THEME OVERRIDES — match the 29 Performance landing page.
+       Appended last so they win the cascade. Pure styling: no markup or
+       logic changes. Delete this block to revert to the light theme.
+       ════════════════════════════════════════════════════════════════ */
+    /* faint engineering grid behind everything, like the landing hero */
+    body {
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
+      background-size: 46px 46px;
+      background-position: center top;
+      background-attachment: fixed;
+    }
+    /* header wordmark — smaller, tighter to sit neatly in the corner */
+    .portal-logo-wordmark { font-size: 14px; letter-spacing: 3px; }
+    .portal-logo-wordmark span { color: var(--gold); }
+    /* toast: was a dark pill on light bg — invert to a light-on-surface pill */
+    .toast { background: var(--surface3) !important; color: var(--text1) !important;
+             border: 1px solid var(--border2); box-shadow: var(--shadow-lg) !important; }
+    /* attribute chips that used hardcoded light values */
+    .attrib-high-protein { background: var(--surface3) !important; color: var(--text2) !important;
+                           border: 1px solid var(--border2) !important; }
+    .attrib-chefs-choice, .attrib-9-amino { color: var(--gold) !important; }
+    /* spinner ring on dark */
+    .spinner { border-color: rgba(255,255,255,.14) !important; border-top-color: var(--gold) !important; }
+    /* gold hovers — brighten instead of the old muted tan */
+    .btn-next:hover, .pick-btn.add:hover { background: #ffd24a !important; }
+    /* dish cards lift on dark */
+    .session-card, .dish-card, .summary-card { background: var(--surface); }
+    /* closed screen: lift the title and tint the icon gold, like the landing */
+    .closed-title { color: var(--text1); }
+    .closed-icon  { color: var(--gold); }
+    /* hidden debug panel had an inline light background — force dark */
+    #portal-debug { background: var(--surface2) !important; color: var(--text2) !important;
+                    border-color: var(--border2) !important; }
   </style>
 </head>
 <body>
