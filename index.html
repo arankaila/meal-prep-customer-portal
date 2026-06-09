@@ -661,21 +661,10 @@
       <div class="step-title">Your details</div>
       <div class="step-sub">We'll use these to confirm your order and for delivery.</div>
 
-      <!-- Returning customer lookup -->
-      <div id="returning-lookup-box" style="background:var(--surface2);border:1.5px solid var(--border2);border-radius:var(--radius);padding:14px 16px;margin-bottom:20px">
-        <div style="font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:10px">Ordered before? Prefill your details</div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <input type="email" id="lookup-email" placeholder="Your email address"
-            style="flex:1;background:var(--surface);border:1.5px solid var(--border2);border-radius:10px;padding:11px 14px;font-size:13px;color:var(--text1);font-family:var(--sans);outline:none;transition:border-color .15s"
-            onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor=''"
-            onkeydown="if(event.key==='Enter')lookupReturningCustomer()">
-          <button onclick="lookupReturningCustomer()"
-            style="flex-shrink:0;padding:11px 18px;border-radius:10px;border:1.5px solid var(--border2);background:var(--surface);color:var(--text1);font-family:var(--cond);font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:all .15s"
-            onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'"
-            onmouseout="this.style.borderColor='';this.style.color=''">Look up</button>
-        </div>
-        <div id="lookup-msg" style="font-size:12px;margin-top:8px;display:none"></div>
-      </div>
+      <!-- Returning-customer email prefill REMOVED: it exposed other customers'
+           name/phone/address to anyone who entered their email. Customers now
+           enter their own details each time (their own browser still restores a
+           saved draft locally, which is private to their device). -->
 
       <div class="form-group">
         <label class="form-label">Full Name *</label>
@@ -1017,6 +1006,11 @@ function _normaliseDB(d) {
 
 // Module-level Firebase app reference — used by submitOrder() for targeted writes
 var _portalFbApp = null;
+// Discount codes are fetched once (auth-gated) — NOT bundled into the public menu,
+// so the codes themselves aren't world-readable. The portal no longer downloads
+// any customers or orders.
+var _portalDiscountCodes = [];
+function _arr(v){ return !v ? [] : (Array.isArray(v) ? v.filter(Boolean) : Object.values(v).filter(Boolean)); }
 
 function _startFirebase(cfg) {
   try {
@@ -1036,31 +1030,31 @@ function _startFirebase(cfg) {
     // Sign in anonymously so Firebase Security Rules can distinguish portal
     // visitors (anonymous) from the ERP (email-authenticated). This gives us
     // auth != null for rules without requiring customers to create accounts.
+    // ── Read the PUBLIC, PII-FREE menu node ──────────────────────────────────
+    // The portal only receives the menu (dishes, prices, photos, deadlines) — it
+    // NO LONGER downloads customers or orders. This closes the data leak (the old
+    // email "prefill" exposed names/phones/addresses) and works even without auth,
+    // so browsing the menu is unaffected by in-app browsers.
+    var menuRef = firebase.database(fbApp).ref('29perfOS/public/menu');
+    menuRef.on('value', function(snap) {
+      DB = _normaliseDB(snap.val());
+      onDBUpdate();
+    }, function(err) {
+      console.warn('[29Perf Portal] menu read error:', err);
+      if (!DB) showScreen('closed');
+    });
+    setTimeout(function() { if (!DB) showScreen('closed'); }, 8000);
+
+    // Anonymous sign-in is still needed to PLACE an order (write) and to read the
+    // discount-code list (auth-gated so codes aren't world-readable). It is NOT
+    // needed to browse the menu, so a failure here doesn't block browsing.
     firebase.auth(fbApp).signInAnonymously()
       .then(function() {
-        var dbRef = firebase.database(fbApp).ref('29perfOS/data');
-        dbRef.on('value', function(snap) {
-          DB = _normaliseDB(snap.val());
-          console.log('[29Perf Portal] DB update —',
-            'nextMenuPublished:', DB && DB.nextMenuPublished,
-            '| nextMenuDishes:', DB && (DB.nextMenuDishes||[]).length,
-            '| menuPublished:', DB && DB.menuPublished,
-            '| menuDishes:', DB && (DB.menuDishes||[]).length
-          );
-          onDBUpdate();
-        });
-        setTimeout(function() { if (!DB) showScreen('closed'); }, 8000);
+        firebase.database(fbApp).ref('29perfOS/data/discountCodes').once('value')
+          .then(function(s) { _portalDiscountCodes = _arr(s.val()); })
+          .catch(function(e) { console.warn('[29Perf Portal] discount read:', e); });
       })
-      .catch(function(e) {
-        console.error('Firebase auth error:', e);
-        // Fall back to unauthenticated read — will still work if rules allow it
-        var dbRef = firebase.database(fbApp).ref('29perfOS/data');
-        dbRef.on('value', function(snap) {
-          DB = _normaliseDB(snap.val());
-          onDBUpdate();
-        });
-        setTimeout(function() { if (!DB) showScreen('closed'); }, 8000);
-      });
+      .catch(function(e) { console.warn('[29Perf Portal] anon auth (checkout may be limited):', e); });
   } catch(e) {
     console.error('Firebase init error:', e);
     showSetupScreen('Could not connect: ' + (e.message || e));
@@ -2257,38 +2251,11 @@ function getDishDemand(dishId) {
 // ═══════════════════════════════════════════════════════════════
 //  DISCOUNT CODES
 // ═══════════════════════════════════════════════════════════════
-function lookupReturningCustomer() {
-  var email = (document.getElementById('lookup-email').value || '').trim().toLowerCase();
-  var msgEl = document.getElementById('lookup-msg');
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    msgEl.style.display = 'block';
-    msgEl.style.color = 'var(--red)';
-    msgEl.textContent = 'Please enter a valid email address.';
-    return;
-  }
-  var customers = DB.customers || [];
-  var match = customers.find(function(c) { return (c.email || '').toLowerCase() === email; });
-  if (!match) {
-    msgEl.style.display = 'block';
-    msgEl.style.color = 'var(--text2)';
-    msgEl.textContent = 'No account found — please fill in your details below.';
-    return;
-  }
-  // Prefill all fields
-  document.getElementById('f-name').value     = match.name     || '';
-  document.getElementById('f-email').value    = match.email    || '';
-  document.getElementById('f-phone').value    = match.phone    || '';
-  document.getElementById('f-address1').value = match.addr1    || match.address1 || '';
-  document.getElementById('f-address2').value = match.addr2    || match.address2 || '';
-  document.getElementById('f-city').value     = match.city     || '';
-  document.getElementById('f-postcode').value = (match.postcode || '').toUpperCase();
-  document.getElementById('f-notes').value    = match.notes    || '';
-  msgEl.style.display = 'block';
-  msgEl.style.color = 'var(--green)';
-  msgEl.textContent = '✓ Details filled in — check everything looks right below.';
-  // Collapse the lookup box
-  document.getElementById('returning-lookup-box').style.borderColor = 'rgba(26,122,66,.4)';
-}
+// REMOVED for privacy: this used to look a customer up by email and prefill their
+// name/phone/address from the full customer list held in the browser — meaning
+// anyone could harvest another person's details by typing their email. The portal
+// no longer downloads customer records at all, so there is nothing to look up.
+function lookupReturningCustomer() { /* intentionally disabled */ }
 
 function applyDiscountCode() {
   var raw = (document.getElementById('discount-code-input').value || '').trim().toUpperCase();
@@ -2300,7 +2267,7 @@ function applyDiscountCode() {
     errEl.style.display = 'block'; return;
   }
 
-  var codes = DB.discountCodes || [];
+  var codes = _portalDiscountCodes || [];
   var dc = codes.find(function(c) { return c.code === raw; });
 
   if (!dc) {
