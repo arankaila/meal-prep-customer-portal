@@ -13,19 +13,19 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      /* ── DARK THEME — matched to 29 Performance landing page ── */
+      /* ── DARK THEME — matched to the 29 Performance website (teal-cobra...) ── */
       --bg:         #0a0a0a;
-      --surface:    #151515;
-      --surface2:   #1c1c1c;
-      --surface3:   #242424;
+      --surface:    #141414;
+      --surface2:   #1b1b1b;
+      --surface3:   #232323;
       --border:     rgba(255,255,255,.08);
       --border2:    rgba(255,255,255,.15);
-      --text1:      #f4f4f4;
-      --text2:      #9b9b9b;
-      --text3:      #6c6c6c;
-      --gold:       #f2c233;
-      --gold-dim:   rgba(242,194,51,.12);
-      --gold-hi:    rgba(242,194,51,.22);
+      --text1:      #f0ede8;
+      --text2:      #9b9892;
+      --text3:      #666666;
+      --gold:       #fad02c;
+      --gold-dim:   rgba(250,208,44,.12);
+      --gold-hi:    rgba(250,208,44,.22);
       --green:      #35c46b;
       --green-dim:  rgba(53,196,107,.14);
       --amber:      #f0a83c;
@@ -42,8 +42,8 @@
       --shadow:     0 2px 12px rgba(0,0,0,.5);
       --shadow-md:  0 4px 20px rgba(0,0,0,.55);
       --shadow-lg:  0 8px 32px rgba(0,0,0,.6);
-      --sans:       'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      --cond:       'Barlow Condensed', 'Arial Narrow', sans-serif;
+      --sans:       'Helvetica Neue', Helvetica, Arial, sans-serif;
+      --cond:       'Helvetica Neue', Helvetica, Arial, sans-serif;
       --mono:       'SF Mono', 'Fira Code', monospace;
     }
     html, body { background: var(--bg); color: var(--text1); font-family: var(--sans); min-height: 100vh; }
@@ -526,14 +526,14 @@
        Appended last so they win the cascade. Pure styling: no markup or
        logic changes. Delete this block to revert to the light theme.
        ════════════════════════════════════════════════════════════════ */
-    /* faint engineering grid behind everything, like the landing hero */
+    /* Warm, welcoming backdrop: a soft gold glow from the top fading into a
+       gently warm dark — friendlier and with more depth than flat black. */
     body {
-      background-color: var(--bg);
+      background-color: #0c0b0a;
       background-image:
-        linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
-      background-size: 46px 46px;
-      background-position: center top;
+        radial-gradient(125% 85% at 50% -12%, rgba(250,208,44,.13), rgba(250,208,44,0) 55%),
+        radial-gradient(110% 70% at 50% 112%, rgba(255,255,255,.035), transparent 60%);
+      background-repeat: no-repeat;
       background-attachment: fixed;
     }
     /* header wordmark — smaller, tighter to sit neatly in the corner */
@@ -558,6 +558,38 @@
     /* hidden debug panel had an inline light background — force dark */
     #portal-debug { background: var(--surface2) !important; color: var(--text2) !important;
                     border-color: var(--border2) !important; }
+
+    /* ════════════════════════════════════════════════════════════════
+       WEBSITE-MATCH REFINEMENTS — make the portal read as a continuation
+       of the main site (Helvetica Neue, heavier headings, sharp gold CTAs).
+       ════════════════════════════════════════════════════════════════ */
+    /* Headings: heavy weight + tight tracking, like the site's display type */
+    .step-title, .sc-day, .sh-day, .confirm-title, .closed-title {
+      font-weight: 800; letter-spacing: -0.6px;
+    }
+    /* Primary gold CTAs: friendly sentence case, softly rounded, less shouty */
+    .btn-next, .pick-btn.add, #btn-submit {
+      border-radius: 12px !important; text-transform: none !important;
+      font-weight: 700 !important; letter-spacing: .2px;
+    }
+    /* Wordmark in the site's heavier grotesque (kept as the brand mark) */
+    .portal-logo-wordmark { font-weight: 800; letter-spacing: 2px; }
+    /* Slightly lighter hover for the new brighter gold */
+    .btn-next:hover, .pick-btn.add:hover { background: #ffd84a !important; }
+
+    /* ── APPROACHABILITY POLISH ── rounder, airier, friendlier ── */
+    .session-card, .dish-card, .summary-card, .payment-card { border-radius: 18px; }
+    .step-sub { margin-bottom: 26px; line-height: 1.6; }
+    .session-grid { gap: 14px; }
+    .dish-grid { gap: 16px; }
+    /* Soften the shouty ALL-CAPS micro-labels to friendly case */
+    .fuel-badge, .pf-label, .pf-chip { text-transform: none !important; letter-spacing: .2px !important; }
+    /* Warmer, stronger welcome glow behind the header */
+    body {
+      background-image:
+        radial-gradient(95% 55% at 50% -6%, rgba(250,208,44,.20), rgba(250,208,44,0) 60%),
+        radial-gradient(120% 80% at 50% 112%, rgba(255,255,255,.04), transparent 62%) !important;
+    }
   </style>
 </head>
 <body>
@@ -622,8 +654,8 @@
 
     <!-- STEP 1: Sessions -->
     <div id="step-1">
-      <div class="step-title">Choose your delivery day(s)</div>
-      <div class="step-sub">Select the day(s) you'd like to receive your meals. Minimum 3 dishes per drop.</div>
+      <div class="step-title">When would you like your meals?</div>
+      <div class="step-sub">Pick your drop day(s) — every meal is high-protein and ready to heat in 3 minutes. Tip: choose both days to stay fuelled all week. Minimum 3 dishes per drop.</div>
       <div class="session-grid">
         <div class="session-card" id="sc-sunday" onclick="toggleSession('sunday')">
           <div class="sc-day">Sunday</div>
@@ -646,8 +678,8 @@
 
     <!-- STEP 2: Dishes -->
     <div id="step-2" style="display:none">
-      <div class="step-title">Select your dishes</div>
-      <div class="step-sub">Minimum 3 dishes per delivery day. Add as many as you like.</div>
+      <div class="step-title">Pick your meals</div>
+      <div class="step-sub">Every dish is high in nutrients with no filler. Minimum 3 per drop — add as many as you like.</div>
       <div id="portal-filter-bar"></div>
       <div id="dish-sections"></div>
       <div class="nav-row">
@@ -658,8 +690,8 @@
 
     <!-- STEP 3: Your details -->
     <div id="step-3" style="display:none">
-      <div class="step-title">Your details</div>
-      <div class="step-sub">We'll use these to confirm your order and for delivery.</div>
+      <div class="step-title">Almost there</div>
+      <div class="step-sub">Just where we're delivering and how to reach you — takes a minute.</div>
 
       <!-- Returning-customer email prefill REMOVED: it exposed other customers'
            name/phone/address to anyone who entered their email. Customers now
@@ -700,6 +732,13 @@
         <label class="form-label">Notes <span style="color:var(--text3)">(optional)</span></label>
         <textarea class="form-textarea" id="f-notes" placeholder="Anything we should know — dietary preferences, delivery instructions, etc. We'll do our best to accommodate requests but cannot guarantee changes once production has begun."></textarea>
       </div>
+      <!-- Details confirmation -->
+      <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--surface2);border:1.5px solid var(--border2);border-radius:18px;margin:6px 0 10px">
+        <input type="checkbox" id="details-ack" style="width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:var(--gold);cursor:pointer">
+        <label for="details-ack" style="font-size:13px;color:var(--text2);line-height:1.5;cursor:pointer">
+          I confirm the details above — especially my delivery address — are correct.
+        </label>
+      </div>
       <button class="draft-btn" onclick="saveDraft()">Save Draft</button>
       <div class="error-msg" id="err-details">Please fill in all required fields.</div>
       <div class="nav-row">
@@ -710,8 +749,8 @@
 
     <!-- STEP 4: Review & Submit -->
     <div id="step-4" style="display:none">
-      <div class="step-title">Review your order</div>
-      <div class="step-sub">Check everything looks right before submitting.</div>
+      <div class="step-title">One last look</div>
+      <div class="step-sub">Quick check, then we'll start prepping your meals.</div>
       <div id="summary-content"></div>
 
       <!-- Discount code -->
@@ -751,7 +790,7 @@
       <div class="error-msg" id="err-submit">Something went wrong. Please try again.</div>
       <div class="nav-row">
         <button class="btn-back" onclick="goStep(3)">Back</button>
-        <button class="btn-next" id="btn-submit" onclick="submitOrder()">Place Order</button>
+        <button class="btn-next" id="btn-submit" onclick="submitOrder()">Place my order</button>
       </div>
     </div>
   </div>
@@ -759,9 +798,9 @@
   <!-- CONFIRMATION -->
   <div id="screen-confirm" style="display:none">
     <div class="confirm-icon"><span class="confirm-icon-check">✓</span></div>
-    <div class="confirm-title">Order Received</div>
+    <div class="confirm-title">Order placed — one step to go 🎉</div>
     <div class="confirm-sub" id="confirm-msg">
-      Thanks — we've got your order.<br>We'll be in touch to confirm shortly.
+      Thanks — your order is in.<br><strong style="color:var(--text1)">Complete your payment below</strong> to confirm it.
     </div>
     <div id="confirm-order-breakdown" style="margin-bottom:16px"></div>
 
@@ -1569,7 +1608,7 @@ function renderDishSections() {
             '<div class="sh-day">' + dayLabel + '</div>' +
             (dateStr ? '<div class="sh-date">' + dateStr + '</div>' : '') +
             '<div class="sh-divider"></div>' +
-            '<div class="sh-count"><span class="pick-count ' + countClass + '">' + total + ' dish' + (total !== 1 ? 'es' : '') + ' · min 3</span></div>' +
+            '<div class="sh-count"><span class="pick-count ' + countClass + '">' + (total >= 3 ? (total + ' dish' + (total!==1?'es':'') + ' ✓') : (total === 0 ? 'Add 3 to start your drop' : ((3 - total) + ' more to complete your drop'))) + '</span></div>' +
             '</div>';
     html += '<div class="dish-grid">';
     dishes.forEach(function(dish) { html += renderDishCard(dish, sess); });
@@ -1725,6 +1764,10 @@ function validateDetails() {
   var zone = getDeliveryZone(postcode);
   if (!zone.valid) {
     showErr('err-details', zone.message); return false;
+  }
+  var detailsAck = document.getElementById('details-ack');
+  if (detailsAck && !detailsAck.checked) {
+    showErr('err-details', 'Please confirm your details — especially your delivery address — are correct.'); return false;
   }
   hideErr('err-details');
   state.deliveryFee = zone.fee;
@@ -1915,7 +1958,7 @@ function submitOrder() {
   var _submitTimeout = setTimeout(function() {
     if (btn.disabled) {
       btn.disabled    = false;
-      btn.textContent = 'Place Order';
+      btn.textContent = 'Place my order';
       showErr('err-submit', 'Connection is taking too long. Please check your internet and try again. If the problem persists your order may already be processing — contact us before re-submitting.');
     }
   }, 18000); // 18 seconds
@@ -2017,7 +2060,7 @@ function submitOrder() {
   _rootRef.update(updates, function(err) {
     clearTimeout(_submitTimeout);
     btn.disabled    = false;
-    btn.textContent = 'Place Order';
+    btn.textContent = 'Place my order';
 
     if (err) {
       showErr('err-submit', 'Submission failed. Please try again. If this keeps happening, contact us directly to place your order.');
@@ -2139,7 +2182,9 @@ function showConfirmation() {
   }
 
   document.getElementById('confirm-msg').innerHTML =
-    'Thanks <strong>' + escHtml(state.customer.name) + '</strong> \u2014 we\'ve received your order and will confirm shortly.';
+    'Thanks <strong>' + escHtml(state.customer.name) + '</strong> \u2014 your order is in. '
+    + '<strong style="color:var(--text1)">One last step:</strong> complete your payment below to confirm it. '
+    + 'We\'ll message you on WhatsApp once it\u2019s received.';
 
   var dd = getPortalDropDates();
   var _pmDishes = getPortalMenuDishes();
