@@ -2351,6 +2351,8 @@ function applyDiscountCode() {
   var amount;
   if (dc.type === 'percent') {
     amount = Math.min(dishTotal, dishTotal * (dc.value / 100));
+    // Referral % codes can carry a £ cap so a large first order doesn't over-discount
+    if (parseFloat(dc.maxDiscount) > 0) amount = Math.min(amount, parseFloat(dc.maxDiscount));
   } else {
     amount = Math.min(dishTotal, parseFloat(dc.value));
   }
