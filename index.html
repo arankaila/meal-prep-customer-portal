@@ -739,6 +739,13 @@
           I confirm the details above — especially my delivery address — are correct.
         </label>
       </div>
+      <!-- Marketing consent (optional, unticked by default — UK GDPR/PECR compliant) -->
+      <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--surface2);border:1.5px solid var(--border2);border-radius:18px;margin:0 0 10px">
+        <input type="checkbox" id="marketing-consent" style="width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:var(--gold);cursor:pointer">
+        <label for="marketing-consent" style="font-size:13px;color:var(--text2);line-height:1.5;cursor:pointer">
+          <span style="color:var(--text1);font-weight:600">Yes — keep me in the loop.</span> Be first to get new menu drops and member-only offers, plus the odd performance &amp; nutrition tip. Subscribers get <span style="color:var(--text1);font-weight:600">early access</span> to each week's menu before it opens. We'll reach you by email, and occasionally SMS or WhatsApp — it's just 29, we never share your details, and you can opt out anytime. <a href="https://www.29performance.co.uk/privacy" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:underline">Privacy Policy</a>.
+        </label>
+      </div>
       <button class="draft-btn" onclick="saveDraft()">Save Draft</button>
       <div class="error-msg" id="err-details">Please fill in all required fields.</div>
       <div class="nav-row">
@@ -1772,6 +1779,7 @@ function validateDetails() {
   }
   hideErr('err-details');
   state.deliveryFee = zone.fee;
+  var mc = document.getElementById('marketing-consent');
   state.customer = {
     name:     name,
     email:    email.toLowerCase(),
@@ -1780,10 +1788,15 @@ function validateDetails() {
     address2: document.getElementById('f-address2').value.trim(),
     city:     city,
     postcode: postcode.toUpperCase(),
-    notes:    document.getElementById('f-notes').value.trim()
+    notes:    document.getElementById('f-notes').value.trim(),
+    marketingConsent: !!(mc && mc.checked)
   };
   return true;
 }
+
+// Exact wording shown at the point of consent — stored with each opt-in as the audit
+// trail (UK GDPR requires proof of WHAT the customer agreed to, not just that they did).
+var MARKETING_CONSENT_TEXT = "Yes — keep me in the loop. Be first to get new menu drops and member-only offers, plus the odd performance & nutrition tip. Subscribers get early access to each week's menu before it opens. We'll reach you by email, and occasionally SMS or WhatsApp. Opt out anytime. (Privacy Policy: https://www.29performance.co.uk/privacy)";
 
 function saveDraft() {
   var name  = document.getElementById('f-name').value.trim();
@@ -1797,7 +1810,8 @@ function saveDraft() {
     address2: document.getElementById('f-address2').value.trim(),
     city:     document.getElementById('f-city').value.trim(),
     postcode: document.getElementById('f-postcode').value.trim().toUpperCase(),
-    notes:    document.getElementById('f-notes').value.trim()
+    notes:    document.getElementById('f-notes').value.trim(),
+    marketingConsent: !!(document.getElementById('marketing-consent') && document.getElementById('marketing-consent').checked)
   };
   var draft = {
     weekLabel: getPortalWeekLabel(),
@@ -1833,6 +1847,8 @@ function restoreFormValues() {
   document.getElementById('f-city').value     = c.city     || '';
   document.getElementById('f-postcode').value = c.postcode || '';
   document.getElementById('f-notes').value    = c.notes    || '';
+  var mc = document.getElementById('marketing-consent');
+  if (mc) mc.checked = !!c.marketingConsent;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -2011,6 +2027,10 @@ function submitOrder() {
     updatedAt: submittedAt,
     source:    'portal'
   };
+  // NB: marketing consent is NOT stored here — the customer node is overwritten on every
+  // order and the portal can't read prior state (PII lockdown), so storing it here would
+  // wipe an earlier 'yes'. It rides on the ORDER object instead (append-only); the ERP
+  // derives each customer's marketing status from their orders. See order write below.
 
   // Build orders and the multi-path updates object
   var updates    = {};
@@ -2041,6 +2061,11 @@ function submitOrder() {
       items:         items,
       notes:         state.customer.notes || '',
       discount:      state.discount ? { code: state.discount.code, type: state.discount.type, value: state.discount.value, amount: state.discount.amount } : null,
+      marketingConsent:     !!state.customer.marketingConsent,
+      marketingConsentAt:   state.customer.marketingConsent ? submittedAt : null,
+      marketingChannels:    state.customer.marketingConsent ? { email: true, sms: true, whatsapp: true } : null,
+      marketingConsentText: state.customer.marketingConsent ? MARKETING_CONSENT_TEXT : null,
+      marketingConsentSource: state.customer.marketingConsent ? 'portal order form' : null,
       status:        'pending',
       source:        'portal',
       createdAt:     submittedAt,
