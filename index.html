@@ -15,11 +15,11 @@
     :root {
       /* ── DARK THEME — matched to the 29 Performance website (teal-cobra...) ── */
       --bg:         #0a0a0a;
-      --surface:    #141414;
-      --surface2:   #1b1b1b;
-      --surface3:   #232323;
-      --border:     rgba(255,255,255,.08);
-      --border2:    rgba(255,255,255,.15);
+      --surface:    #080808;   /* elevated surfaces sit DARKER than the base (brief) */
+      --surface2:   #0c0c0c;
+      --surface3:   #121212;
+      --border:     rgba(255,255,255,.06);
+      --border2:    rgba(255,255,255,.12);
       --text1:      #f0ede8;
       --text2:      #9b9892;
       --text3:      #666666;
@@ -38,10 +38,11 @@
       --dot-carb:   #38bdf8;
       --dot-fat:    #fb923c;
       --dot-prot:   #4ade80;
-      --radius:     14px;
-      --shadow:     0 2px 12px rgba(0,0,0,.5);
-      --shadow-md:  0 4px 20px rgba(0,0,0,.55);
-      --shadow-lg:  0 8px 32px rgba(0,0,0,.6);
+      --radius:     4px;       /* sharper, premium (brief) */
+      --shadow:     none;      /* brief: no drop shadows — borders + bg contrast only */
+      --shadow-md:  none;
+      --shadow-lg:  none;
+      --ease:       cubic-bezier(0.4,0,0.2,1);
       --sans:       'Helvetica Neue', Helvetica, Arial, sans-serif;
       --cond:       'Helvetica Neue', Helvetica, Arial, sans-serif;
       --mono:       'SF Mono', 'Fira Code', monospace;
@@ -590,6 +591,77 @@
         radial-gradient(95% 55% at 50% -6%, rgba(250,208,44,.20), rgba(250,208,44,0) 60%),
         radial-gradient(120% 80% at 50% 112%, rgba(255,255,255,.04), transparent 62%) !important;
     }
+
+    /* ════════════════════════════════════════════════════════════════
+       DESIGN SYSTEM 2026 — order.29performance.co.uk brief.
+       Appended last to win the cascade over the earlier dark/approachability
+       passes. Pure styling — no markup, JS or copy changes.
+       ════════════════════════════════════════════════════════════════ */
+    /* Flat premium dark — base #0a0a0a, no glow. Depth = faint borders +
+       near-black elevated surfaces, never shadows. */
+    body { background: #0a0a0a !important; }
+
+    /* Elevated surfaces darker than the base, separated by borders */
+    .session-card, .dish-card, .summary-card, .payment-card { background: #080808 !important; }
+
+    /* Sharp, premium radii (reverses the earlier rounding pass) */
+    .session-card, .dish-card, .summary-card, .payment-card { border-radius: 3px !important; }
+    .btn-next, .btn-back, .pick-btn, .pick-btn.add, .draft-btn, #btn-submit { border-radius: 2px !important; }
+    .form-input, .form-textarea, .pf-chip, #discount-code-input { border-radius: 2px !important; }
+
+    /* Soft shadows are off via :root tokens; kill the hardcoded ones too,
+       keeping the gold selection rings (border, not shadow). */
+    .session-card:hover { box-shadow: none !important; }
+    .session-card.selected { box-shadow: 0 0 0 1.5px var(--gold) !important; }
+    .dish-card.picked { box-shadow: 0 0 0 2px var(--gold) !important; }
+
+    /* Headlines: heavy weight, tight tracking */
+    .step-title, .sc-day, .sh-day, .confirm-title, .closed-title {
+      font-weight: 900 !important; letter-spacing: -0.03em !important;
+    }
+
+    /* Eyebrows / micro-labels: uppercase, wide tracking, heavy (brief) */
+    .ps-label, .pf-label, .pf-chip, .fuel-badge, .portal-footer, .form-label, .portal-week-badge {
+      text-transform: uppercase !important; letter-spacing: 0.16em !important; font-weight: 700 !important;
+    }
+
+    /* Wordmark in Helvetica Neue (drop the condensed face) */
+    .portal-logo-wordmark {
+      font-family: var(--sans) !important; font-weight: 800 !important;
+      letter-spacing: 0.16em !important; font-size: 13px !important;
+    }
+
+    /* Primary gold CTAs: gold bg, dark text, UPPERCASE 0.2em tracking, with a
+       white fill that sweeps in on hover (animated two-tone background, so no
+       markup change is needed to wrap the label). */
+    .btn-next, .pick-btn.add, #btn-submit {
+      color: #0a0a0a !important; text-transform: uppercase !important;
+      font-weight: 800 !important; letter-spacing: 0.2em !important;
+      background: linear-gradient(to right, #ffffff 50%, var(--gold) 50%) !important;
+      background-size: 200% 100% !important; background-position: 100% 0 !important;
+      transition: background-position .35s var(--ease), color .2s var(--ease) !important;
+    }
+    .btn-next:hover, .pick-btn.add:hover, #btn-submit:hover { background-position: 0 0 !important; }
+
+    /* Secondary / ghost buttons: faint border, gold on hover */
+    .btn-back, .draft-btn {
+      text-transform: uppercase !important; letter-spacing: 0.16em !important; font-weight: 700 !important;
+    }
+    .btn-back:hover, .draft-btn:hover { color: var(--gold) !important; border-color: rgba(250,208,44,.4) !important; }
+
+    /* Active filter chip: gold fill, dark text */
+    .pf-chip.pf-active { background: var(--gold) !important; color: #0a0a0a !important; border-color: var(--gold) !important; }
+
+    /* Cards hover: gold border + faint gold tint, no lift/shadow */
+    .dish-card { transition: border-color .35s var(--ease), background .35s var(--ease) !important; }
+    .dish-card:hover, .session-card:hover {
+      transform: none !important; border-color: rgba(250,208,44,.4) !important; background: rgba(250,208,44,.04) !important;
+    }
+
+    /* Inputs: faint border, gold focus (no glow ring) */
+    .form-input:focus, .form-textarea:focus, #discount-code-input:focus {
+      box-shadow: none !important; border-color: var(--gold) !important;
+    }
   </style>
 </head>
 <body>
@@ -733,14 +805,14 @@
         <textarea class="form-textarea" id="f-notes" placeholder="Anything we should know — dietary preferences, delivery instructions, etc. We'll do our best to accommodate requests but cannot guarantee changes once production has begun."></textarea>
       </div>
       <!-- Details confirmation -->
-      <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--surface2);border:1.5px solid var(--border2);border-radius:18px;margin:6px 0 10px">
+      <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:3px;margin:6px 0 10px">
         <input type="checkbox" id="details-ack" style="width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:var(--gold);cursor:pointer">
         <label for="details-ack" style="font-size:13px;color:var(--text2);line-height:1.5;cursor:pointer">
           I confirm the details above — especially my delivery address — are correct.
         </label>
       </div>
       <!-- Marketing consent (optional, unticked by default — UK GDPR/PECR compliant) -->
-      <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--surface2);border:1.5px solid var(--border2);border-radius:18px;margin:0 0 10px">
+      <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:rgba(250,208,44,.04);border:1px solid var(--border);border-radius:3px;margin:0 0 10px">
         <input type="checkbox" id="marketing-consent" style="width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:var(--gold);cursor:pointer">
         <label for="marketing-consent" style="font-size:13px;color:var(--text2);line-height:1.5;cursor:pointer">
           <span style="color:var(--text1);font-weight:600">Yes — keep me in the loop.</span> Be first to get new menu drops and member-only offers, plus the odd performance &amp; nutrition tip. Subscribers get <span style="color:var(--text1);font-weight:600">early access</span> to each week's menu before it opens. We'll reach you by email, and occasionally SMS or WhatsApp — it's just 29, we never share your details, and you can opt out anytime. <a href="https://www.29performance.co.uk/privacy" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:underline">Privacy Policy</a>.
