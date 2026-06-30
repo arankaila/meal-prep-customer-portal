@@ -6,7 +6,7 @@
   <title>Order — 29 Performance</title>
   <meta name="description" content="High-protein meals, made to a system. Choose your drop days, pick your meals, heat in three minutes. Fuel Plus & Fuel Lite.">
   <meta name="theme-color" content="#0a0a0a">
-  <link rel="icon" href="https://www.29performance.co.uk/images/logo.png">
+  <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAE/klEQVR42u1aPWgUXRQ9780E9y+4xJAfSGEZwcpUW4kQkC3WYLoUVoF0AQlYWlmIhaWNkMLGRhFWUqmkiKIrJEUCEiUQBUMgRWRJdHd25807X/F9b9hZXb4kzks2ZC48yLJkmHveefeee96KTCZDnOGQOOORAJAAcMZDAEiKYAJAAkACQAJAAkACwNkM18ZDHcf5O3EiBAAgCAKQdmVK1wshKSW01t3PACEESCKVSuHx48fo6+sDyXA3DxIkQRK7u7t48+YNnj17hmazCcdxEASBNRAYxxJCEABzuRx//frFOGJ1dZWFQoEA6DgO43rXthUvANlslltbW1RK0fd9KqUOvXzfp+/7JEnP8zg+Pm4NBGtdwND5KMtxHLiuC6UUzp07hydPniCfz0NrfagjdWJHoFarMa4wTLh9+zYB0HXdWBkQexdwXReTk5PIZDKRlvanNtf6WUoJIQRGRkYwOzuLfD4PktBaQ0qJt2/f4urVq1a6ArttlUolBkEQLpL8/v07U6lUhG1xLGtCyOxy6+4epJVqrbG4uIh6vY5sNhvudjqdRiqVgud53a8ETc92HAdKqUP/vzlCrVT/+fMnarXa6ZDCJvkgCNDb24tSqYSxsTGkUikIISLsMH9LKUESAwMDKBaLETkshMDa2po1URT7GTb9emJigl+/fv2rLtBsNkmSpVLJlhawk/zNmzcjreygSylFrTW11mw0GiTJcrn8r2iRsnuVoHlBIQSHh4dZrVaptaZSiiQZBMGhgDDx/v17nj9/Pnx2VwNgRMq9e/ciIuYoUa/X+ejRI2az2dhbn7U2aIpTsVgMJ0EjZL58+YIXL16g2WyGUrldOgOAUgo7OztYWlrCxsZGpECeimkwk8lwe3s7pL05BpcuXWI3iq7Y26CUElLKiLjxPA+e5yGfz4e+wf+F1jqiA0iiVqvFzgQrOsC8pOnl6XQalUrlSBreHKUfP36gUChgb2/vwCCeqBBqZ8XAwMBfPSOdTlsZhY8FAEPpoxijhgGmeJ5aAFrrwlH8Rhu7bwWATmezVqvBcZwDF0DjJ5y6e4FGo4H9/X0MDQ2FhobjOLhz5w6eP3+O3t5e+L7f0UzxPA9jY2Mol8uRYtpoNNBoNLpXB7TOAU+fPqXWmr7vh1pgfX2dg4ODB3rG69evSTI0SbXWfPfunZV5wEoNmJ+fx9TUVETFjY6OYmVlBQ8fPkSlUkG1Wg2Vo5QSuVwOV65cwezsLC5fvhyao0opCCGwsLBg7aIkXpv5vx0ql8skGU50xtoyobX+zfYyYT6b76rVKgcHBymEsDETxA+AlJL9/f389OlTONObZHzfp9b6jwOQUipMXmsdegHT09M2L0fi19eGBUNDQ3z16tVvu9ueaDsgpn6Q5IMHD07HzVAnEABwenqaHz58YL1e/23H26M1+fv379tO3h4Af5rhL168yGvXrvH69eu8ceMGNzc3IwxoNVDu3r0bJm/LC7AOQHt7bF0vX76MFDxTFElybm4uNFgsJ388ALQeiQsXLvDjx49hhzCXoYYFMzMzVq7AThQA4+eNjo7y27dvHTvA1NQUAbCnp+f0GiKd5gMpJW7duoXPnz9jeXkZPT09oVQWQmB+fh4LCwtwXbejVLYRXfUTGds/hznRcbj1nrATS447+a5jwImwDmc8EgASABIAEgASAM5yuMdlPycMSABIAEgA6Mb4B2ZL2vMkIxyhAAAAAElFTkSuQmCC">
   <!-- Branded link previews (shared / referral links) -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="29 Performance">
@@ -685,10 +685,12 @@
     .fuel-badge {
       font-size: 9px !important; letter-spacing: 0.16em !important; font-weight: 800 !important;
       padding: 5px 9px !important; border-radius: 2px !important;
-      backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+      backdrop-filter: blur(5px) !important; -webkit-backdrop-filter: blur(5px) !important;
     }
     .fuel-plus { background: var(--gold) !important; color: #0a0a0a !important; border: none !important; }
-    .fuel-lite { background: transparent !important; color: var(--gold) !important; border: 1px solid var(--gold) !important; }
+    /* Dark glassy pill so the gold outline + text stay legible over any photo
+       (light plates, bright backgrounds) while staying distinct from Fuel Plus */
+    .fuel-lite { background: rgba(10,8,6,.72) !important; color: var(--gold) !important; border: 1px solid var(--gold) !important; }
 
     /* Dish attribute tags — clean faint-bordered eyebrow chips (was pastel) */
     .attrib-badge {
