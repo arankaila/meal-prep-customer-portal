@@ -3,7 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Order Now — 29 Performance</title>
+  <title>Order — 29 Performance</title>
+  <meta name="description" content="High-protein meals, made to a system. Choose your drop days, pick your meals, heat in three minutes. Fuel Plus & Fuel Lite.">
+  <meta name="theme-color" content="#0a0a0a">
+  <link rel="icon" href="https://www.29performance.co.uk/images/logo.png">
+  <!-- Branded link previews (shared / referral links) -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="29 Performance">
+  <meta property="og:title" content="Order — 29 Performance">
+  <meta property="og:description" content="High-protein meals, made to a system. Choose your drop days, pick your meals, heat in three minutes.">
+  <meta property="og:url" content="https://order.29performance.co.uk/">
+  <meta property="og:image" content="https://www.29performance.co.uk/images/logo.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Order — 29 Performance">
+  <meta name="twitter:description" content="High-protein meals, made to a system. Choose your drop days, pick your meals, heat in three minutes.">
+  <meta name="twitter:image" content="https://www.29performance.co.uk/images/logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -620,8 +634,10 @@
       font-weight: 900 !important; letter-spacing: -0.03em !important;
     }
 
-    /* Eyebrows / micro-labels: uppercase, wide tracking, heavy (brief) */
-    .ps-label, .pf-label, .pf-chip, .fuel-badge, .portal-footer, .form-label, .portal-week-badge {
+    /* Eyebrows / micro-labels stay uppercase + tracked (premium, not shouty).
+       NOTE: interactive controls (filter chips, buttons) are deliberately NOT
+       here — sentence case keeps the portal approachable. */
+    .ps-label, .pf-label, .fuel-badge, .portal-footer, .form-label, .portal-week-badge {
       text-transform: uppercase !important; letter-spacing: 0.16em !important; font-weight: 700 !important;
     }
 
@@ -635,17 +651,17 @@
        white fill that sweeps in on hover (animated two-tone background, so no
        markup change is needed to wrap the label). */
     .btn-next, .pick-btn.add, #btn-submit {
-      color: #0a0a0a !important; text-transform: uppercase !important;
-      font-weight: 800 !important; letter-spacing: 0.2em !important;
+      color: #0a0a0a !important; text-transform: none !important;
+      font-weight: 700 !important; letter-spacing: 0.01em !important;
       background: linear-gradient(to right, #ffffff 50%, var(--gold) 50%) !important;
       background-size: 200% 100% !important; background-position: 100% 0 !important;
       transition: background-position .35s var(--ease), color .2s var(--ease) !important;
     }
     .btn-next:hover, .pick-btn.add:hover, #btn-submit:hover { background-position: 0 0 !important; }
 
-    /* Secondary / ghost buttons: faint border, gold on hover */
+    /* Secondary / ghost buttons: faint border, gold on hover (sentence case) */
     .btn-back, .draft-btn {
-      text-transform: uppercase !important; letter-spacing: 0.16em !important; font-weight: 700 !important;
+      text-transform: none !important; letter-spacing: 0.01em !important; font-weight: 600 !important;
     }
     .btn-back:hover, .draft-btn:hover { color: var(--gold) !important; border-color: rgba(250,208,44,.4) !important; }
 
@@ -662,6 +678,71 @@
     .form-input:focus, .form-textarea:focus, #discount-code-input:focus {
       box-shadow: none !important; border-color: var(--gold) !important;
     }
+
+    /* Card fuel badges — the gold treatment from the approved mockup
+       (was orange/green). Fuel Plus = gold fill; Fuel Lite = gold outline. */
+    .dish-fuel-wrap { top: 9px; bottom: auto; }
+    .fuel-badge {
+      font-size: 9px !important; letter-spacing: 0.16em !important; font-weight: 800 !important;
+      padding: 5px 9px !important; border-radius: 2px !important;
+      backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+    }
+    .fuel-plus { background: var(--gold) !important; color: #0a0a0a !important; border: none !important; }
+    .fuel-lite { background: transparent !important; color: var(--gold) !important; border: 1px solid var(--gold) !important; }
+
+    /* Dish attribute tags — clean faint-bordered eyebrow chips (was pastel) */
+    .attrib-badge {
+      background: transparent !important; color: var(--text2) !important;
+      border: 1px solid var(--border) !important; border-radius: 2px !important;
+      text-transform: uppercase !important; letter-spacing: 0.12em !important;
+      font-weight: 700 !important; font-size: 8.5px !important; padding: 3px 7px !important;
+    }
+    .attrib-chefs-choice, .attrib-9-amino { color: var(--gold) !important; border-color: rgba(250,208,44,.4) !important; }
+
+    /* Active fuel filter chips → gold to match the theme (not old orange/green) */
+    .pf-fuel-plus.pf-active, .pf-fuel-lite.pf-active {
+      background: var(--gold) !important; color: #0a0a0a !important; border-color: var(--gold) !important;
+    }
+
+    /* ── Skeleton loaders (perceived speed) ── */
+    .skel { position: relative; overflow: hidden; background: #0e0e0e; border-radius: 3px; }
+    .skel::after { content: ''; position: absolute; inset: 0; transform: translateX(-100%);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.05), transparent); animation: skelsh 1.3s infinite; }
+    @keyframes skelsh { 100% { transform: translateX(100%); } }
+    .skel-head { max-width: 520px; margin: 0 auto; padding: 22px 16px 10px; }
+    .skel-grid { max-width: 520px; margin: 0 auto; padding: 6px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .skel-card { background: #080808; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+    .skel-photo { width: 100%; height: 128px; }
+    .skel-cb { padding: 14px 13px; }
+    .skel-line { height: 11px; margin-bottom: 9px; }
+    .skel-pills { display: flex; gap: 8px; margin-top: 13px; }
+    .skel-pill { flex: 1; height: 34px; }
+
+    /* ── Persistent order bar (goal-gradient feedback) ── */
+    .order-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 80; display: none;
+      background: rgba(8,8,8,.97); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border); }
+    .order-bar.show { display: block; }
+    .order-bar-inner { max-width: 520px; margin: 0 auto; padding: 11px 16px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+    .ob-left { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+    .ob-count { font-size: 12px; color: var(--text2); }
+    .ob-count b { color: var(--text1); font-weight: 700; }
+    .ob-total { font-size: 18px; font-weight: 800; letter-spacing: -.02em; color: var(--text1); }
+    #ob-continue { padding: 11px 22px; flex-shrink: 0; }
+
+    /* ── Honest cutoff countdown ── */
+    .cutoff-note { font-size: 11px; font-weight: 700; letter-spacing: .03em; color: var(--amber);
+      background: var(--amber-dim); border: 1px solid rgba(201,120,18,.25); border-radius: 3px;
+      padding: 7px 11px; margin-bottom: 16px; align-items: center; gap: 7px; }
+
+    /* ── "What happens next" timeline (peak-end reassurance) ── */
+    .next-steps { max-width: 520px; margin: 18px auto 0; padding: 18px; background: #080808; border: 1px solid var(--border); border-radius: 3px; text-align: left; }
+    .ns-title { font-size: 9px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--text2); margin-bottom: 14px; }
+    .ns-step { display: flex; gap: 12px; padding: 10px 0; border-top: 1px solid var(--border); }
+    .ns-step:first-of-type { border-top: none; }
+    .ns-num { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--gold); color: var(--gold); font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+    .ns-step b { display: block; font-size: 13px; color: var(--text1); margin-bottom: 2px; }
+    .ns-step span { font-size: 11.5px; color: var(--text2); line-height: 1.5; }
   </style>
 </head>
 <body>
@@ -677,9 +758,15 @@
 
   <!-- LOADING -->
   <div id="screen-loading">
-    <div class="loading-wrap">
-      <div class="spinner"></div>
-      <div class="loading-text">Loading menu…</div>
+    <div class="skel-head">
+      <div class="skel skel-line" style="width:130px;height:12px"></div>
+      <div class="skel skel-line" style="width:200px;height:26px;margin-top:10px;margin-bottom:0"></div>
+    </div>
+    <div class="skel-grid">
+      <div class="skel-card"><div class="skel skel-photo"></div><div class="skel-cb"><div class="skel skel-line" style="width:85%"></div><div class="skel skel-line" style="width:55%"></div><div class="skel-pills"><div class="skel skel-pill"></div><div class="skel skel-pill"></div></div></div></div>
+      <div class="skel-card"><div class="skel skel-photo"></div><div class="skel-cb"><div class="skel skel-line" style="width:80%"></div><div class="skel skel-line" style="width:50%"></div><div class="skel-pills"><div class="skel skel-pill"></div><div class="skel skel-pill"></div></div></div></div>
+      <div class="skel-card"><div class="skel skel-photo"></div><div class="skel-cb"><div class="skel skel-line" style="width:75%"></div><div class="skel skel-line" style="width:60%"></div><div class="skel-pills"><div class="skel skel-pill"></div><div class="skel skel-pill"></div></div></div></div>
+      <div class="skel-card"><div class="skel skel-photo"></div><div class="skel-cb"><div class="skel skel-line" style="width:82%"></div><div class="skel skel-line" style="width:48%"></div><div class="skel-pills"><div class="skel skel-pill"></div><div class="skel skel-pill"></div></div></div></div>
     </div>
   </div>
 
@@ -750,8 +837,9 @@
 
     <!-- STEP 2: Dishes -->
     <div id="step-2" style="display:none">
-      <div class="step-title">Pick your meals</div>
-      <div class="step-sub">Every dish is high in nutrients with no filler. Minimum 3 per drop — add as many as you like.</div>
+      <div class="step-title">Choose your meals</div>
+      <div class="step-sub">Every dish is high in nutrients with no filler. 3 per drop minimum — add as many as you like.</div>
+      <div id="cutoff-note" class="cutoff-note" style="display:none"></div>
       <div id="portal-filter-bar"></div>
       <div id="dish-sections"></div>
       <div class="nav-row">
@@ -897,6 +985,15 @@
       </div>
     </div>
 
+    <!-- What happens next (accurate to the real process) -->
+    <div class="next-steps">
+      <div class="ns-title">What happens next</div>
+      <div class="ns-step"><span class="ns-num">1</span><div><b>Order placed</b><span>Done — we've got it.</span></div></div>
+      <div class="ns-step"><span class="ns-num">2</span><div><b>Send your payment</b><span>Tap "Pay with Revolut" above — quick and secure.</span></div></div>
+      <div class="ns-step"><span class="ns-num">3</span><div><b>We confirm with you</b><span>Once your payment's in, we check we can fulfil the order and the amount's right, then confirm via WhatsApp or email — usually within a few hours.</span></div></div>
+      <div class="ns-step"><span class="ns-num">4</span><div><b>We cook &amp; deliver</b><span>Freshly made for your drop day, ready to heat in three minutes.</span></div></div>
+    </div>
+
     <!-- Payment method modal -->
     <div id="pay-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:20px">
       <div style="background:var(--surface);border:1px solid var(--border2);border-radius:22px;max-width:370px;width:100%;padding:0;box-shadow:0 28px 70px rgba(0,0,0,.65);overflow:hidden">
@@ -974,6 +1071,17 @@
 </div><!-- /portal-wrap -->
 
 <!-- Toast -->
+<!-- Persistent order bar (shown on the meal-selection step) -->
+<div class="order-bar" id="order-bar">
+  <div class="order-bar-inner">
+    <div class="ob-left">
+      <div class="ob-count" id="ob-count"><b>0</b> meals selected</div>
+      <div class="ob-total" id="ob-total">£0.00</div>
+    </div>
+    <button class="btn-next" id="ob-continue" onclick="goStep(3)">Continue</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1507,6 +1615,10 @@ function renderStep(n) {
 
   if (n === 2) renderDishSections();
   if (n === 4) renderSummary();
+
+  // Order bar + cutoff countdown live on the meal-selection step only
+  updateOrderBar();
+  if (n === 2) startCutoffCountdown(); else stopCutoffCountdown();
 }
 
 function goStep(n) {
@@ -1700,6 +1812,7 @@ function renderDishSections() {
   });
   if (!html) html = '<div style="font-size:13px;color:var(--text3);padding:16px 0;text-align:center">No dishes on the menu yet.</div>';
   container.innerHTML = html;
+  updateOrderBar();
 }
 
 function renderDishCard(dish, sess) {
@@ -1815,11 +1928,11 @@ function adjustQty(sess, dishId, delta) {
 }
 
 function validateDishes() {
-  var ok = state.sessions.every(function(sess) {
-    return sessPickTotal(sess) >= 3;
-  });
-  if (!ok) {
-    toast('Minimum 3 dishes per delivery day');
+  var short = state.sessions.filter(function(sess) { return sessPickTotal(sess) < 3; });
+  if (short.length) {
+    var s = short[0];
+    var need = 3 - sessPickTotal(s);
+    toast('Add ' + need + ' more to your ' + (s === 'sunday' ? 'Sunday' : 'Wednesday') + ' drop — 3 minimum');
     return false;
   }
   return true;
@@ -2520,6 +2633,48 @@ renderStep = function(n) {
     }
   });
 })();
+</script>
+<script>
+  /* ── Persistent order bar + honest cutoff countdown (added 2026-06) ── */
+  function updateOrderBar() {
+    var bar = document.getElementById('order-bar');
+    if (!bar) return;
+    if (state.step !== 2 || !state.sessions.length) { bar.classList.remove('show'); return; }
+    var dishes = getPortalMenuDishes();
+    function priceOf(id) { var d = dishes.find(function(x){ return x.id === id; }); return d ? (parseFloat(d.sellPrice) || 0) : 0; }
+    var meals = 0, total = 0, need = 0;
+    state.sessions.forEach(function(sess) {
+      var picks = state.picks[sess] || {}, st = 0;
+      Object.keys(picks).forEach(function(id) { var q = picks[id] || 0; st += q; total += q * priceOf(id); });
+      meals += st;
+      if (st < 3) need += (3 - st);
+    });
+    var allMet = state.sessions.every(function(s) { return sessPickTotal(s) >= 3; });
+    var cEl = document.getElementById('ob-count');
+    var tEl = document.getElementById('ob-total');
+    var btn = document.getElementById('ob-continue');
+    if (cEl) cEl.innerHTML = '<b>' + meals + '</b> meal' + (meals !== 1 ? 's' : '') + ' selected';
+    if (tEl) tEl.textContent = '£' + total.toFixed(2);
+    if (btn) { btn.disabled = !allMet; btn.textContent = allMet ? 'Continue' : ('Add ' + need + ' more'); }
+    bar.classList.add('show');
+  }
+
+  var _cutoffTimer = null;
+  function startCutoffCountdown() { stopCutoffCountdown(); updateCutoffNote(); _cutoffTimer = setInterval(updateCutoffNote, 60000); }
+  function stopCutoffCountdown() { if (_cutoffTimer) { clearInterval(_cutoffTimer); _cutoffTimer = null; } }
+  function updateCutoffNote() {
+    var el = document.getElementById('cutoff-note');
+    if (!el) return;
+    var avail = getSessionAvail(), deadlines = [];
+    state.sessions.forEach(function(s) { var a = avail[s]; if (a && a.open && a.deadline) deadlines.push(a.deadline.getTime()); });
+    if (!deadlines.length) { el.style.display = 'none'; return; }
+    var diff = Math.min.apply(null, deadlines) - Date.now();
+    if (diff <= 0) { el.style.display = 'none'; return; }
+    var mins = Math.floor(diff / 60000), h = Math.floor(mins / 60), d = Math.floor(h / 24);
+    var txt = d > 0 ? (d + 'd ' + (h % 24) + 'h') : h > 0 ? (h + 'h ' + (mins % 60) + 'm') : (mins + 'm');
+    el.innerHTML = '⏳ Ordering closes in ' + txt;
+    el.style.display = 'inline-flex';
+  }
 </script>
 </body>
 </html>
