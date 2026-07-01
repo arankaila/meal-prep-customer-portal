@@ -1128,7 +1128,7 @@ function sendOrderNotification(customer, ordersCreated, weekLabel, deliveryFee, 
   }).join('<tr><td colspan="2" style="padding:0;height:1px;background:rgba(255,255,255,0.06)"></td></tr>');
 
   var deliveryLabel = deliveryFee > 0
-    ? '\u00a3' + deliveryFee.toFixed(2) + ' (West Midlands)'
+    ? '\u00a3' + deliveryFee.toFixed(2) + ' delivery'
     : 'Free (Coventry)';
   var deliveryColor = deliveryFee > 0 ? '#f2f2f7' : '#30d158';
 
@@ -1189,6 +1189,24 @@ var state = {
 };
 
 // ── Delivery zone helper ──────────────────────────────────────────────────────
+// ── Delivery coverage — roughly a 30-mile radius of Coventry ──────────────────
+// FREE = Coventry core (CV1–CV6). £5 = everything else in range. Coverage is by
+// postcode-district (the "CV37" part). To add/remove an area, edit the ranges below:
+//   'all' = the whole postcode area; [[1,6],[31,32]] = districts 1–6 and 31–32.
+var DELIVERY_FREE = { CV: [[1, 6]] };                       // Coventry
+var DELIVERY_PAID = {
+  CV: 'all',                                                // Stratford (CV37), Warwick, Leamington, Rugby, Nuneaton, Kenilworth, Southam, Shipston…
+  B:  'all',                                                // Birmingham, Solihull, Redditch, Sutton Coldfield, Tamworth
+  WS: 'all', WV: 'all', DY: 'all',                          // Walsall, Wolverhampton, Dudley (Black Country)
+  LE: [[1, 12], [16, 19], [65, 67]],                        // Hinckley, Lutterworth, Leicester, Coalville, Ashby, Market Harborough
+  NN: [[1, 7], [11, 12]],                                   // Northampton, Daventry, Towcester
+  OX: [[7, 7], [15, 17]],                                   // Banbury, Chipping Norton
+  WR: [[11, 11]]                                            // Evesham
+};
+function _dzInRanges(num, ranges) {
+  if (ranges === 'all') return true;
+  return ranges.some(function(r) { return num >= r[0] && num <= r[1]; });
+}
 function getDeliveryZone(postcode) {
   var clean = (postcode || '').trim().toUpperCase();
   if (!clean) return { valid: false, fee: 0, label: '', message: 'Please enter a valid postcode.' };
@@ -1200,18 +1218,15 @@ function getDeliveryZone(postcode) {
   var letters = areaMatch[1];
   var number  = parseInt(areaMatch[2], 10);
 
-  if (letters === 'CV' && number >= 1 && number <= 6) {
+  if (DELIVERY_FREE[letters] && _dzInRanges(number, DELIVERY_FREE[letters])) {
     return { valid: true, fee: 0, label: 'Free delivery (Coventry)', message: '' };
   }
-  if (letters === 'CV' && (number === 7 || number === 31 || number === 32)) {
-    return { valid: true, fee: 5, label: '£5.00 delivery (West Midlands)', message: '' };
-  }
-  if (['B', 'WS', 'WV', 'DY'].indexOf(letters) !== -1) {
-    return { valid: true, fee: 5, label: '£5.00 delivery (West Midlands)', message: '' };
+  if (DELIVERY_PAID[letters] && _dzInRanges(number, DELIVERY_PAID[letters])) {
+    return { valid: true, fee: 5, label: '£5.00 delivery', message: '' };
   }
   return {
     valid: false, fee: 0, label: '',
-    message: 'Sorry, we currently only deliver within Coventry and the West Midlands (up to Wolverhampton). Please check your postcode or contact us directly.'
+    message: 'Sorry, we currently only deliver within about 30 miles of Coventry. Please check your postcode, or contact us and we\'ll see what we can do.'
   };
 }
 
@@ -2097,7 +2112,7 @@ function renderSummary() {
     '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;font-size:13px">' +
     '<span style="color:var(--text2)">Delivery</span>' +
     '<span style="font-weight:600;color:' + (deliveryFee === 0 ? 'var(--green)' : 'var(--text1)') + '">' +
-    (deliveryFee === 0 ? 'Free (Coventry)' : '\u00a3' + deliveryFee.toFixed(2) + ' (West Midlands)') +
+    (deliveryFee === 0 ? 'Free (Coventry)' : '\u00a3' + deliveryFee.toFixed(2) + ' delivery') +
     '</span></div></div>';
 
   grandTotal += deliveryFee;
@@ -2328,7 +2343,7 @@ function postToGoogleSheets(ordersToCreate, week, submittedAt) {
   var c           = state.customer;
   var deliveryFee = state.deliveryFee || 0;
   var grandTotal  = deliveryFee + ordersToCreate.reduce(function(s, o) { return s + o.sessTotal; }, 0);
-  var deliveryZone = deliveryFee === 0 ? 'Free (Coventry)' : '\u00a3' + deliveryFee.toFixed(2) + ' (West Midlands)';
+  var deliveryZone = deliveryFee === 0 ? 'Free (Coventry)' : '\u00a3' + deliveryFee.toFixed(2) + ' delivery';
 
   ordersToCreate.forEach(function(o) {
     var sessionLabel = o.session === 'sunday' ? 'Sunday' : 'Wednesday';
@@ -2439,7 +2454,7 @@ function showConfirmation() {
     + '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;font-size:13px">'
     + '<span style="color:var(--text2)">Delivery</span>'
     + '<span style="font-weight:600;color:' + (isFree ? 'var(--green)' : 'var(--text1)') + '">'
-    + (isFree ? 'Free (Coventry)' : '\u00a3' + deliveryFee.toFixed(2) + ' (West Midlands)')
+    + (isFree ? 'Free (Coventry)' : '\u00a3' + deliveryFee.toFixed(2) + ' delivery')
     + '</span></div></div>';
 
   document.getElementById('confirm-order-breakdown').innerHTML = breakdownHtml;
