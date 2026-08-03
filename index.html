@@ -1709,8 +1709,14 @@ function getActiveDishes() {
   return dishes;
 }
 
+// Counts MEALS only for a drop — sides are add-ons and don't count toward the 3-meal minimum.
 function sessPickTotal(sess) {
-  return Object.values(state.picks[sess] || {}).reduce(function(s, q) { return s + q; }, 0);
+  var dishes = getPortalMenuDishes();
+  return Object.keys(state.picks[sess] || {}).reduce(function(s, id) {
+    var d = dishes.find(function(x) { return x.id === id; });
+    if (d && d.category === 'side') return s;
+    return s + (state.picks[sess][id] || 0);
+  }, 0);
 }
 
 // Tag display map — shared between filter bar and dish cards
@@ -1797,6 +1803,7 @@ function renderDishSections() {
     var dayLabel = sess === 'sunday' ? 'Sunday Drop' : 'Wednesday Drop';
     var dishes = portalDishes.filter(function(d) {
       if (d.athleteVariant) return false;
+      if (d.category === 'side') return false;   // sides render in their own section below
       var inSess = sess === 'sunday' ? d.availSunday : d.availWednesday;
       if (!inSess) return false;
       // Apply fuel filter
@@ -1826,6 +1833,17 @@ function renderDishSections() {
       html += '<div style="font-size:13px;color:var(--text3);padding:16px 0;text-align:center">' + noMsg + '</div>';
     }
     html += '</div>';
+    // Sides for this drop — add-ons in their own tub; they don't count toward the meal minimum.
+    var sideDishes = portalDishes.filter(function(d) {
+      return d.category === 'side' && (sess === 'sunday' ? d.availSunday : d.availWednesday);
+    });
+    if (sideDishes.length) {
+      html += '<div style="font-family:var(--sans);font-size:15px;font-weight:800;color:var(--text1);margin:24px 0 3px">Add a side</div>' +
+              '<div style="font-size:12px;color:var(--text3);margin-bottom:12px">Optional extras, in their own tub — sides don\'t count toward your 3-meal minimum.</div>' +
+              '<div class="dish-grid">';
+      sideDishes.forEach(function(dish) { html += renderDishCard(dish, sess); });
+      html += '</div>';
+    }
   });
   if (!html) html = '<div style="font-size:13px;color:var(--text3);padding:16px 0;text-align:center">No dishes on the menu yet.</div>';
   container.innerHTML = html;
@@ -1851,7 +1869,9 @@ function renderDishCard(dish, sess) {
     innerPhoto +
     '<div class="dish-price-badge">\u00a3' + sellPrice.toFixed(2) + '</div>' +
     '<div class="dish-fuel-wrap">' +
-    '<span class="fuel-badge ' + fuelClass + '">' + fuelLabel + '</span>' +
+    (dish.category === 'side'
+      ? '<span class="fuel-badge" style="background:rgba(10,8,6,.72);color:var(--gold);border:1px solid var(--gold)">Side</span>'
+      : '<span class="fuel-badge ' + fuelClass + '">' + fuelLabel + '</span>') +
     '</div>' +
     '</div>';
 
@@ -1918,6 +1938,7 @@ function renderDishCard(dish, sess) {
     macroHtml +
     '<div class="dish-info-area">' +
     allergenHtml +
+    (dish.category === 'side' ? '<div style="font-size:11px;color:var(--text3);margin-top:4px">In its own tub · not microwave-safe — transfer before heating.</div>' : '') +
     '</div>' +
     pickHtml +
     '</div></div>';
@@ -2077,7 +2098,7 @@ function renderSummary() {
       if (!d) return;
       var linePrice = (parseFloat(d.sellPrice) || 0) * qty;
       sessTotal += linePrice;
-      var fuel = d.fuelLine || 'Fuel Plus';
+      var fuel = d.category === 'side' ? 'Side' : (d.fuelLine || 'Fuel Plus');
       dishRows += '<div class="summary-dish-item">' +
         '<div class="sdi-left">' +
         '<strong>' + escHtml(d.name) + '</strong>' +
@@ -2661,10 +2682,11 @@ renderStep = function(n) {
     function priceOf(id) { var d = dishes.find(function(x){ return x.id === id; }); return d ? (parseFloat(d.sellPrice) || 0) : 0; }
     var meals = 0, total = 0, need = 0;
     state.sessions.forEach(function(sess) {
-      var picks = state.picks[sess] || {}, st = 0;
-      Object.keys(picks).forEach(function(id) { var q = picks[id] || 0; st += q; total += q * priceOf(id); });
-      meals += st;
-      if (st < 3) need += (3 - st);
+      var picks = state.picks[sess] || {};
+      Object.keys(picks).forEach(function(id) { var q = picks[id] || 0; total += q * priceOf(id); });   // money — includes sides
+      var m = sessPickTotal(sess);   // meals only — drives the minimum
+      meals += m;
+      if (m < 3) need += (3 - m);
     });
     var allMet = state.sessions.every(function(s) { return sessPickTotal(s) >= 3; });
     var cEl = document.getElementById('ob-count');
