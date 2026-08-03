@@ -516,7 +516,7 @@
     .error-msg.show { display: block; }
 
     @media (max-width: 480px) {
-      .dish-grid { grid-template-columns: 1fr; }
+      .dish-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
       .form-row  { grid-template-columns: 1fr; }
       .portal-wrap { padding: 0 12px 60px; }
       .dish-body { padding: 12px 11px 10px; }
@@ -1879,6 +1879,11 @@ function renderDishCard(dish, sess) {
   var servesHtml = dish.serves
     ? '<div class="dish-serves">With ' + escHtml(dish.serves) + '</div>'
     : '';
+  // Side note lives with the description (not the allergen area) so a side card mirrors
+  // a main-dish card structure when there are no allergens.
+  var sideNoteHtml = dish.category === 'side'
+    ? '<div class="dish-serves" style="color:var(--text3)">In its own tub · not microwave-safe — transfer before heating.</div>'
+    : '';
 
   // Attribute badges — always rendered so dish name starts at consistent Y across all cards
   var tags = Array.isArray(dish.tags) ? dish.tags : [];
@@ -1935,10 +1940,10 @@ function renderDishCard(dish, sess) {
     attribsHtml +
     '<div class="dish-name">' + escHtml(dish.name) + '</div>' +
     servesHtml +
+    sideNoteHtml +
     macroHtml +
     '<div class="dish-info-area">' +
     allergenHtml +
-    (dish.category === 'side' ? '<div style="font-size:11px;color:var(--text3);margin-top:4px">In its own tub · not microwave-safe — transfer before heating.</div>' : '') +
     '</div>' +
     pickHtml +
     '</div></div>';
