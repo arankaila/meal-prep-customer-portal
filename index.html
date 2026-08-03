@@ -2687,19 +2687,24 @@ renderStep = function(n) {
     if (state.step !== 2 || !state.sessions.length) { bar.classList.remove('show'); return; }
     var dishes = getPortalMenuDishes();
     function priceOf(id) { var d = dishes.find(function(x){ return x.id === id; }); return d ? (parseFloat(d.sellPrice) || 0) : 0; }
-    var meals = 0, total = 0, need = 0;
+    var meals = 0, sides = 0, total = 0, need = 0;
     state.sessions.forEach(function(sess) {
       var picks = state.picks[sess] || {};
-      Object.keys(picks).forEach(function(id) { var q = picks[id] || 0; total += q * priceOf(id); });   // money — includes sides
+      Object.keys(picks).forEach(function(id) {
+        var q = picks[id] || 0; if (!q) return;
+        var d = dishes.find(function(x) { return x.id === id; });
+        total += q * (d ? (parseFloat(d.sellPrice) || 0) : 0);   // money — includes sides
+        if (d && d.category === 'side') sides += q; else meals += q;
+      });
       var m = sessPickTotal(sess);   // meals only — drives the minimum
-      meals += m;
       if (m < 3) need += (3 - m);
     });
     var allMet = state.sessions.every(function(s) { return sessPickTotal(s) >= 3; });
     var cEl = document.getElementById('ob-count');
     var tEl = document.getElementById('ob-total');
     var btn = document.getElementById('ob-continue');
-    if (cEl) cEl.innerHTML = '<b>' + meals + '</b> meal' + (meals !== 1 ? 's' : '') + ' selected';
+    if (cEl) cEl.innerHTML = '<b>' + meals + '</b> meal' + (meals !== 1 ? 's' : '') +
+      (sides > 0 ? ' · <b>' + sides + '</b> side' + (sides !== 1 ? 's' : '') : '') + ' selected';
     if (tEl) tEl.textContent = '£' + total.toFixed(2);
     if (btn) { btn.disabled = !allMet; btn.textContent = allMet ? 'Continue' : ('Add ' + need + ' more'); }
     bar.classList.add('show');
