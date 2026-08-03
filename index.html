@@ -234,6 +234,7 @@
       text-transform: none; letter-spacing: 0; line-height: 1.3;
       color: var(--text1); margin-bottom: 4px;
       display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      min-height: 39px;   /* reserve 2 lines so 1-line and 2-line names align across cards */
     }
     .dish-serves {
       font-size: 11px; color: var(--text2); margin-bottom: 10px; line-height: 1.4;
@@ -290,7 +291,7 @@
 
     /* Macro pills row */
     .dish-macros {
-      display: flex; flex-wrap: nowrap; align-items: center; gap: 5px;
+      display: flex; flex-wrap: wrap; align-items: center; gap: 5px 6px;
       margin-bottom: 8px; cursor: pointer; user-select: none;
     }
     .macro-pill {
@@ -517,10 +518,14 @@
 
     @media (max-width: 480px) {
       .dish-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .dish-body { padding: 11px 10px 10px; }
+      .dish-name { font-size: 14px; min-height: 37px; }
+      .dish-macros { gap: 4px; }
+      .macro-pill { padding: 3px 6px; font-size: 9px; }
+      .macro-toggle { font-size: 9px; }
+      .pick-btn.add, .qs-count { font-size: 13px; }
       .form-row  { grid-template-columns: 1fr; }
       .portal-wrap { padding: 0 12px 60px; }
-      .dish-body { padding: 12px 11px 10px; }
-      .dish-name { font-size: 14px; }
       .progress-bar { margin-bottom: 20px; }
     }
 
@@ -1839,7 +1844,8 @@ function renderDishSections() {
     });
     if (sideDishes.length) {
       html += '<div style="font-family:var(--sans);font-size:15px;font-weight:800;color:var(--text1);margin:24px 0 3px">Add a side</div>' +
-              '<div style="font-size:12px;color:var(--text3);margin-bottom:12px">Optional extras, in their own tub — sides don\'t count toward your 3-meal minimum.</div>' +
+              '<div style="font-size:12.5px;color:var(--text2);margin-bottom:3px;line-height:1.45">Need a little more? Add extra macros or complete your meal with optional add-ons designed to give you that extra boost.</div>' +
+              '<div style="font-size:11px;color:var(--text3);margin-bottom:12px">Optional — sides don\'t count toward your 3-meal minimum.</div>' +
               '<div class="dish-grid">';
       sideDishes.forEach(function(dish) { html += renderDishCard(dish, sess); });
       html += '</div>';
@@ -1878,11 +1884,6 @@ function renderDishCard(dish, sess) {
   // Serves subtitle
   var servesHtml = dish.serves
     ? '<div class="dish-serves">With ' + escHtml(dish.serves) + '</div>'
-    : '';
-  // Side note lives with the description (not the allergen area) so a side card mirrors
-  // a main-dish card structure when there are no allergens.
-  var sideNoteHtml = dish.category === 'side'
-    ? '<div class="dish-serves" style="color:var(--text3)">In its own tub · not microwave-safe — transfer before heating.</div>'
     : '';
 
   // Attribute badges — always rendered so dish name starts at consistent Y across all cards
@@ -1940,7 +1941,6 @@ function renderDishCard(dish, sess) {
     attribsHtml +
     '<div class="dish-name">' + escHtml(dish.name) + '</div>' +
     servesHtml +
-    sideNoteHtml +
     macroHtml +
     '<div class="dish-info-area">' +
     allergenHtml +
