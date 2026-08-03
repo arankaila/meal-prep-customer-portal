@@ -304,7 +304,7 @@
     .macro-pill span { font-weight: 400; color: var(--text2); margin-left: 2px; }
     .macro-toggle {
       font-size: 10px; color: var(--text3); font-family: var(--sans);
-      white-space: nowrap; margin-left: auto; flex-shrink: 0;
+      white-space: nowrap; flex-shrink: 0;
       transition: color .15s;
     }
     .dish-macros:hover .macro-toggle { color: var(--text2); }
@@ -1897,18 +1897,20 @@ function renderDishCard(dish, sess) {
 
   // Macro pills — kcal + protein displayed; tap to reveal full breakdown
   var cardId = 'dc-' + sess + '-' + dish.id;
-  var macroHtml =
-    '<div class="dish-macros" onclick="toggleMacros(event,\'' + cardId + '\')">' +
-    '<div class="macro-pill">' + macros.kcal + '<span>kcal</span></div>' +
-    '<div class="macro-pill">Protein <span>' + macros.prot + 'g</span></div>' +
-    '<span class="macro-toggle">Nutrition ▾</span>' +
-    '</div>' +
-    '<div class="macro-detail-wrap"><div class="macro-detail">' +
+  var _macroItems =
     '<div class="macro-detail-item"><span class="macro-detail-dot" style="background:var(--dot-kcal)"></span><strong>' + macros.kcal + '</strong>&nbsp;kcal</div>' +
     '<div class="macro-detail-item"><span class="macro-detail-dot" style="background:var(--dot-prot)"></span><strong>' + macros.prot + 'g</strong>&nbsp;protein</div>' +
     '<div class="macro-detail-item"><span class="macro-detail-dot" style="background:var(--dot-carb)"></span><strong>' + macros.carb + 'g</strong>&nbsp;carbs</div>' +
-    '<div class="macro-detail-item"><span class="macro-detail-dot" style="background:var(--dot-fat)"></span><strong>' + macros.fat + 'g</strong>&nbsp;fat</div>' +
-    '</div></div>';
+    '<div class="macro-detail-item"><span class="macro-detail-dot" style="background:var(--dot-fat)"></span><strong>' + macros.fat + 'g</strong>&nbsp;fat</div>';
+  var macroHtml = dish.category === 'side'
+    // Sides: show all four macros directly — no summary pills, no toggle needed.
+    ? '<div class="macro-detail" style="margin-bottom:8px;border-top:none;padding-top:0">' + _macroItems + '</div>'
+    : '<div class="dish-macros" onclick="toggleMacros(event,\'' + cardId + '\')">' +
+      '<div class="macro-pill">' + macros.kcal + '<span>kcal</span></div>' +
+      '<div class="macro-pill">Protein <span>' + macros.prot + 'g</span></div>' +
+      '<span class="macro-toggle">Nutrition ▾</span>' +
+      '</div>' +
+      '<div class="macro-detail-wrap"><div class="macro-detail">' + _macroItems + '</div></div>';
 
   var allergenHtml = macros.allergens.length
     ? '<div class="dish-allergens"><strong>ALLERGENS:</strong> ' + macros.allergens.join(', ') + '</div>'
