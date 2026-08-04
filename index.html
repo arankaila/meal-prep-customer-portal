@@ -1107,71 +1107,101 @@ function sendOrderNotification(customer, ordersCreated, weekLabel, deliveryFee, 
 
   try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch(e) { /* already initialised */ }
 
-  var deliveryTotal = (deliveryFee || 0) * ordersCreated.length;   // fee per drop
-  var grandTotal = deliveryTotal + ordersCreated.reduce(function(s, o) { return s + o.sessTotal; }, 0);
+  // \u2500\u2500 Whole email is built here (light, render-robust) and sent as ONE param,
+  //    order_html. The EmailJS template body is just {{{order_html}}} \u2014 so every
+  //    future change (design or content) is a code change; no EmailJS editing. \u2500\u2500
+  var esc = function(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var gbp = function(v){ return '\u00a3' + (Number(v)||0).toFixed(2); };
+  var C = { card:'#ffffff', page:'#f2f2f5', text:'#1c1c1e', sub:'#6b6b70', muted:'#9a9aa0', line:'#ececf0', border:'#e5e5ea', gold:'#9a7b1f', green:'#1a7a42' };
 
-  var orderRowsHtml = ordersCreated.map(function(o) {
-    var isSunday = o.session === 'S1' || o.session === 'Sunday';
-    var sessColor = isSunday ? '#d4af37' : '#7dd3b0';
-    var sessLabel = isSunday ? 'Sunday Drop' : 'Wednesday Drop';
-    var sep = 'border-bottom:1px solid rgba(255,255,255,0.06);';
-    var dishRows = o.items.map(function(i) {
-      return '<tr>'
-        + '<td style="padding:10px 16px;font-size:14px;color:#f2f2f7;' + sep + '">'
-        + '<span style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#8e8e93;font-weight:600;margin-right:8px">' + i.qty + '&times;</span>' + i.name
-        + '</td>'
-        + '<td style="padding:10px 16px;font-size:14px;color:#f2f2f7;' + sep + 'text-align:right;white-space:nowrap">&pound;' + (i.unitPrice * i.qty).toFixed(2) + '</td>'
-        + '</tr>';
+  var nDrops         = ordersCreated.length;
+  var itemsSubtotal  = ordersCreated.reduce(function(s,o){ return s + o.sessTotal; }, 0);
+  var deliveryTotal  = (deliveryFee || 0) * nDrops;
+  var discountAmount = (discount && discount.amount > 0) ? (parseFloat(discount.amount) || 0) : 0;
+  var grandTotal     = Math.max(0, itemsSubtotal + deliveryTotal - discountAmount);
+  var submittedAt    = new Date().toLocaleString('en-GB', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+
+  var dropsHtml = ordersCreated.map(function(o){
+    var isSun = o.session === 'Sunday' || o.session === 'S1';
+    var pill  = isSun ? C.gold : C.green;
+    var dateStr = o.dropDate ? new Date(o.dropDate + 'T12:00:00').toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long' }) : '';
+    var itemRows = o.items.map(function(i){
+      var allerg  = (i.allergens && i.allergens.length) ? '<div style="font-size:11px;color:'+C.muted+';margin-top:3px;line-height:1.4">Allergens: '+esc(i.allergens.join(', '))+'</div>' : '';
+      var sideTag = i.isSide ? ' <span style="font-size:9px;color:'+C.gold+';border:1px solid #d9c47a;border-radius:4px;padding:1px 5px;letter-spacing:.5px">SIDE</span>' : '';
+      return '<tr><td style="padding:9px 16px;font-size:14px;color:'+C.text+';border-top:1px solid '+C.line+';vertical-align:top">'
+        + '<span style="color:'+C.muted+';font-weight:700;margin-right:6px">'+i.qty+'&times;</span>'+esc(i.name)+sideTag+allerg+'</td>'
+        + '<td style="padding:9px 16px;font-size:14px;color:'+C.text+';border-top:1px solid '+C.line+';text-align:right;white-space:nowrap;vertical-align:top">'+gbp(i.unitPrice*i.qty)+'</td></tr>';
     }).join('');
-    return '<tr><td colspan="2" style="padding:12px 16px 8px;">'
-        + '<span style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:' + sessColor + ';border:1px solid ' + sessColor + ';border-radius:999px;padding:4px 12px">' + sessLabel + '</span>'
-        + '</td></tr>'
-      + dishRows
-      + '<tr>'
-        + '<td style="padding:8px 16px 12px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#8e8e93;font-weight:600">Subtotal</td>'
-        + '<td style="padding:8px 16px 12px;font-size:13px;color:#8e8e93;text-align:right">&pound;' + o.sessTotal.toFixed(2) + '</td>'
-      + '</tr>';
-  }).join('<tr><td colspan="2" style="padding:0;height:1px;background:rgba(255,255,255,0.06)"></td></tr>');
+    var free = !(o.deliveryFee > 0);
+    return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid '+C.border+';border-radius:12px;overflow:hidden;margin-bottom:12px;background:'+C.card+'">'
+      + '<tr><td colspan="2" style="padding:11px 16px;background:#fafafa;border-bottom:1px solid '+C.line+'">'
+        + '<span style="display:inline-block;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:'+pill+';border:1px solid '+pill+';border-radius:999px;padding:3px 11px">'+(isSun?'Sunday':'Wednesday')+' Drop</span>'
+        + (dateStr ? '<span style="font-size:12px;color:'+C.sub+';margin-left:10px">'+esc(dateStr)+'</span>' : '')
+        + (o.orderId ? '<div style="font-size:10px;color:#b0b0b6;font-family:Menlo,Consolas,monospace;margin-top:5px">'+esc(o.orderId)+'</div>' : '')
+      + '</td></tr>'
+      + itemRows
+      + '<tr><td style="padding:8px 16px 2px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:'+C.muted+';border-top:1px solid '+C.line+'">Subtotal</td>'
+        + '<td style="padding:8px 16px 2px;font-size:13px;color:'+C.sub+';text-align:right;border-top:1px solid '+C.line+'">'+gbp(o.sessTotal)+'</td></tr>'
+      + '<tr><td style="padding:2px 16px 10px;font-size:12px;color:'+(free?C.green:C.sub)+'">Delivery (this drop)</td>'
+        + '<td style="padding:2px 16px 10px;font-size:13px;color:'+(free?C.green:C.sub)+';text-align:right">'+(free?'Free':gbp(o.deliveryFee))+'</td></tr>'
+    + '</table>';
+  }).join('');
 
-  var deliveryLabel = deliveryFee > 0
-    ? '\u00a3' + deliveryTotal.toFixed(2) + ' delivery' + (ordersCreated.length > 1 ? ' (' + ordersCreated.length + ' drops)' : '')
-    : 'Free (Coventry)';
-  var deliveryColor = deliveryFee > 0 ? '#f2f2f7' : '#30d158';
+  function totRow(label, val, o){ o=o||{};
+    return '<tr><td style="padding:6px 0;font-size:'+(o.big?'15px':'13px')+';color:'+(o.color||C.sub)+';'+(o.bold?'font-weight:800':'')+'">'+label+'</td>'
+      + '<td style="padding:6px 0;font-size:'+(o.big?'18px':'13px')+';color:'+(o.color||C.text)+';text-align:right;'+(o.bold?'font-weight:800':'')+'">'+val+'</td></tr>'; }
+  var totalsHtml = '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">'
+    + totRow('Items subtotal', gbp(itemsSubtotal))
+    + totRow('Delivery'+(nDrops>1&&deliveryTotal>0?' ('+nDrops+' drops)':''), deliveryTotal>0?gbp(deliveryTotal):'Free', {color:deliveryTotal>0?C.sub:C.green})
+    + (discountAmount>0 ? totRow('Discount'+(discount&&discount.code?' ('+esc(discount.code)+')':''), '\u2212'+gbp(discountAmount), {color:C.green}) : '')
+    + '<tr><td colspan="2" style="border-top:1px solid '+C.line+';padding-top:4px"></td></tr>'
+    + totRow('Total to pay', gbp(grandTotal), {big:true, bold:true, color:C.text})
+    + '</table>';
 
-  // Append discount rows to order_rows if a discount was applied
-  var originalTotal = grandTotal;
-  var discountAmount = 0;
-  if (discount && discount.amount > 0) {
-    discountAmount = parseFloat(discount.amount) || 0;
-    grandTotal = Math.max(0, grandTotal - discountAmount);
-    var discLabel = discount.type === 'percent'
-      ? discount.code + ' \u2014 ' + discount.value + '% off'
-      : discount.code + ' \u2014 \u00a3' + parseFloat(discount.value).toFixed(2) + ' off';
-    orderRowsHtml +=
-        '<tr><td colspan="2" style="padding:0;height:1px;background:rgba(255,255,255,0.06)"></td></tr>'
-      + '<tr>'
-        + '<td style="padding:10px 16px;font-size:12px;color:#8e8e93;letter-spacing:.5px">Original total</td>'
-        + '<td style="padding:10px 16px;font-size:13px;color:#8e8e93;text-align:right;text-decoration:line-through">\u00a3' + originalTotal.toFixed(2) + '</td>'
-      + '</tr>'
-      + '<tr>'
-        + '<td style="padding:4px 16px 10px;font-size:12px;color:#30d158">\uD83C\uDFF7\uFE0F Discount: ' + discLabel + '</td>'
-        + '<td style="padding:4px 16px 10px;font-size:14px;font-weight:700;color:#30d158;text-align:right">\u2212\u00a3' + discountAmount.toFixed(2) + '</td>'
-      + '</tr>';
-  }
+  function custRow(k,v,last){ var b = last ? '' : 'border-bottom:1px solid '+C.line+';';
+    return '<tr><td style="padding:10px 14px;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:'+C.muted+';font-weight:600;width:78px;'+b+'">'+k+'</td>'
+      + '<td style="padding:10px 14px;font-size:14px;color:'+C.text+';'+b+'">'+v+'</td></tr>'; }
+  var addr = [customer.address1, customer.address2, customer.city, customer.postcode].filter(Boolean).map(esc).join(', ') || '&mdash;';
+  var custHtml = '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid '+C.border+';border-radius:12px;overflow:hidden;background:'+C.card+'">'
+    + custRow('Name', '<strong>'+esc(customer.name||'')+'</strong>')
+    + custRow('Email', esc(customer.email||'&mdash;'))
+    + custRow('Phone', esc(customer.phone||'&mdash;'))
+    + custRow('Address', addr, true) + '</table>';
+
+  function sec(t){ return '<div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:'+C.muted+';font-weight:700;margin:22px 0 10px">'+t+'</div>'; }
+  var consent = customer.marketingConsent ? '<span style="color:'+C.green+';font-weight:700">Yes</span>' : '<span style="color:'+C.muted+'">No</span>';
+  var notes   = customer.notes ? esc(customer.notes) : '&mdash;';
+
+  var order_html =
+    '<div style="background:'+C.page+';padding:28px 14px;font-family:-apple-system,BlinkMacSystemFont,\'Helvetica Neue\',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased">'
+    + '<table role="presentation" align="center" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;margin:0 auto;background:'+C.card+';border:1px solid '+C.border+';border-radius:16px;overflow:hidden">'
+      + '<tr><td style="padding:26px 28px 18px"><table role="presentation" width="100%"><tr>'
+        + '<td style="vertical-align:top"><div style="font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:'+C.gold+';font-weight:800">29 Performance</div>'
+          + '<div style="font-size:24px;font-weight:800;color:'+C.text+';letter-spacing:-.5px;margin-top:4px">New Order</div>'
+          + '<div style="font-size:12px;color:'+C.muted+';margin-top:4px">'+esc(submittedAt)+'</div></td>'
+        + '<td align="right" style="vertical-align:top"><span style="display:inline-block;background:#fad02c;color:#1a1a1a;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border-radius:999px">Pending</span>'
+          + (weekLabel?'<div style="font-size:12px;color:'+C.muted+';margin-top:8px">'+esc(weekLabel)+'</div>':'')+'</td>'
+      + '</tr></table></td></tr>'
+      + '<tr><td style="padding:0 28px"><div style="border-top:1px solid '+C.line+'"></div></td></tr>'
+      + '<tr><td style="padding:22px 28px;text-align:center"><div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:'+C.muted+';font-weight:700;margin-bottom:8px">Order Total</div>'
+        + '<div style="font-size:42px;font-weight:800;letter-spacing:-1px;color:'+C.text+';line-height:1">'+gbp(grandTotal)+'</div></td></tr>'
+      + '<tr><td style="padding:0 28px"><div style="border-top:1px solid '+C.line+'"></div></td></tr>'
+      + '<tr><td style="padding:6px 28px 28px">'
+        + sec('Customer') + custHtml
+        + sec('Order') + dropsHtml
+        + sec('Summary') + totalsHtml
+        + sec('Marketing consent') + '<div style="font-size:14px">'+consent+'</div>'
+        + sec('Notes') + '<div style="background:#fafafa;border:1px solid '+C.border+';border-radius:12px;padding:13px 15px;font-size:14px;color:'+C.sub+';line-height:1.5">'+notes+'</div>'
+        + '<div style="background:#faf6e6;border:1px solid #ecdfa8;border-radius:12px;padding:13px 15px;margin-top:16px;font-size:13px;color:'+C.sub+';line-height:1.5">Review and confirm this order in the <span style="color:'+C.gold+';font-weight:700">29 Performance Ops App</span>.</div>'
+      + '</td></tr>'
+      + '<tr><td style="padding:16px;text-align:center;border-top:1px solid '+C.line+'"><div style="font-size:10px;color:#b0b0b6;letter-spacing:.5px">29 Performance &nbsp;&middot;&nbsp; Automated &nbsp;&middot;&nbsp; Do Not Reply</div></td></tr>'
+    + '</table></div>';
 
   emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-    email:            '29performance@gmail.com',
-    customer_name:    customer.name,
-    customer_email:   customer.email,
-    customer_phone:   customer.phone  || '-',
-    customer_address: [customer.address1, customer.address2, customer.city, customer.postcode].filter(Boolean).join(', ') || '-',
-    week_label:       weekLabel,
-    order_rows:       orderRowsHtml,
-    delivery_charge:  deliveryLabel,
-    delivery_color:   deliveryColor,
-    grand_total:      '\u00a3' + grandTotal.toFixed(2),
-    notes:            customer.notes  || '-',
-    submitted_at:     new Date().toLocaleString('en-GB', { dateStyle:'short', timeStyle:'short' })
+    email:         '29performance@gmail.com',
+    customer_name: customer.name,
+    week_label:    weekLabel,
+    order_html:    order_html
   }).then(function() {
     console.log('[EmailJS] Order notification sent successfully');
   }).catch(function(err) {
@@ -2365,12 +2395,16 @@ function submitOrder() {
 
     // Notifications
     try {
-      var notifOrders = ordersToCreate.map(function(o) {
+      var _dd = getPortalDropDates();
+      var notifOrders = ordersToCreate.map(function(o, _oi) {
         var items = Object.keys(o.allocation).map(function(dId) {
           var d = getPortalMenuDishes().find(function(x){ return x.id === dId; });
-          return { name: d ? (d.name||dId) : dId, qty: o.allocation[dId], unitPrice: d ? (parseFloat(d.sellPrice)||0) : 0 };
+          var mac = d ? getDishMacros(d) : null;
+          return { name: d ? (d.name||dId) : dId, qty: o.allocation[dId], unitPrice: d ? (parseFloat(d.sellPrice)||0) : 0,
+                   allergens: (mac && mac.allergens) ? mac.allergens : [], isSide: !!(d && d.category === 'side') };
         }).filter(function(i){ return i.qty > 0; });
-        return { session: o.session === 'sunday' ? 'Sunday' : 'Wednesday', items: items, sessTotal: o.sessTotal };
+        return { session: o.session === 'sunday' ? 'Sunday' : 'Wednesday', items: items, sessTotal: o.sessTotal,
+                 dropDate: _dd[o.session] || '', deliveryFee: state.deliveryFee || 0, orderId: createdIds[_oi] || '' };
       });
       sendOrderNotification(state.customer, notifOrders, week, state.deliveryFee || 0, state.discount);
     } catch(e) { /* silent */ }
