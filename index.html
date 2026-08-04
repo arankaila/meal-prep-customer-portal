@@ -1107,7 +1107,8 @@ function sendOrderNotification(customer, ordersCreated, weekLabel, deliveryFee, 
 
   try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch(e) { /* already initialised */ }
 
-  var grandTotal = (deliveryFee || 0) + ordersCreated.reduce(function(s, o) { return s + o.sessTotal; }, 0);
+  var deliveryTotal = (deliveryFee || 0) * ordersCreated.length;   // fee per drop
+  var grandTotal = deliveryTotal + ordersCreated.reduce(function(s, o) { return s + o.sessTotal; }, 0);
 
   var orderRowsHtml = ordersCreated.map(function(o) {
     var isSunday = o.session === 'S1' || o.session === 'Sunday';
@@ -1133,7 +1134,7 @@ function sendOrderNotification(customer, ordersCreated, weekLabel, deliveryFee, 
   }).join('<tr><td colspan="2" style="padding:0;height:1px;background:rgba(255,255,255,0.06)"></td></tr>');
 
   var deliveryLabel = deliveryFee > 0
-    ? '\u00a3' + deliveryFee.toFixed(2) + ' delivery'
+    ? '\u00a3' + deliveryTotal.toFixed(2) + ' delivery' + (ordersCreated.length > 1 ? ' (' + ordersCreated.length + ' drops)' : '')
     : 'Free (Coventry)';
   var deliveryColor = deliveryFee > 0 ? '#f2f2f7' : '#30d158';
 
@@ -1216,7 +1217,11 @@ function getDeliveryZone(postcode) {
   var clean = (postcode || '').trim().toUpperCase();
   if (!clean) return { valid: false, fee: 0, label: '', message: 'Please enter a valid postcode.' };
 
-  var outward = clean.split(/\s+/)[0];
+  // Strip spaces, then split off the inward code (always digit + 2 letters at the end)
+  // so a no-space postcode like "CV61DJ" reads district 6 — not "61", which was
+  // wrongly falling into the paid zone.
+  var compact = clean.replace(/\s+/g, '');
+  var outward = /\d[A-Z]{2}$/.test(compact) ? compact.slice(0, -3) : compact;
   var areaMatch = outward.match(/^([A-Z]+)(\d+)/);
   if (!areaMatch) return { valid: false, fee: 0, label: '', message: 'Please enter a valid postcode.' };
 
@@ -1234,6 +1239,15 @@ function getDeliveryZone(postcode) {
     message: 'Sorry, we currently only deliver within about 30 miles of Coventry. Please check your postcode, or contact us and we\'ll see what we can do.'
   };
 }
+
+// Each drop is a separate delivery, so the delivery fee is charged PER drop with picks.
+function _numDrops() {
+  return (state.sessions || []).filter(function(s) {
+    var p = state.picks[s] || {};
+    return Object.keys(p).some(function(id) { return (p[id] || 0) > 0; });
+  }).length;
+}
+function _deliveryTotal() { return (state.deliveryFee || 0) * _numDrops(); }
 
 // ═══════════════════════════════════════════════════════════════
 //  FIREBASE INIT
@@ -2136,14 +2150,16 @@ function renderSummary() {
     '</div>';
 
   var deliveryFee = state.deliveryFee || 0;
+  var nDrops = _numDrops();
+  var deliveryTotal = deliveryFee * nDrops;
   html += '<div class="summary-block">' +
     '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;font-size:13px">' +
-    '<span style="color:var(--text2)">Delivery</span>' +
+    '<span style="color:var(--text2)">Delivery' + (deliveryFee > 0 && nDrops > 1 ? ' (' + nDrops + ' drops \u00d7 \u00a3' + deliveryFee.toFixed(2) + ')' : '') + '</span>' +
     '<span style="font-weight:600;color:' + (deliveryFee === 0 ? 'var(--green)' : 'var(--text1)') + '">' +
-    (deliveryFee === 0 ? 'Free (Coventry)' : '\u00a3' + deliveryFee.toFixed(2) + ' delivery') +
+    (deliveryFee === 0 ? 'Free (Coventry)' : '\u00a3' + deliveryTotal.toFixed(2)) +
     '</span></div></div>';
 
-  grandTotal += deliveryFee;
+  grandTotal += deliveryTotal;
 
   // Discount line
   var discountAmount = 0;
@@ -2291,6 +2307,7 @@ function submitOrder() {
       items:         items,
       notes:         state.customer.notes || '',
       discount:      state.discount ? { code: state.discount.code, type: state.discount.type, value: state.discount.value, amount: state.discount.amount } : null,
+      deliveryFee:   state.deliveryFee || 0,   // per-drop fee — each order (drop) is a separate delivery
       marketingConsent:     !!state.customer.marketingConsent,
       marketingConsentAt:   state.customer.marketingConsent ? submittedAt : null,
       marketingChannels:    state.customer.marketingConsent ? { email: true, sms: true, whatsapp: true } : null,
@@ -2396,7 +2413,7 @@ function postToGoogleSheets(ordersToCreate, week, submittedAt) {
       dishes:       dishList,
       sessionTotal: '\u00a3' + o.sessTotal.toFixed(2),
       deliveryFee:  deliveryFee > 0 ? '\u00a3' + deliveryFee.toFixed(2) : 'Free',
-      grandTotal:   '\u00a3' + grandTotal.toFixed(2),
+      grandTotal:   '\u00a3' + (o.sessTotal + deliveryFee).toFixed(2),   // per-drop total (this delivery)
       notes:        c.notes || '',
       status:       'Pending Payment'
     };
@@ -2424,7 +2441,7 @@ function showPayModal() {
 }
 
 function showConfirmation() {
-  var grandTotal = (state.deliveryFee || 0) + state.sessions.reduce(function(total, sess) {
+  var grandTotal = _deliveryTotal() + state.sessions.reduce(function(total, sess) {
     var picks = state.picks[sess] || {};
     return total + Object.keys(picks).reduce(function(s, dishId) {
       var qty = picks[dishId] || 0;
@@ -2477,12 +2494,13 @@ function showConfirmation() {
       + '</div></div>';
   });
   var deliveryFee = state.deliveryFee || 0;
+  var nDrops = _numDrops();
   var isFree = deliveryFee === 0;
   breakdownHtml += '<div style="background:var(--surface);border:1px solid var(--border2);border-radius:10px;overflow:hidden;margin-bottom:10px;box-shadow:var(--shadow)">'
     + '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;font-size:13px">'
-    + '<span style="color:var(--text2)">Delivery</span>'
+    + '<span style="color:var(--text2)">Delivery' + (!isFree && nDrops > 1 ? ' (' + nDrops + ' drops \u00d7 \u00a3' + deliveryFee.toFixed(2) + ')' : '') + '</span>'
     + '<span style="font-weight:600;color:' + (isFree ? 'var(--green)' : 'var(--text1)') + '">'
-    + (isFree ? 'Free (Coventry)' : '\u00a3' + deliveryFee.toFixed(2) + ' delivery')
+    + (isFree ? 'Free (Coventry)' : '\u00a3' + (deliveryFee * nDrops).toFixed(2))
     + '</span></div></div>';
 
   document.getElementById('confirm-order-breakdown').innerHTML = breakdownHtml;
