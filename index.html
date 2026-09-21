@@ -963,9 +963,10 @@
       <div class="error-msg" id="err-allergen" style="display:none">Please confirm you've checked the allergens before placing your order.</div>
 
       <div class="error-msg" id="err-submit">Something went wrong. Please try again.</div>
+      <div style="text-align:center;font-size:12px;color:var(--text3,#888);margin:2px 0 10px">You'll pay securely by card on the next screen. All orders are final — no refunds once placed.</div>
       <div class="nav-row">
         <button class="btn-back" onclick="goStep(3)">Back</button>
-        <button class="btn-next" id="btn-submit" onclick="submitOrder()">Place my order</button>
+        <button class="btn-next" id="btn-submit" onclick="submitOrder()">Pay &amp; place order</button>
       </div>
     </div>
   </div>
@@ -1101,6 +1102,39 @@ var EMAILJS_TEMPLATE_ID = 'template_9pctcia';
 
 // ── Google Sheets Webhook ─────────────────────────────────────────
 var SHEETS_WEBHOOK_URL = 'PASTE-WEBHOOK-URL-HERE';
+
+// Stripe hosted-checkout Cloud Function. The portal POSTs the customer's
+// selections here; the server recomputes the price and returns a Checkout URL.
+var CHECKOUT_FN_URL = 'https://europe-west2-performance-meal-prep-os.cloudfunctions.net/createCheckoutSession';
+
+// Handle the return from Stripe hosted Checkout (?paid=1 / ?canceled=1).
+function _handleStripeReturn() {
+  var params;
+  try { params = new URLSearchParams(location.search); } catch (e) { return; }
+  if (params.get('paid') === '1') {
+    // The order is created server-side by the Stripe webhook — clear the local draft.
+    try {
+      var em = localStorage.getItem('29p_draft_email');
+      if (em) localStorage.removeItem('29p_draft_' + em);
+      localStorage.removeItem('29p_draft_email');
+    } catch (e) {}
+    var ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:var(--bg,#0f0f10);color:var(--text1,#fff);display:flex;align-items:center;justify-content:center;padding:24px;text-align:center';
+    ov.innerHTML = '<div style="max-width:460px">'
+      + '<div style="font-size:54px;margin-bottom:12px">✅</div>'
+      + '<h1 style="font-size:22px;margin:0 0 10px">Payment received — order confirmed</h1>'
+      + '<p style="color:var(--text2,#aaa);font-size:15px;line-height:1.5;margin:0 0 8px">Thank you! Your order is confirmed and paid, and a receipt is on its way to your email.</p>'
+      + '<p style="color:var(--text3,#888);font-size:13px;line-height:1.5;margin:0 0 22px">We’ll message you on WhatsApp when your drop is on the way. All orders are final once placed.</p>'
+      + '<a href="/" style="display:inline-block;background:var(--accent,#c9a84c);color:#111;font-weight:700;text-decoration:none;padding:12px 22px;border-radius:10px">Back to menu</a>'
+      + '</div>';
+    document.body.appendChild(ov);
+  } else if (params.get('canceled') === '1') {
+    // Strip the param so a refresh is clean; the saved draft restores the cart.
+    try { history.replaceState({}, '', location.pathname); } catch (e) {}
+    if (typeof toast === 'function') toast('Payment cancelled — your selections are saved. You can review and try again.');
+  }
+}
+document.addEventListener('DOMContentLoaded', _handleStripeReturn);
 
 function sendOrderNotification(customer, ordersCreated, weekLabel, deliveryFee, discount) {
   if (!EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY === 'PASTE-PUBLIC-KEY-HERE') return;
@@ -2251,7 +2285,7 @@ function submitOrder() {
   var _submitTimeout = setTimeout(function() {
     if (btn.disabled) {
       btn.disabled    = false;
-      btn.textContent = 'Place my order';
+      btn.textContent = 'Pay & place order';
       showErr('err-submit', 'Connection is taking too long. Please check your internet and try again. If the problem persists your order may already be processing — contact us before re-submitting.');
     }
   }, 18000); // 18 seconds
@@ -2274,6 +2308,49 @@ function submitOrder() {
     });
     ordersToCreate.push({ session: sess, allocation: allocation, sessTotal: sessTotal });
   });
+
+  // ── Stripe Checkout ────────────────────────────────────────────────────────
+  // The order is NO LONGER written from the browser. We send the customer's
+  // selections to the createCheckoutSession Cloud Function, which recomputes the
+  // price server-side (authoritative), creates a Stripe hosted-checkout session
+  // and returns its URL. The order is written to Firebase (confirmed + paid) only
+  // by the Stripe webhook after payment succeeds. Everything below this block is
+  // the legacy pre-Stripe direct-write path — unreached (we return here).
+  var _payload = {
+    slot: orderSlot,
+    discountCode: state.discount ? state.discount.code : '',
+    customer: {
+      name: state.customer.name, email: state.customer.email, phone: state.customer.phone,
+      address1: state.customer.address1, address2: state.customer.address2 || '',
+      city: state.customer.city, postcode: state.customer.postcode,
+      notes: state.customer.notes || '',
+      marketingConsent: !!state.customer.marketingConsent,
+      marketingConsentText: state.customer.marketingConsent ? MARKETING_CONSENT_TEXT : ''
+    },
+    sessions: state.sessions.map(function(s) { return { session: s, picks: state.picks[s] || {} }; })
+  };
+  // Keep a draft so the cart is restored if the customer cancels payment and returns.
+  try {
+    localStorage.setItem('29p_draft_' + state.customer.email, JSON.stringify(state));
+    localStorage.setItem('29p_draft_email', state.customer.email);
+  } catch (e) {}
+  fetch(CHECKOUT_FN_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(_payload) })
+    .then(function(r) { return r.json().then(function(j) { return { ok: r.ok, body: j }; }); })
+    .then(function(res) {
+      clearTimeout(_submitTimeout);
+      if (!res.ok || !res.body || !res.body.url) {
+        btn.disabled = false; btn.textContent = 'Pay & place order';
+        showErr('err-submit', (res.body && res.body.error) ? res.body.error : 'Could not start checkout. Please try again.');
+        return;
+      }
+      window.location.href = res.body.url; // → Stripe hosted Checkout
+    })
+    .catch(function() {
+      clearTimeout(_submitTimeout);
+      btn.disabled = false; btn.textContent = 'Pay & place order';
+      showErr('err-submit', 'Connection problem — please check your internet and try again.');
+    });
+  return;
 
   // ── Targeted multi-path write ──────────────────────────────────────────────
   // Uses Firebase multi-path update() instead of a whole-blob transaction().
