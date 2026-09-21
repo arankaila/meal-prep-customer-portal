@@ -1065,9 +1065,8 @@
     </div>
 
     <p style="font-size:12px;color:var(--text3);text-align:center;line-height:1.6">
-      Tap above to pay via Revolut.<br>
-      Enter the amount shown when prompted.<br>
-      Your order is pending until payment is received.
+      You pay securely by card at checkout.<br>
+      Your order is confirmed the moment payment succeeds.
     </p>
     <div style="margin-top:14px;padding:12px 14px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;font-size:12px;color:var(--text2);line-height:1.5;text-align:center;box-shadow:var(--shadow)">
       Screenshot this page to save your order total for reference.
@@ -2246,7 +2245,7 @@ function renderSummary() {
     '<span class="st-val" style="font-size:22px">\u00a3' + grandTotal.toFixed(2) + '</span>' +
     '</div></div>';
 
-  html += '<p style="font-size:12px;color:var(--text3);text-align:center;line-height:1.6;margin-top:12px">Payment link shown after submission.<br>Your order is pending until payment is received.</p>';
+  html += '<p style="font-size:12px;color:var(--text3);text-align:center;line-height:1.6;margin-top:12px">You’ll pay securely by card on the next screen.<br>Your order is confirmed the moment payment succeeds.</p>';
 
   document.getElementById('summary-content').innerHTML = html;
 }
@@ -2329,11 +2328,6 @@ function submitOrder() {
     },
     sessions: state.sessions.map(function(s) { return { session: s, picks: state.picks[s] || {} }; })
   };
-  // Keep a draft so the cart is restored if the customer cancels payment and returns.
-  try {
-    localStorage.setItem('29p_draft_' + state.customer.email, JSON.stringify(state));
-    localStorage.setItem('29p_draft_email', state.customer.email);
-  } catch (e) {}
   fetch(CHECKOUT_FN_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(_payload) })
     .then(function(r) { return r.json().then(function(j) { return { ok: r.ok, body: j }; }); })
     .then(function(res) {
@@ -2343,6 +2337,13 @@ function submitOrder() {
         showErr('err-submit', (res.body && res.body.error) ? res.body.error : 'Could not start checkout. Please try again.');
         return;
       }
+      // Save a draft ONLY now that we're actually sending them to Stripe, so a
+      // cancelled payment restores the cart. A FAILED checkout leaves no draft,
+      // so stale details can never carry into a later, different order.
+      try {
+        localStorage.setItem('29p_draft_' + state.customer.email, JSON.stringify(state));
+        localStorage.setItem('29p_draft_email', state.customer.email);
+      } catch (e) {}
       window.location.href = res.body.url; // → Stripe hosted Checkout
     })
     .catch(function() {
