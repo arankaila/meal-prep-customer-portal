@@ -1911,7 +1911,17 @@ function goStep(n) {
     if (state.step === 2 && !validateDishes())   return;
     if (state.step === 3 && !validateDetails())  return;
   }
+  if (n >= 3) _warmCheckout();
   renderStep(n);
+}
+
+// Wake the payment server while the customer types their details, so "Pay" is instant
+// even after a quiet spell (free alternative to an always-on instance). Once per visit.
+var _checkoutWarmed = false;
+function _warmCheckout() {
+  if (_checkoutWarmed) return;
+  _checkoutWarmed = true;
+  try { fetch(CHECKOUT_FN_URL + '?warm=1', { method: 'GET', cache: 'no-store' }).catch(function(){}); } catch (e) {}
 }
 
 function updateProgress(current) {
