@@ -850,7 +850,26 @@
     .macro-pill { background: none !important; border: none !important; border-radius: 0 !important; padding: 0 !important;
       flex-direction: column; align-items: flex-start; gap: 0; font-size: 17px !important; font-weight: 600 !important; color: var(--ink) !important; white-space: nowrap; }
     .macro-pill span { display: block; font-weight: 400 !important; color: var(--text2) !important; font-size: 12px !important; margin: 0 !important; }
-    .macro-toggle { display: none !important; }
+    /* Macros toggle + breakdown (warm design) */
+    .macro-toggle { display: inline-flex !important; align-items: center; gap: 4px; margin-left: auto; align-self: center;
+      font-size: 11px !important; font-weight: 600; color: var(--text2) !important; border: 1px solid var(--border);
+      border-radius: 999px; padding: 4px 9px; background: var(--paper); }
+    .macro-toggle em { font-style: normal; }
+    .macro-toggle i { font-style: normal; display: inline-block; transition: transform .2s; }
+    .dish-card.macros-open .macro-toggle i { transform: rotate(180deg); }
+    .dish-card.macros-open .macro-toggle { color: var(--ink) !important; border-color: var(--ink); }
+    .dish-card.macros-open .macro-detail-wrap { max-height: 160px; }
+    .mx-panel { padding: 10px 0 2px; }
+    .mx-bar { display: flex; height: 6px; border-radius: 999px; overflow: hidden; background: var(--surface2); margin-bottom: 9px; }
+    .mx-bar i { display: block; height: 100%; }
+    .mx-p { background: var(--dot-prot); } .mx-c { background: var(--dot-carb); } .mx-f { background: var(--dot-fat); }
+    .mx-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .mx-item { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+    .mx-item b { font-size: 16px; font-weight: 600; color: var(--ink); line-height: 1.15; }
+    .mx-l { font-size: 11px; color: var(--text2); }
+    .mx-pct { font-size: 10px; color: var(--text3); white-space: nowrap; }
+    .mx-dot { width: 7px; height: 7px; border-radius: 50%; margin-bottom: 3px; }
+    .mx-note { font-size: 10px; color: var(--text3); margin-top: 7px; }
     .dish-allergens strong { color: var(--copper) !important; }
     .dish-pick-row { border-top: 1px solid var(--border) !important; }
 
@@ -930,6 +949,12 @@
       .macro-pill { font-size: 14px !important; }
       .macro-pill span { font-size: 11px !important; }
       .dish-macros { gap: 10px !important; }
+      .macro-toggle em { display: none; }
+      .macro-toggle { padding: 4px 7px; }
+      .mx-item b { font-size: 14px; }
+      .mx-l { font-size: 10px; }
+      .mx-pct { font-size: 9px; }
+      .mx-ofk { display: none; }
       .dish-price-badge { font-size: 12px !important; }
       .fuel-badge { font-size: 9px !important; padding: 5px 9px 5px 8px !important; }
       .step-title { font-size: 30px !important; }
@@ -2177,12 +2202,12 @@ function renderDishCard(dish, sess) {
   var macroHtml = dish.category === 'side'
     // Sides: show all four macros directly — no summary pills, no toggle needed.
     ? '<div class="macro-detail" style="margin-bottom:8px;border-top:none;padding-top:0">' + _macroItems + '</div>'
-    : '<div class="dish-macros" onclick="toggleMacros(event,\'' + cardId + '\')">' +
+    : '<div class="dish-macros" onclick="toggleMacros(event,\'' + cardId + '\')" role="button" aria-expanded="false" aria-label="Show protein, carbs and fat">' +
       '<div class="macro-pill">' + macros.kcal + '<span>kcal</span></div>' +
       '<div class="macro-pill">Protein <span>' + macros.prot + 'g</span></div>' +
-      '<span class="macro-toggle">Nutrition ▾</span>' +
+      '<span class="macro-toggle"><em>Macros</em><i>▾</i></span>' +
       '</div>' +
-      '<div class="macro-detail-wrap"><div class="macro-detail">' + _macroItems + '</div></div>';
+      '<div class="macro-detail-wrap">' + _macroBreakdown(macros) + '</div>';
 
   var allergenHtml = macros.allergens.length
     ? '<div class="dish-allergens"><strong>ALLERGENS:</strong> ' + macros.allergens.join(', ') + '</div>'
@@ -2223,13 +2248,28 @@ function renderDishCard(dish, sess) {
     '</div></div>';
 }
 
+/* Macro breakdown shown under a card when "Macros" is tapped: protein / carbs / fat in grams,
+   plus a bar showing how the dish's calories split between them (4 / 4 / 9 kcal per gram). */
+function _macroBreakdown(m) {
+  var p = parseFloat(m.prot) || 0, c = parseFloat(m.carb) || 0, f = parseFloat(m.fat) || 0;
+  var kp = p * 4, kc = c * 4, kf = f * 9, kt = (kp + kc + kf) || 1;
+  var pc = function(x){ return Math.round(x / kt * 100); };
+  var item = function(cls, val, label, pct) {
+    return '<div class="mx-item"><span class="mx-dot ' + cls + '"></span><b>' + val + 'g</b><span class="mx-l">' + label + '</span><span class="mx-pct">' + pct + '%<span class="mx-ofk"> of kcal</span></span></div>';
+  };
+  return '<div class="mx-panel">' +
+    '<div class="mx-bar" aria-hidden="true"><i class="mx-p" style="width:' + pc(kp) + '%"></i><i class="mx-c" style="width:' + pc(kc) + '%"></i><i class="mx-f" style="width:' + pc(kf) + '%"></i></div>' +
+    '<div class="mx-grid">' + item('mx-p', m.prot, 'Protein', pc(kp)) + item('mx-c', m.carb, 'Carbs', pc(kc)) + item('mx-f', m.fat, 'Fat', pc(kf)) + '</div>' +
+    '<div class="mx-note">Per box · % = share of calories</div></div>';
+}
+
 function toggleMacros(e, cardId) {
   e.stopPropagation();
   var card = document.getElementById(cardId);
   if (!card) return;
   var open = card.classList.toggle('macros-open');
-  var tog  = card.querySelector('.macro-toggle');
-  if (tog) tog.textContent = open ? 'Nutrition ▴' : 'Nutrition ▾';
+  var row  = card.querySelector('.dish-macros');
+  if (row) row.setAttribute('aria-expanded', open ? 'true' : 'false');
 }
 
 function adjustQty(sess, dishId, delta) {
