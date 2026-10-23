@@ -1739,7 +1739,9 @@ function onDBUpdate() {
 
   if (!avail.sunday.open && !avail.wednesday.open) {
     var msg;
-    if (avail.sunday.deadline || avail.wednesday.deadline) {
+    if (avail.sunday.paused && avail.wednesday.paused) {
+      msg = 'We\'re not taking orders right now.<br>Please check back shortly.';
+    } else if (avail.sunday.deadline || avail.wednesday.deadline) {
       msg = 'Ordering has closed for this week.<br>The next menu drops <strong>Monday at 7pm</strong>.';
     } else {
       msg = 'Ordering is not currently open.<br>Check back Monday evening for the next menu drop.';
@@ -1784,7 +1786,7 @@ function onDBUpdate() {
     if (card) {
       if (!s.open) {
         card.classList.add('sc-closed');
-        if (deadlineEl) deadlineEl.textContent = 'Orders closed';
+        if (deadlineEl) deadlineEl.textContent = s.paused ? 'Not taking orders' : 'Orders closed';
         var selIdx = state.sessions.indexOf(sess);
         if (selIdx >= 0) {
           state.sessions.splice(selIdx, 1);
@@ -1864,13 +1866,15 @@ function getSessionAvail() {
   var now = new Date();
   var pub = getPortalPublished();
   var useNext = _portalHasNextSlot();
-  function sess(deadlineIso) {
+  // A drop can be paused on its own in the ERP (e.g. Wednesday full) — the payment backend enforces it too.
+  var paused = (useNext ? DB.nextDropPaused : DB.dropPaused) || {};
+  function sess(deadlineIso, key) {
     var d = deadlineIso ? new Date(deadlineIso) : null;
-    return { open: pub && (!d || now < d), deadline: d };
+    return { open: pub && !paused[key] && (!d || now < d), paused: !!paused[key], deadline: d };
   }
   return {
-    sunday:    sess(useNext ? DB.nextS1Deadline : DB.s1Deadline),
-    wednesday: sess(useNext ? DB.nextS2Deadline : DB.s2Deadline)
+    sunday:    sess(useNext ? DB.nextS1Deadline : DB.s1Deadline, 'sunday'),
+    wednesday: sess(useNext ? DB.nextS2Deadline : DB.s2Deadline, 'wednesday')
   };
 }
 
